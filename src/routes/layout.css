@@ -1,0 +1,63 @@
+@import "tailwindcss";
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --color-surface: #fafafa;
+    --color-card: #ffffff;
+    --color-hover: #f4f4f5;
+    --color-active: #e4e4e7;
+    --color-input: #ffffff;
+    --color-nav: rgba(255, 255, 255, 0.9);
+    --color-border: #e4e4e7;
+    --color-border-hover: #d4d4d8;
+    --color-border-active: #a1a1aa;
+    --color-primary: #09090b;
+    --color-secondary: #27272a;
+    --color-tertiary: #71717a;
+    --color-quaternary: #a1a1aa;
+    --color-inverse: #ffffff;
+    --color-accent: #09090b;
+    --color-accent-text: #ffffff;
+    --color-overlay: rgba(0, 0, 0, 0.6);
+    --color-skeleton: #e4e4e7;
+}
+
+.dark {
+    --color-surface: #09090b;
+    --color-card: #18181b;
+    --color-hover: #27272a;
+    --color-active: #27272a;
+    --color-input: #09090b;
+    --color-nav: rgba(9, 9, 11, 0.9);
+    --color-border: #27272a;
+    --color-border-hover: #3f3f46;
+    --color-border-active: #71717a;
+    --color-primary: #fafafa;
+    --color-secondary: #e4e4e7;
+    --color-tertiary: #71717a;
+    --color-quaternary: #a1a1aa;
+    --color-inverse: #09090b;
+    --color-accent: #fafafa;
+    --color-accent-text: #09090b;
+    --color-overlay: rgba(0, 0, 0, 0.6);
+    --color-skeleton: #27272a;
+}
+
+html {
+    scrollbar-gutter: stable;
+}
+
+@keyframes progress {
+    0% {
+        transform: translateX(-100%);
+    }
+    50% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}

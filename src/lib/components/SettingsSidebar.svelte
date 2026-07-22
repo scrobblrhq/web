@@ -4,7 +4,6 @@
     import KeyIcon from "@lucide/svelte/icons/key";
     import PaletteIcon from "@lucide/svelte/icons/palette";
     import ShieldIcon from "@lucide/svelte/icons/shield";
-    import Settings2Icon from "@lucide/svelte/icons/settings-2";
     import MenuIcon from "@lucide/svelte/icons/menu";
     import XIcon from "@lucide/svelte/icons/x";
     import { slide } from "svelte/transition";
@@ -13,9 +12,10 @@
 
     interface Props {
         active: string;
+        username: string;
     }
 
-    let { active }: Props = $props();
+    let { active, username }: Props = $props();
 
     let LL = $derived(getLL());
     let open = $state(false);
@@ -88,7 +88,7 @@
             </nav>
             <hr class="my-4 border-border" />
             <a
-                href="/user"
+                href="/user/{username}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-tertiary hover:text-primary hover:bg-hover transition-colors"
             >
                 <UserIcon size={16} class="shrink-0" />
@@ -123,7 +123,7 @@
     </nav>
     <hr class="my-4 mx-3 border-border" />
     <a
-        href="/user"
+        href="/user/{username}"
         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-tertiary hover:text-primary hover:bg-hover transition-colors"
     >
         <UserIcon size={16} class="shrink-0" />

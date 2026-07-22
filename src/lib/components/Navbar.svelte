@@ -185,7 +185,7 @@
                                     </span>
                                 </div>
                                 <a
-                                    href="/user"
+                                    href="/user/{user.username}"
                                     class="flex items-center text-left text-sm px-3 py-2 rounded-lg text-tertiary hover:text-primary hover:bg-hover transition-colors"
                                     role="menuitem"
                                     onclick={closeDropdown}

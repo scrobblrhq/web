@@ -6,6 +6,7 @@
 
     import Toast from "$lib/components/Toast.svelte";
     import Navbar from "$lib/components/Navbar.svelte";
+    import NowPlayingWidget from "$lib/components/NowPlayingWidget.svelte";
     import ThemeVarsApplier from "$lib/components/ThemeVarsApplier.svelte";
     import { SvelteTheme } from "svelte-themes";
     import { setLocale, getLL } from "$lib/i18n.svelte";
@@ -49,5 +50,9 @@
         </main>
     </div>
 </SvelteTheme>
+
+{#if user}
+    <NowPlayingWidget {user} />
+{/if}
 
 <Toast />

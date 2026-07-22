@@ -205,7 +205,7 @@
 </svelte:head>
 
 <div class="max-w-5xl mx-auto px-4 py-10 flex gap-8">
-    <SettingsSidebar active={activeSection} />
+    <SettingsSidebar active={activeSection} username={profile.username} />
 
     <div class="flex-1 min-w-0 space-y-14">
         <form

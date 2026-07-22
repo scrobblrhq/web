@@ -10,12 +10,22 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
   try {
     const track = await api.search.getTrack(id);
-    const [artist, listeners, comments] = await Promise.all([
+    const [artist, listeners, comments, topTracks] = await Promise.all([
       api.search.getArtist(track.artist_id),
       api.catalog.getTrackListeners(id),
       api.comments.getTrackComments(id),
+      api.catalog.getArtistTopTracks(track.artist_id, 200).catch(() => []),
     ]);
-    return { track, artist, listeners, comments };
+
+    // The track endpoint doesn't expose album artwork directly, but the
+    // artist's top-tracks listing denormalizes it — reuse that instead of
+    // a separate album lookup.
+    const cover =
+      topTracks.find((t) => t.track_id === track.id)?.album_image ??
+      artist.image_url ??
+      null;
+
+    return { track, artist, listeners, comments, cover };
   } catch (e) {
     if (e instanceof ApiError) {
       if (e.status === 404) error(404, LL.track.error.notFound());

@@ -4,7 +4,9 @@ export const PALETTES = {
   lobster: ["#F5E9E2", "#E3B5A4", "#D44D5C", "#773344", "#160029"],
   okarun: ["#F2C230", "#F2921D", "#F24F13", "#8082A6", "#46334F"],
   winter: ["#EBDFE7", "#C8B4C4", "#261F28", "#978090", "#5C4B57"],
-  chariot: ["#F2F5E2", "#E3DEA4", "#D4954D", "#775533", "#290024"]
+  chariot: ["#F2F5E2", "#E3DEA4", "#D4954D", "#775533", "#290024"],
+  // lain: ["#FEF3D7", "#0C0002", "#8941AD", "#CC5446", "#EBE6E3"]
+  lain: ["#CB31F7", "#D37F8C", "#99D5DD", "#080404", "#24B5D4"]
 } as const;
 
 export type NamedPalette = keyof typeof PALETTES;

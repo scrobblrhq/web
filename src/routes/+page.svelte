@@ -75,7 +75,7 @@
         <div class="mt-10 flex items-center justify-center gap-3">
             {#if user}
                 <a
-                    href="/user"
+                    href="/user/{user.username}"
                     class="px-6 py-2.5 rounded-full bg-accent text-accent-text text-sm font-medium hover:opacity-90 transition-colors"
                 >
                     {LL.home.cta.ownProfile()}

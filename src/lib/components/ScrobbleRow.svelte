@@ -27,7 +27,7 @@
             </a>
         </p>
         <p class="text-xs text-tertiary truncate">
-            <a href="/track/{scrobble.artist_id}" class="hover:underline transition-all">
+            <a href="/artist/{scrobble.artist_id}" class="hover:underline transition-all">
                 {scrobble.artist_name}
             </a>
             {#if scrobble.album_title}
@@ -47,6 +47,6 @@
 <Modal {open} onclose={() => (open = false)}>
     <Avatar url={scrobble.album_image} name={scrobble.track_title} class="z-50 w-[225px] h-[225px] text-7xl" />
     <div class="text-tertiary text-sm flex justify-center items-center">
-        {scrobble.track_title}
+        {scrobble.track_title} - {scrobble.artist_name}
     </div>
 </Modal>

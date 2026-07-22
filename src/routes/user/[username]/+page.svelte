@@ -1,14 +1,9 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
-    import type {
-        NowPlayingRich,
-        ScrobbleRich,
-        TimePeriod,
-    } from "$lib/api/types";
+    import type { ScrobbleRich, TimePeriod } from "$lib/api/types";
 
     import { fade, fly } from "svelte/transition";
     import { page } from "$app/state";
-    import { API_URL } from "$app/env/public";
     import NowPlaying from "$lib/components/NowPlaying.svelte";
     import ScrobbleRow from "$lib/components/ScrobbleRow.svelte";
     import TopArtistRow from "$lib/components/TopArtistRow.svelte";
@@ -23,6 +18,7 @@
     import { request } from "$lib/api/request";
     import Profile from "$lib/components/Profile.svelte";
     import { useIsDesktop } from "$lib/hooks/isDesktop.svelte";
+    import { useNowPlaying } from "$lib/hooks/nowPlaying.svelte";
     import { getLL } from "$lib/i18n.svelte";
 
     let LL = $derived(getLL());
@@ -115,26 +111,7 @@
     }
 
     // ── Now playing via SSE ────────────────────────────────────────────────────
-    // let nowPlaying: NowPlayingRich | null = $state(null);
-    // let sse: EventSource | null = null;
-
-    // onMount(() => {
-    //     sse = new EventSource(`${API_URL}/v1/user/${profile.username}/live`, {
-    //         withCredentials: true,
-            
-    //     });
-    //     sse.onmessage = (e) => {
-    //         try {
-    //             const parsed = JSON.parse(e.data);
-    //             nowPlaying = parsed === null ? null : parsed;
-    //         } catch {
-    //             nowPlaying = null;
-    //         }
-    //     };
-    //     sse.onerror = () => {
-    //         sse?.close();
-    //     };
-    // });
+    const nowPlaying = useNowPlaying(() => profile.username);
 
     // Load scrobbles when scrolling
     let allRecent = $state<ScrobbleRich[]>([]);
@@ -206,9 +183,9 @@
     />
 
     <!-- ── Now playing ───────────────────────────────────────────────────────── -->
-    <!-- {#if nowPlaying}
-        <NowPlaying data={nowPlaying} />
-    {/if} -->
+    {#if nowPlaying.current}
+        <NowPlaying data={nowPlaying.current} />
+    {/if}
 
     <!-- Heatmap -->
     {#await data.heatmap}

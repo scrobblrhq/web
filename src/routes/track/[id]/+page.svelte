@@ -14,7 +14,7 @@
     import RefreshButton from "$lib/components/RefreshButton.svelte";
 
     const { data }: PageProps = $props();
-    const { track, artist, user } = $derived(data);
+    const { track, artist, cover, user } = $derived(data);
     let LL = $derived(getLL());
 
     // svelte-ignore state_referenced_locally
@@ -55,7 +55,7 @@
 <div class="max-w-5xl mx-auto px-4 py-8 space-y-10">
     <!-- ── Track header ─────────────────────────────────────────────── -->
     <section class="flex flex-col sm:flex-row gap-6 items-start">
-        <Cover url={null} alt={track.title} class="w-28 h-28 shrink-0" />
+        <Cover url={cover} alt={track.title} class="w-28 h-28 shrink-0" />
 
         <div class="w-full min-w-0 sm:flex-1 sm:self-center">
             <h1 class="text-2xl font-bold truncate">{track.title}</h1>

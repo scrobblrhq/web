@@ -19,10 +19,10 @@
     </div>
     <div class="ml-auto shrink-0 flex items-center gap-1.5">
         <span class="flex items-end gap-0.5 h-3">
-            <span class="w-0.5 bg-green-500 rounded-full animate-[bounce_0.8s_ease-in-out_infinite]" style="height:100%"></span>
-            <span class="w-0.5 bg-green-500 rounded-full animate-[bounce_0.8s_ease-in-out_0.15s_infinite]" style="height:60%"></span>
-            <span class="w-0.5 bg-green-500 rounded-full animate-[bounce_0.8s_ease-in-out_0.3s_infinite]" style="height:80%"></span>
+            <span class="w-0.5 bg-secondary rounded-full animate-[bounce_0.8s_ease-in-out_infinite]" style="height:100%"></span>
+            <span class="w-0.5 bg-secondary rounded-full animate-[bounce_0.8s_ease-in-out_0.15s_infinite]" style="height:60%"></span>
+            <span class="w-0.5 bg-secondary rounded-full animate-[bounce_0.8s_ease-in-out_0.3s_infinite]" style="height:80%"></span>
         </span>
-        <span class="text-xs text-green-500 font-medium">{LL.nowPlaying.label()}</span>
+        <span class="text-xs text-secondary font-medium">{LL.nowPlaying.label()}</span>
     </div>
 </section>

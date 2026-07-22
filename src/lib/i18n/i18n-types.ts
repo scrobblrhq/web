@@ -275,6 +275,10 @@ type RootTranslation = {
 			 */
 			email: string
 			/**
+			 * C​o​n​f​i​r​m​a​r​ ​e​m​a​i​l
+			 */
+			emailConfirm: string
+			/**
 			 * C​o​n​t​r​a​s​e​ñ​a
 			 */
 			password: string
@@ -307,6 +311,10 @@ type RootTranslation = {
 			 */
 			email: string
 			/**
+			 * t​u​@​e​m​a​i​l​.​c​o​m
+			 */
+			emailConfirm: string
+			/**
 			 * •​•​•​•​•​•​•​•
 			 */
 			password: string
@@ -336,6 +344,10 @@ type RootTranslation = {
 			 * E​l​ ​e​m​a​i​l​ ​n​o​ ​e​s​ ​v​á​l​i​d​o​.
 			 */
 			invalidEmail: string
+			/**
+			 * L​o​s​ ​e​m​a​i​l​s​ ​n​o​ ​c​o​i​n​c​i​d​e​n​.
+			 */
+			emailMismatch: string
 			/**
 			 * E​s​e​ ​n​o​m​b​r​e​ ​d​e​ ​u​s​u​a​r​i​o​ ​o​ ​e​m​a​i​l​ ​y​a​ ​e​s​t​á​n​ ​e​n​ ​u​s​o​.
 			 */
@@ -372,17 +384,21 @@ type RootTranslation = {
 		}
 		input: {
 			/**
-			 * B​u​s​c​a​r​ ​a​r​t​i​s​t​a​s​ ​o​ ​c​a​n​c​i​o​n​e​s​…
+			 * B​u​s​c​a​r​ ​a​r​t​i​s​t​a​s​,​ ​c​a​n​c​i​o​n​e​s​ ​o​ ​u​s​u​a​r​i​o​s​…
 			 */
 			placeholder: string
 			/**
-			 * b​u​s​c​a​n​d​o​…
+			 * B​u​s​c​a​n​d​o​…
 			 */
 			loading: string
 			/**
-			 * E​s​c​r​i​b​e​ ​p​a​r​a​ ​b​u​s​c​a​r​ ​a​r​t​i​s​t​a​s​ ​o​ ​c​a​n​c​i​o​n​e​s​.
+			 * E​s​c​r​i​b​e​ ​p​a​r​a​ ​b​u​s​c​a​r​ ​a​r​t​i​s​t​a​s​,​ ​c​a​n​c​i​o​n​e​s​ ​o​ ​u​s​u​a​r​i​o​s​.
 			 */
 			empty: string
+			/**
+			 * S​i​g​u​e​ ​e​s​c​r​i​b​i​e​n​d​o​…​ ​(​m​í​n​i​m​o​ ​2​ ​c​a​r​a​c​t​e​r​e​s​)
+			 */
+			tooShort: string
 		}
 		filter: {
 			/**
@@ -397,6 +413,10 @@ type RootTranslation = {
 			 * C​a​n​c​i​o​n​e​s
 			 */
 			tracks: string
+			/**
+			 * U​s​u​a​r​i​o​s
+			 */
+			users: string
 		}
 		empty: {
 			/**
@@ -413,6 +433,10 @@ type RootTranslation = {
 			 * C​a​n​c​i​o​n​e​s
 			 */
 			tracks: string
+			/**
+			 * U​s​u​a​r​i​o​s
+			 */
+			users: string
 		}
 		label: {
 			/**
@@ -851,9 +875,9 @@ type RootTranslation = {
 			 */
 			bio: string
 			/**
-			 * P​e​r​f​i​l​ ​p​ú​b​l​i​c​o
+			 * P​e​r​f​i​l​ ​p​r​i​v​a​d​o
 			 */
-			publicProfile: string
+			privateProfile: string
 			/**
 			 * M​o​s​t​r​a​r​ ​e​n​ ​b​ú​s​q​u​e​d​a​s
 			 */
@@ -889,9 +913,9 @@ type RootTranslation = {
 		}
 		desc: {
 			/**
-			 * C​u​a​l​q​u​i​e​r​ ​p​e​r​s​o​n​a​ ​c​o​n​ ​e​l​ ​e​n​l​a​c​e​ ​p​u​e​d​e​ ​v​e​r​ ​t​u​ ​p​e​r​f​i​l
+			 * S​o​l​o​ ​t​ú​ ​p​u​e​d​e​s​ ​v​e​r​ ​t​u​ ​p​e​r​f​i​l
 			 */
-			publicProfile: string
+			privateProfile: string
 			/**
 			 * A​p​a​r​e​c​e​r​ ​e​n​ ​l​o​s​ ​r​e​s​u​l​t​a​d​o​s​ ​d​e​ ​b​ú​s​q​u​e​d​a​ ​d​e​ ​S​c​r​o​b​b​l​r​ ​y​ ​m​o​t​o​r​e​s​ ​d​e​ ​b​ú​s​q​u​e​d​a​ ​e​x​t​e​r​n​o​s
 			 */
@@ -1040,6 +1064,11 @@ type RootTranslation = {
 			 * A​y​e​r
 			 */
 			yesterday: string
+			/**
+			 * H​a​c​e​ ​{​d​a​y​s​}​ ​d​í​a​s
+			 * @param {unknown} days
+			 */
+			daysAgo: RequiredParams<'days'>
 		}
 		error: {
 			/**
@@ -1569,6 +1598,10 @@ export type TranslationFunctions = {
 			 */
 			email: () => LocalizedString
 			/**
+			 * Confirmar email
+			 */
+			emailConfirm: () => LocalizedString
+			/**
 			 * Contraseña
 			 */
 			password: () => LocalizedString
@@ -1601,6 +1634,10 @@ export type TranslationFunctions = {
 			 */
 			email: () => LocalizedString
 			/**
+			 * tu@email.com
+			 */
+			emailConfirm: () => LocalizedString
+			/**
 			 * ••••••••
 			 */
 			password: () => LocalizedString
@@ -1630,6 +1667,10 @@ export type TranslationFunctions = {
 			 * El email no es válido.
 			 */
 			invalidEmail: () => LocalizedString
+			/**
+			 * Los emails no coinciden.
+			 */
+			emailMismatch: () => LocalizedString
 			/**
 			 * Ese nombre de usuario o email ya están en uso.
 			 */
@@ -1665,17 +1706,21 @@ export type TranslationFunctions = {
 		}
 		input: {
 			/**
-			 * Buscar artistas o canciones…
+			 * Buscar artistas, canciones o usuarios…
 			 */
 			placeholder: () => LocalizedString
 			/**
-			 * buscando…
+			 * Buscando…
 			 */
 			loading: () => LocalizedString
 			/**
-			 * Escribe para buscar artistas o canciones.
+			 * Escribe para buscar artistas, canciones o usuarios.
 			 */
 			empty: () => LocalizedString
+			/**
+			 * Sigue escribiendo… (mínimo 2 caracteres)
+			 */
+			tooShort: () => LocalizedString
 		}
 		filter: {
 			/**
@@ -1690,6 +1735,10 @@ export type TranslationFunctions = {
 			 * Canciones
 			 */
 			tracks: () => LocalizedString
+			/**
+			 * Usuarios
+			 */
+			users: () => LocalizedString
 		}
 		empty: {
 			/**
@@ -1706,6 +1755,10 @@ export type TranslationFunctions = {
 			 * Canciones
 			 */
 			tracks: () => LocalizedString
+			/**
+			 * Usuarios
+			 */
+			users: () => LocalizedString
 		}
 		label: {
 			/**
@@ -2139,9 +2192,9 @@ export type TranslationFunctions = {
 			 */
 			bio: () => LocalizedString
 			/**
-			 * Perfil público
+			 * Perfil privado
 			 */
-			publicProfile: () => LocalizedString
+			privateProfile: () => LocalizedString
 			/**
 			 * Mostrar en búsquedas
 			 */
@@ -2177,9 +2230,9 @@ export type TranslationFunctions = {
 		}
 		desc: {
 			/**
-			 * Cualquier persona con el enlace puede ver tu perfil
+			 * Solo tú puedes ver tu perfil
 			 */
-			publicProfile: () => LocalizedString
+			privateProfile: () => LocalizedString
 			/**
 			 * Aparecer en los resultados de búsqueda de Scrobblr y motores de búsqueda externos
 			 */
@@ -2328,6 +2381,10 @@ export type TranslationFunctions = {
 			 * Ayer
 			 */
 			yesterday: () => LocalizedString
+			/**
+			 * Hace {days} días
+			 */
+			daysAgo: (arg: { days: unknown }) => LocalizedString
 		}
 		error: {
 			/**

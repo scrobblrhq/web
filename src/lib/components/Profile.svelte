@@ -8,9 +8,8 @@
     import { addToast } from "$lib/stores/toast.svelte";
     import { enhance } from "$app/forms";
 
-    import VerifiedIcon from "@lucide/svelte/icons/check";
+    import VerifiedBadge from "./VerifiedBadge.svelte";
     import Avatar from "./Avatar.svelte";
-    import Tooltip from "./Tooltip.svelte";
     import Modal from "./Modal.svelte";
     import Markdown from "svelte-exmarkdown";
     import { gfmPlugin } from "svelte-exmarkdown/gfm";
@@ -73,7 +72,7 @@
         >
             <Avatar
                 url={profile.image_url}
-                name={profile.display_name ?? profile.username}
+                name={profile.display_name || profile.username}
                 class="w-20 h-20 sm:w-24 sm:h-24 text-2xl ring-4 ring-surface shadow-lg -mt-10 sm:-mt-16 z-10 cursor-pointer"
             />
         </button>
@@ -84,15 +83,9 @@
                 <h1
                     class="text-xl font-bold truncate flex items-center justify-center sm:justify-start gap-2"
                 >
-                    {profile.display_name ?? profile.username}
+                    {profile.display_name || profile.username}
                     {#if profile.is_verified}
-                        <span
-                            class="bg-blue-100 dark:bg-slate-700 rounded-md p-[2px]"
-                        >
-                            <Tooltip text={LL.profile.verifiedTooltip()}>
-                                <VerifiedIcon class="text-blue-300" size={16} />
-                            </Tooltip>
-                        </span>
+                        <VerifiedBadge />
                     {/if}
                 </h1>
                 <button
@@ -287,8 +280,12 @@
 </section>
 
 <Modal {open} onclose={() => (open = false)}>
-    <Avatar url={profile.image_url} name={profile.username} class="z-50" />
+    <Avatar
+        url={profile.image_url}
+        name={profile.display_name || profile.username}
+        class="z-50 w-[225px] h-[225px] text-7xl"
+    />
     <div class="text-tertiary text-sm flex justify-center items-center">
-        {LL.profile.modal.avatarLabel({ username: profile.username })}
+        {LL.profile.modal.avatarLabel({ username: profile.display_name || profile.username })}
     </div>
 </Modal>

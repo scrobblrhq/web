@@ -11,25 +11,23 @@
     import UserIcon from "@lucide/svelte/icons/user";
     import CogIcon from "@lucide/svelte/icons/cog";
     import Avatar from "$lib/components/Avatar.svelte";
-    import { api } from "$lib/api";
     import type { SessionUser } from "$lib/api/types";
     import { onMount } from "svelte";
-    import { useIsDesktop } from "$lib/hooks/isDesktop.svelte";
 
     let {
         user,
         imageUrl,
+        avatarName,
         currentPath,
     }: {
         user: SessionUser | undefined;
         imageUrl: string | null;
+        avatarName: string | null;
         currentPath: string;
     } = $props();
 
     let dropdownOpen = $state(false);
     let dropdownRef = $state<HTMLElement>();
-    let resolvedImageUrl = $state<string | null>(null);
-    let fetchedForToken: string | null = null;
 
     function toggleDropdown() {
         dropdownOpen = !dropdownOpen;
@@ -59,17 +57,6 @@
                 document.removeEventListener("click", handleClickOutside, true);
                 document.removeEventListener("keydown", handleKeydown);
             };
-        }
-    });
-
-    $effect(() => {
-        const token = user?.token;
-        if (token && token !== fetchedForToken) {
-            fetchedForToken = token;
-            api.profile
-                .getMe(token)
-                .then((p) => (resolvedImageUrl = p.image_url))
-                .catch(() => {});
         }
     });
 
@@ -164,8 +151,8 @@
                                 : 'border-transparent text-quaternary hover:text-primary hover:bg-hover hover:border-border'}"
                         >
                             <Avatar
-                                name={user.username}
-                                url={resolvedImageUrl ?? imageUrl}
+                                name={avatarName}
+                                url={imageUrl}
                                 class="ring-2 ring-border sm:mr-1 w-6 h-6"
                             />
                             <span class="hidden sm:inline">{user.username}</span>
@@ -187,8 +174,8 @@
                                     class="flex items-center gap-2 px-2.5 py-2 mb-1 border-b border-border"
                                 >
                                     <Avatar
-                                        name={user.username}
-                                        url={resolvedImageUrl ?? imageUrl}
+                                        name={avatarName}
+                                        url={imageUrl}
                                         class="ring-2 ring-border w-8 h-8"
                                     />
                                     <span

@@ -86,19 +86,19 @@
             <li class="flex gap-2.5 items-start">
                 <Avatar
                     url={comment.image_url}
-                    name={comment.display_name ?? comment.username}
+                    name={comment.display_name || comment.username}
                     class="w-8 h-8 text-xs shrink-0"
                 />
                 <div class="min-w-0 flex-1">
                     <div class="flex items-baseline gap-2">
                         <span class="text-sm font-medium text-primary truncate"
-                            >{comment.display_name ?? comment.username}</span
+                            >{comment.display_name || comment.username}</span
                         >
                         <span class="text-xs text-quaternary shrink-0"
                             >{timeAgo(comment.created_at)}</span
                         >
                     </div>
-                    <p class="text-sm text-secondary leading-relaxed break-words">
+                    <p class="text-sm text-secondary leading-relaxed wrap-break-word">
                         {comment.body}
                     </p>
                 </div>

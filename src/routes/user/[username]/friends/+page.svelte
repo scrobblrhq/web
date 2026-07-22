@@ -3,7 +3,8 @@
   import type { UserProfile } from "$lib/api/types";
 
   import Avatar from "$lib/components/Avatar.svelte";
-  import VerifiedIcon from "@lucide/svelte/icons/check";
+  import VerifiedBadge from "$lib/components/VerifiedBadge.svelte";
+
   import UsersIcon from "@lucide/svelte/icons/users";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
   import { formatCount } from "$lib/utils/format";
@@ -69,7 +70,7 @@
 </script>
 
 <svelte:head>
-  <title>{profile.display_name ?? profile.username}{LL.friends.meta.titleSuffix()}</title>
+  <title>{profile.display_name || profile.username}{LL.friends.meta.titleSuffix()}</title>
 </svelte:head>
 
 <div class="max-w-3xl mx-auto px-4 py-8">
@@ -84,14 +85,14 @@
   <div class="flex items-center gap-3 mb-6">
     <Avatar
       url={profile.image_url}
-      name={profile.display_name ?? profile.username}
+      name={profile.display_name || profile.username}
       class="w-12 h-12 text-lg"
     />
     <div>
       <h1 class="text-lg font-bold flex items-center gap-1.5">
-        {profile.display_name ?? profile.username}
+        {profile.display_name || profile.username}
         {#if profile.is_verified}
-          <VerifiedIcon size={16} class="text-blue-400" />
+          <VerifiedBadge />
         {/if}
       </h1>
       <p class="text-sm text-tertiary">{LL.friends.pageTitle()}</p>
@@ -130,7 +131,7 @@
           <a href="/user/{entry.username}" class="shrink-0">
             <Avatar
               url={entry.image_url}
-              name={entry.display_name ?? entry.username}
+              name={entry.display_name || entry.username}
               class="w-10 h-10"
             />
           </a>
@@ -139,10 +140,12 @@
               href="/user/{entry.username}"
               class="text-sm font-medium truncate block hover:underline"
             >
-              {entry.display_name ?? entry.username}
-              {#if entry.is_verified}
-                <VerifiedIcon size={14} class="inline text-blue-400" />
-              {/if}
+              <div class="flex items-center gap-1.5">
+                {entry.display_name || entry.username}
+                {#if entry.is_verified}
+                  <VerifiedBadge />
+                {/if}
+              </div>
             </a>
             <p class="text-xs text-tertiary truncate">
               @{entry.username} · {formatCount(entry.scrobble_count)} {LL.friends.label.scrobbles()}

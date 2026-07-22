@@ -1,7 +1,7 @@
 <script lang="ts">
     interface Props {
         url?: string | null;
-        name: string;
+        name?: string | null;
         class?: string;
     }
 
@@ -13,7 +13,7 @@
 {#if url}
     <img
         src={url}
-        alt={name}
+        alt={name ?? ""}
         class="rounded-full object-cover shrink-0 {className}"
     />
 {:else}

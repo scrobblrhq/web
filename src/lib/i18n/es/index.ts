@@ -96,6 +96,7 @@ const es = {
 			username: 'Usuario',
 			displayName: 'Nombre visible',
 			email: 'Email',
+			emailConfirm: 'Confirmar email',
 			password: 'Contraseña',
 		},
 		sublabel: {
@@ -107,6 +108,7 @@ const es = {
 			username: 'tuusuario',
 			displayName: 'Tu Nombre',
 			email: 'tu@email.com',
+			emailConfirm: 'tu@email.com',
 			password: '••••••••',
 		},
 		submit: 'Crear cuenta',
@@ -116,6 +118,7 @@ const es = {
 			usernameTooShort: 'El usuario debe tener al menos 2 caracteres.',
 			passwordTooShort: 'La contraseña debe incluir al menos 8 caracteres.',
 			invalidEmail: 'El email no es válido.',
+			emailMismatch: 'Los emails no coinciden.',
 			conflict: 'Ese nombre de usuario o email ya están en uso.',
 			serverError: 'No se pudo conectar con el servidor.',
 		},
@@ -129,14 +132,16 @@ const es = {
 			titleSuffix: ' — Scrobblr',
 		},
 		input: {
-			placeholder: 'Buscar artistas o canciones…',
-			loading: 'buscando…',
-			empty: 'Escribe para buscar artistas o canciones.',
+			placeholder: 'Buscar artistas, canciones o usuarios…',
+			loading: 'Buscando…',
+			empty: 'Escribe para buscar artistas, canciones o usuarios.',
+			tooShort: 'Sigue escribiendo… (mínimo 2 caracteres)',
 		},
 		filter: {
 			all: 'Todo',
 			artists: 'Artistas',
 			tracks: 'Canciones',
+			users: 'Usuarios',
 		},
 		empty: {
 			prefix: 'Sin resultados para',
@@ -144,6 +149,7 @@ const es = {
 		section: {
 			artists: 'Artistas',
 			tracks: 'Canciones',
+			users: 'Usuarios',
 		},
 		label: {
 			scrobbles: 'scrobbles',
@@ -306,7 +312,7 @@ const es = {
 			username: 'Nombre de usuario',
 			displayName: 'Nombre mostrado',
 			bio: 'Biografía',
-			publicProfile: 'Perfil público',
+			privateProfile: 'Perfil privado',
 			showInSearch: 'Mostrar en búsquedas',
 			theme: 'Tema',
 			palette: 'Paleta de color',
@@ -320,7 +326,7 @@ const es = {
 			displayName: 'Déjalo vacío para usar tu nombre de usuario.',
 		},
 		desc: {
-			publicProfile: 'Cualquier persona con el enlace puede ver tu perfil',
+			privateProfile: 'Solo tú puedes ver tu perfil',
 			showInSearch: 'Aparecer en los resultados de búsqueda de Scrobblr y motores de búsqueda externos',
 		},
 		badge: {
@@ -367,6 +373,7 @@ const es = {
 			never: 'Nunca',
 			today: 'Hoy',
 			yesterday: 'Ayer',
+			daysAgo: 'Hace {days} días',
 		},
 		error: {
 			notAuthenticated: 'No autenticado.',

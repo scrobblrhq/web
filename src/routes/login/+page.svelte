@@ -4,9 +4,12 @@
     import Input from "$lib/components/Input.svelte";
     import { addToast } from "$lib/stores/toast.svelte";
     import { getLL } from "$lib/i18n.svelte";
+    import Loader from "@lucide/svelte/icons/loader-circle";
 
     let LL = $derived(getLL());
     let { form }: PageProps = $props();
+
+    let pressed = $state(false);
 </script>
 
 <svelte:head>
@@ -24,9 +27,11 @@
 
         <form
             method="POST"
+            onsubmit={() => (pressed = true)}
             use:enhance={() =>
                 async ({ result, update }) => {
                     if (result.type === "failure") {
+                        pressed = false;
                         const data = result.data as
                             | { message?: string }
                             | undefined;
@@ -63,7 +68,13 @@
                 type="submit"
                 class="w-full bg-accent text-accent-text font-medium text-sm rounded-lg py-2.5 hover:opacity-90 transition-colors mt-2"
             >
-                {LL.login.submit()}
+            {#if pressed}
+                    <span class="flex items-center justify-center gap-2">
+                        <Loader class="w-4 h-4 animate-spin" />
+                    </span>
+                {:else}
+                    {LL.login.submit()}
+                {/if}
             </button>
         </form>
 

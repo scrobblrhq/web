@@ -4,9 +4,12 @@
     import Input from "$lib/components/Input.svelte";
     import { addToast } from "$lib/stores/toast.svelte";
     import { getLL } from "$lib/i18n.svelte";
+    import Loader from "@lucide/svelte/icons/loader-circle";
 
     let LL = $derived(getLL());
     let { form }: PageProps = $props();
+
+    let pressed = $state(false);
 </script>
 
 <svelte:head>
@@ -14,7 +17,7 @@
 </svelte:head>
 
 <div class="min-h-screen bg-surface flex items-center justify-center -mt-18">
-    <div class="w-full max-w-sm">
+    <div class="w-full max-w-sm bg-card/40 p-16 rounded-xl">
         <div class="mb-10 text-center">
             <span class="text-2xl font-bold tracking-tight text-primary"
                 >{LL.register.brand()}</span
@@ -26,9 +29,11 @@
 
         <form
             method="POST"
+            onsubmit={() => (pressed = true)}
             use:enhance={() =>
                 async ({ result, update }) => {
                     if (result.type === "failure") {
+                        pressed = false;
                         const data = result.data as
                             | { message?: string }
                             | undefined;
@@ -75,6 +80,15 @@
             />
 
             <Input
+                id="email_confirm"
+                label={LL.register.label.emailConfirm()}
+                type="email"
+                required
+                autocomplete="email"
+                placeholder={LL.register.placeholder.emailConfirm()}
+            />
+
+            <Input
                 id="password"
                 label={LL.register.label.password()}
                 sublabel={LL.register.sublabel.password()}
@@ -88,8 +102,15 @@
             <button
                 type="submit"
                 class="w-full bg-accent text-accent-text font-medium text-sm rounded-lg py-2.5 hover:opacity-90 transition-colors mt-2"
+                disabled={pressed}
             >
-                {LL.register.submit()}
+                {#if pressed}
+                    <span class="flex items-center justify-center gap-2">
+                        <Loader class="w-4 h-4 animate-spin" />
+                    </span>
+                {:else}
+                    {LL.register.submit()}
+                {/if}
             </button>
         </form>
 

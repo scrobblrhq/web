@@ -96,6 +96,7 @@ const en: Translation = {
 			username: 'Username',
 			displayName: 'Display name',
 			email: 'Email',
+			emailConfirm: 'Confirm email',
 			password: 'Password',
 		},
 		sublabel: {
@@ -107,6 +108,7 @@ const en: Translation = {
 			username: 'yourusername',
 			displayName: 'Your Name',
 			email: 'you@email.com',
+			emailConfirm: 'you@email.com',
 			password: '••••••••',
 		},
 		submit: 'Create account',
@@ -116,6 +118,7 @@ const en: Translation = {
 			usernameTooShort: 'Username must be at least 2 characters.',
 			passwordTooShort: 'Password must be at least 8 characters.',
 			invalidEmail: 'Invalid email address.',
+			emailMismatch: 'Emails do not match.',
 			conflict: 'That username or email is already in use.',
 			serverError: 'Could not connect to the server.',
 		},
@@ -129,14 +132,16 @@ const en: Translation = {
 			titleSuffix: ' — Scrobblr',
 		},
 		input: {
-			placeholder: 'Search artists or tracks…',
-			loading: 'searching…',
-			empty: 'Type to search artists or tracks.',
+			placeholder: 'Search artists, tracks or users…',
+			loading: 'Searching…',
+			empty: 'Type to search artists, tracks or users.',
+			tooShort: 'Keep typing… (2 characters minimum)',
 		},
 		filter: {
 			all: 'All',
 			artists: 'Artists',
 			tracks: 'Tracks',
+			users: 'Users',
 		},
 		empty: {
 			prefix: 'No results for',
@@ -144,6 +149,7 @@ const en: Translation = {
 		section: {
 			artists: 'Artists',
 			tracks: 'Tracks',
+			users: 'Users',
 		},
 		label: {
 			scrobbles: 'scrobbles',
@@ -306,7 +312,7 @@ const en: Translation = {
 			username: 'Username',
 			displayName: 'Display name',
 			bio: 'Biography',
-			publicProfile: 'Public profile',
+			privateProfile: 'Private profile',
 			showInSearch: 'Show in search',
 			theme: 'Theme',
 			palette: 'Color palette',
@@ -320,7 +326,7 @@ const en: Translation = {
 			displayName: 'Leave empty to use your username.',
 		},
 		desc: {
-			publicProfile: 'Anyone with the link can view your profile',
+			privateProfile: 'Only you can view your profile',
 			showInSearch: 'Appear in Scrobblr search results and external search engines',
 		},
 		badge: {
@@ -367,6 +373,7 @@ const en: Translation = {
 			never: 'Never',
 			today: 'Today',
 			yesterday: 'Yesterday',
+			daysAgo: '{days} days ago',
 		},
 		error: {
 			notAuthenticated: 'Not authenticated.',

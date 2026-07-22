@@ -68,11 +68,11 @@
                 />
             </button>
         {:else}
-            <div
-                class="w-28 h-28 rounded-full bg-hover shrink-0 flex items-center justify-center text-tertiary text-4xl font-bold select-none ring-2 ring-border"
-            >
-                {artist.name[0].toUpperCase()}
-            </div>
+            <Avatar
+                url={null}
+                name={artist.name}
+                class="w-28 h-28 rounded-full shrink-0 ring-2 ring-border cursor-pointer"
+            />
         {/if}
 
         <div class="w-full min-w-0 sm:flex-1 sm:self-center">

@@ -12,11 +12,12 @@
 
     const { data, children }: LayoutProps = $props();
 
-    setLocale(data.lang as 'es' | 'en');
-    const LL = getLL();
+    setLocale(data.lang as "es" | "en");
+    let LL = $derived(getLL());
 
     const user = $derived(data.user);
-    let imageUrl = $state<string | null>(null);
+    const imageUrl = $derived(data.imageUrl);
+    const avatarName = $derived(data.avatarName);
     const currentPath = $derived(page.url.pathname);
     const isLoading = $derived(navigating === null);
 </script>
@@ -37,7 +38,7 @@
 <SvelteTheme attribute="class">
     <ThemeVarsApplier />
     <div class="min-h-screen bg-surface text-primary overflow-hidden">
-        <Navbar {user} {imageUrl} {currentPath} />
+        <Navbar {user} {imageUrl} {avatarName} {currentPath} />
 
         <main class="min-h-screen -mt-2">
             {#key page.url.pathname}

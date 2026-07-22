@@ -26,6 +26,7 @@ export interface FriendsResponse {
 export interface SearchResponse {
   artists: Artist[];
   tracks: Track[];
+  users: UserProfile[];
 }
 
 export type TimePeriod =

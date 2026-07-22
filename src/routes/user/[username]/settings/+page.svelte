@@ -12,8 +12,6 @@
 
     import MoonIcon from "@lucide/svelte/icons/moon";
     import SunIcon from "@lucide/svelte/icons/sun";
-    import Trash2Icon from "@lucide/svelte/icons/trash-2";
-    import MailIcon from "@lucide/svelte/icons/mail";
     import CameraIcon from "@lucide/svelte/icons/camera";
     import XIcon from "@lucide/svelte/icons/x";
     import SystemIcon from "@lucide/svelte/icons/laptop-minimal";
@@ -189,7 +187,7 @@
         const days = Math.floor(diff / 86_400_000);
         if (days === 0) return LL.settings.time.today();
         if (days === 1) return LL.settings.time.yesterday();
-        if (days < 30) return `Hace ${days} días`;
+        if (days < 30) return LL.settings.time.daysAgo({ days });
         return formatDate(iso);
     }
 
@@ -239,7 +237,7 @@
                             "error",
                         );
                     }
-                    await update({ reset: false });
+                    await update({ reset: false, invalidateAll: true });
                 };
             }}
             class="space-y-14"
@@ -267,7 +265,7 @@
                                 url={removeAvatar
                                     ? null
                                     : (avatarPreview ?? profile.image_url)}
-                                name={profile.display_name ?? username}
+                                name={profile.display_name || profile.username}
                                 class="size-24 text-xl"
                             />
                             <button
@@ -383,10 +381,10 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-secondary">
-                                {LL.settings.label.publicProfile()}
+                                {LL.settings.label.privateProfile()}
                             </p>
                             <p class="text-xs text-tertiary">
-                                {LL.settings.desc.publicProfile()}
+                                {LL.settings.desc.privateProfile()}
                             </p>
                         </div>
                         <Toggle

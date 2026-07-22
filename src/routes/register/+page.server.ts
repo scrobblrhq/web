@@ -4,6 +4,8 @@ import { api, ApiError } from "$lib/api";
 import { setSessionCookie } from "$lib/session";
 import { serverLL } from "$lib/i18n.server";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const load: PageServerLoad = async ({ locals }) => {
   if (locals.user) redirect(303, `/user/${locals.user.username}`);
 };
@@ -13,7 +15,10 @@ export const actions: Actions = {
     const LL = serverLL(locals.lang);
     const form = await request.formData();
     const username = String(form.get("username") ?? "").trim();
-    const email = String(form.get("email") ?? "").trim();
+    const email = String(form.get("email") ?? "").trim().toLowerCase();
+    const email_confirm = String(form.get("email_confirm") ?? "")
+      .trim()
+      .toLowerCase();
     const password = String(form.get("password") ?? "");
     const display_name =
       String(form.get("display_name") ?? "").trim() || undefined;
@@ -45,12 +50,21 @@ export const actions: Actions = {
       });
     }
 
-    if (!email.includes("@")) {
+    if (!EMAIL_REGEX.test(email)) {
       return fail(400, {
         username,
         email,
         display_name,
         message: LL.register.error.invalidEmail(),
+      });
+    }
+
+    if (email !== email_confirm) {
+      return fail(400, {
+        username,
+        email,
+        display_name,
+        message: LL.register.error.emailMismatch(),
       });
     }
 

@@ -13,7 +13,7 @@ export const searchApi = {
   search(
     q: string,
     limit = 10,
-    type: "artist" | "track" | "all" = "all",
+    type: "artist" | "track" | "user" | "all" = "all",
   ): Promise<SearchResponse> {
     return request(`/v1/search?q=${q}&limit=${limit}&type=${type}`);
   },

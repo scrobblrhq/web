@@ -77,8 +77,8 @@ export const actions: Actions = {
 
     const form = await request.formData();
     const is_private = form.get("is_private") === "true";
-    const display_name = String(form.get("display_name") ?? "");
-    const bio = String(form.get("bio") ?? "");
+    const display_name = String(form.get("display_name") ?? null).trim();
+    const bio = String(form.get("bio") ?? null).trim();
     const removeAvatar = form.get("remove_avatar") === "true";
     const avatar = form.get("avatar");
 

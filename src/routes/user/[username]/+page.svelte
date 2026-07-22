@@ -188,7 +188,7 @@
 </script>
 
 <svelte:head>
-    <title>{profile.display_name ?? profile.username} — Scrobblr</title>
+    <title>{profile.display_name || profile.username} — Scrobblr</title>
 </svelte:head>
 
 <ScrollToTop />

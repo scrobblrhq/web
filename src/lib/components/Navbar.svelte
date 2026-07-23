@@ -81,6 +81,7 @@
                 0 1px 0 0 var(--color-border),
                 0 8px 24px -16px rgba(0, 0, 0, .35);
             transform: translateX(-50%);
+            border-radius: 0 0 0.75rem 0.75rem;
         }
 
         header.scroll {

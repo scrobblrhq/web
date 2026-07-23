@@ -285,7 +285,7 @@ type RootTranslation = {
 		}
 		sublabel: {
 			/**
-			 * m​í​n​.​ ​2​ ​c​a​r​a​c​t​e​r​e​s
+			 * m​í​n​.​ ​2​ ​c​a​r​a​c​t​e​r​e​s​,​ ​s​o​l​o​ ​l​e​t​r​a​s​,​ ​n​ú​m​e​r​o​s​,​ ​-​ ​y​ ​_
 			 */
 			username: string
 			/**
@@ -337,9 +337,25 @@ type RootTranslation = {
 			 */
 			usernameTooShort: string
 			/**
+			 * E​l​ ​u​s​u​a​r​i​o​ ​n​o​ ​p​u​e​d​e​ ​t​e​n​e​r​ ​m​á​s​ ​d​e​ ​3​2​ ​c​a​r​a​c​t​e​r​e​s​.
+			 */
+			usernameTooLong: string
+			/**
+			 * E​l​ ​u​s​u​a​r​i​o​ ​s​o​l​o​ ​p​u​e​d​e​ ​c​o​n​t​e​n​e​r​ ​l​e​t​r​a​s​,​ ​n​ú​m​e​r​o​s​,​ ​g​u​i​o​n​e​s​ ​y​ ​g​u​i​o​n​e​s​ ​b​a​j​o​s​.
+			 */
+			usernameInvalidChars: string
+			/**
 			 * L​a​ ​c​o​n​t​r​a​s​e​ñ​a​ ​d​e​b​e​ ​i​n​c​l​u​i​r​ ​a​l​ ​m​e​n​o​s​ ​8​ ​c​a​r​a​c​t​e​r​e​s​.
 			 */
 			passwordTooShort: string
+			/**
+			 * L​a​ ​c​o​n​t​r​a​s​e​ñ​a​ ​n​o​ ​p​u​e​d​e​ ​t​e​n​e​r​ ​m​á​s​ ​d​e​ ​1​2​8​ ​c​a​r​a​c​t​e​r​e​s​.
+			 */
+			passwordTooLong: string
+			/**
+			 * L​a​ ​c​o​n​t​r​a​s​e​ñ​a​ ​c​o​n​t​i​e​n​e​ ​c​a​r​a​c​t​e​r​e​s​ ​n​o​ ​p​e​r​m​i​t​i​d​o​s​.
+			 */
+			passwordInvalidChars: string
 			/**
 			 * E​l​ ​e​m​a​i​l​ ​n​o​ ​e​s​ ​v​á​l​i​d​o​.
 			 */
@@ -1608,7 +1624,7 @@ export type TranslationFunctions = {
 		}
 		sublabel: {
 			/**
-			 * mín. 2 caracteres
+			 * mín. 2 caracteres, solo letras, números, - y _
 			 */
 			username: () => LocalizedString
 			/**
@@ -1660,9 +1676,25 @@ export type TranslationFunctions = {
 			 */
 			usernameTooShort: () => LocalizedString
 			/**
+			 * El usuario no puede tener más de 32 caracteres.
+			 */
+			usernameTooLong: () => LocalizedString
+			/**
+			 * El usuario solo puede contener letras, números, guiones y guiones bajos.
+			 */
+			usernameInvalidChars: () => LocalizedString
+			/**
 			 * La contraseña debe incluir al menos 8 caracteres.
 			 */
 			passwordTooShort: () => LocalizedString
+			/**
+			 * La contraseña no puede tener más de 128 caracteres.
+			 */
+			passwordTooLong: () => LocalizedString
+			/**
+			 * La contraseña contiene caracteres no permitidos.
+			 */
+			passwordInvalidChars: () => LocalizedString
 			/**
 			 * El email no es válido.
 			 */

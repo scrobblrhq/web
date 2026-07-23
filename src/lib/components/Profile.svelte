@@ -14,6 +14,10 @@
     import Markdown from "svelte-exmarkdown";
     import { gfmPlugin } from "svelte-exmarkdown/gfm";
     import rehypeHighlight from "rehype-highlight";
+    import remarkBreaks from "remark-breaks";
+    import rehypeRaw from "rehype-raw";
+    import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+    import { rehypeGroupBioImages } from "$lib/utils/bio-markdown";
     import { getLL } from "$lib/i18n.svelte";
 
     let LL = $derived(getLL());
@@ -73,7 +77,11 @@
             <Avatar
                 url={profile.image_url}
                 name={profile.display_name || profile.username}
-                class="w-20 h-20 sm:w-24 sm:h-24 text-2xl ring-4 ring-surface shadow-lg -mt-10 sm:-mt-16 z-10 cursor-pointer"
+                class="w-24 h-24 sm:w-28 sm:h-28 text-2xl ring-4 ring-surface shadow-lg -mt-10 sm:-mt-16 z-10 cursor-pointer"
+                loading="eager"
+                fetchpriority="high"
+                width={112}
+                height={112}
             />
         </button>
         <div
@@ -135,9 +143,27 @@
             md={profile.bio}
             plugins={[
                 gfmPlugin(),
+                { remarkPlugin: remarkBreaks },
+                { rehypePlugin: rehypeRaw },
                 {
-                    rehypePlugin: [rehypeHighlight],
+                    rehypePlugin: [
+                        rehypeSanitize,
+                        {
+                            ...defaultSchema,
+                            attributes: {
+                                ...defaultSchema.attributes,
+                                img: [
+                                    ...(defaultSchema.attributes?.img ?? []),
+                                    "src",
+                                    "alt",
+                                    "title"
+                                ],
+                            },
+                        },
+                    ],
                 },
+                { rehypePlugin: rehypeHighlight },
+                { rehypePlugin: rehypeGroupBioImages },
             ]}
         >
             {#snippet h1({ children, ...props })}
@@ -245,7 +271,33 @@
                 <hr class="my-4 mx-4 sm:mx-6 border-border" />
             {/snippet}
             {#snippet img({ children, ...props })}
-                <img class="mt-2 rounded-lg" {...props} />
+                <img
+                    class="max-h-64 object-cover mt-2 rounded-lg"
+                    loading="lazy"
+                    decoding="async"
+                    {...props}
+                />
+            {/snippet}
+            {#snippet div({ children, ...props })}
+                {#if props["data-bio-carousel"]}
+                    <span class="relative mt-2 flex">
+                        <span
+                            class="carousel overflow-x-auto px-4 sm:px-6 flex gap-3 snap-x snap-mandatory scroll-px-4 sm:scroll-px-6 [&_img]:mt-0 [&_img]:shrink-0 [&_img]:snap-center [&_img]:w-[85%] [&_img]:sm:w-72"
+                        >
+                            {@render children?.()}
+                        </span>
+                        <span
+                            class="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-12 bg-linear-to-r from-surface to-transparent"
+                        ></span>
+                        <span
+                            class="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-12 bg-linear-to-l from-surface to-transparent"
+                        ></span>
+                    </span>
+                {:else}
+                    <div {...props}>
+                        {@render children?.()}
+                    </div>
+                {/if}
             {/snippet}
         </Markdown>
     {/if}

@@ -28,7 +28,7 @@
 
 {#if track}
     <div
-        class="fixed bottom-8 right-8 z-50 flex items-center gap-3 p-3 rounded-2xl border border-border bg-card/70 backdrop-blur-2xl shadow-2xl"
+        class="fixed bottom-8 right-8 z-50 flex items-center gap-3 p-3 rounded-2xl border border-border bg-linear-to-r from-card/70 to-accent/40 backdrop-blur-2xl shadow-2xl"
         transition:fly={{ y: 20, duration: 200 }}
     >
         <Cover

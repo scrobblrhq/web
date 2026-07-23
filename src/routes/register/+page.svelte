@@ -55,6 +55,9 @@
                 value={form?.username ?? ""}
                 required
                 minlength={2}
+                maxlength={32}
+                pattern="[a-zA-Z0-9_-]+"
+                title={LL.register.error.usernameInvalidChars()}
                 autocomplete="username"
                 placeholder={LL.register.placeholder.username()}
             />
@@ -95,6 +98,7 @@
                 type="password"
                 required
                 minlength={8}
+                maxlength={128}
                 autocomplete="new-password"
                 placeholder={LL.register.placeholder.password()}
             />

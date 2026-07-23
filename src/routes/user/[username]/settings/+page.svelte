@@ -312,7 +312,7 @@
                             >{LL.settings.label.username()}</span
                         >
                         <div
-                            class="text-sm text-secondary bg-input border border-border rounded-lg px-3 py-2.5"
+                            class="cursor-text text-sm text-secondary bg-input border border-border rounded-lg px-3 py-2.5"
                         >
                             {username}
                         </div>

@@ -5,6 +5,8 @@ import { setSessionCookie } from "$lib/session";
 import { serverLL } from "$lib/i18n.server";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/;
+const PASSWORD_INVALID_CHARS_REGEX = /[\x00-\x1f\x7f]/;
 
 export const load: PageServerLoad = async ({ locals }) => {
   if (locals.user) redirect(303, `/user/${locals.user.username}`);
@@ -41,12 +43,48 @@ export const actions: Actions = {
       });
     }
 
+    if (username.length > 32) {
+      return fail(400, {
+        username,
+        email,
+        display_name,
+        message: LL.register.error.usernameTooLong(),
+      });
+    }
+
+    if (!USERNAME_REGEX.test(username)) {
+      return fail(400, {
+        username,
+        email,
+        display_name,
+        message: LL.register.error.usernameInvalidChars(),
+      });
+    }
+
     if (password.length < 8) {
       return fail(400, {
         username,
         email,
         display_name,
         message: LL.register.error.passwordTooShort(),
+      });
+    }
+
+    if (password.length > 128) {
+      return fail(400, {
+        username,
+        email,
+        display_name,
+        message: LL.register.error.passwordTooLong(),
+      });
+    }
+
+    if (PASSWORD_INVALID_CHARS_REGEX.test(password)) {
+      return fail(400, {
+        username,
+        email,
+        display_name,
+        message: LL.register.error.passwordInvalidChars(),
       });
     }
 

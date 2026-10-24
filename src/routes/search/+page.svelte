@@ -97,8 +97,7 @@
         else url.searchParams.delete("q");
         goto(url.toString(), {
             replaceState: true,
-            noScroll: true,
-            keepFocus: true,
+            reset: false,
         });
     }
 

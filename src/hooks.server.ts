@@ -1,4 +1,4 @@
-import type { Handle } from "@sveltejs/kit";
+import type { Handle } from "@sveltejs/kit/hooks";
 import { dev } from "$app/env";
 import { clearSessionCookie, readSession, SESSION_COOKIE } from "$lib/session";
 

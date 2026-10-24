@@ -7,9 +7,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     sveltekit({
-      vitePlugin: {
-        inspector: true
-      },
+      inspector: true,
       compilerOptions: {
         // Force runes mode for the project, except for libraries. Can be removed in svelte 6.
         runes: ({ filename }) =>
@@ -21,7 +19,7 @@ export default defineConfig({
       // If your environment is not supported, or you settled on a specific environment, switch out the adapter.
       // See https://svelte.dev/docs/kit/adapters for more information about adapters.
       adapter: adapter(),
-      experimental: { remoteFunctions: true, handleRenderingErrors: true },
+      experimental: { remoteFunctions: true },
     }),
   ],
 });

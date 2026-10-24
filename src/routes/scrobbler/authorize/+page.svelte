@@ -1,6 +1,6 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import type { SubmitFunction } from "@sveltejs/kit";
+    import type { SubmitFunction } from "$app/forms";
     import type { PageProps } from "./$types";
     import { getLL } from "$lib/i18n.svelte";
     import { addToast } from "$lib/stores/toast.svelte";

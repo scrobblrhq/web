@@ -1,22 +1,43 @@
 import type { Cookies } from "@sveltejs/kit";
-import type { SessionUser } from "./api/types";
+import type { SessionUser, AuthResponse } from "./api/types";
 
-const COOKIE = "scrobblr_session";
+export const SESSION_COOKIE = "scrobblr_session";
 
-const BASE_OPTIONS = {
-  httpOnly: true, // JS client can never read it
-  secure: true, // HTTPS only
-  sameSite: "strict", // CSRF protection
-  path: "/",
-  maxAge: 60 * 60 * 24 * 30, // 30 days
-} as const;
+export function setSessionCookie(cookies: Cookies, auth: AuthResponse) {
+  const session: SessionUser = {
+    token: auth.token,
+    user_id: auth.user_id,
+    username: auth.username
+  };
+  const expires = new Date(auth.expires_at);
 
-export function setSessionCookie(cookies: Cookies, user: SessionUser) {
-  cookies.set(COOKIE, JSON.stringify(user), {
-    ...BASE_OPTIONS,
+  cookies.set(SESSION_COOKIE, JSON.stringify(session), {
+    path: "/",
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    expires,
   });
 }
 
 export function clearSessionCookie(cookies: Cookies) {
-  cookies.delete(COOKIE, { path: "/" });
+  cookies.delete(SESSION_COOKIE, { path: "/" });
+}
+
+export function readSession(cookies: Cookies): SessionUser | undefined {
+  const raw = cookies.get(SESSION_COOKIE);
+  if (!raw) return undefined;
+
+  try {
+    const s = JSON.parse(raw);
+    if (
+      typeof s?.token === "string" && s.token &&
+      typeof s?.user_id === "number" &&
+      typeof s?.username === "string" && s.username
+    ) {
+      return { token: s.token, user_id: s.user_id, username: s.username };
+    }
+  } catch { }
+
+  return undefined;
 }

@@ -4,10 +4,12 @@
     import { page, navigating } from "$app/state";
     import { fly } from "svelte/transition";
 
-    import Toast from "$lib/components/Toast.svelte";
-    import Navbar from "$lib/components/Navbar.svelte";
-    import NowPlayingWidget from "$lib/components/NowPlayingWidget.svelte";
-    import ThemeVarsApplier from "$lib/components/ThemeVarsApplier.svelte";
+    import Toast from "$lib/components/ui/Toast.svelte";
+    import Navbar from "$lib/components/layout/Navbar.svelte";
+    import NowPlayingWidget from "$lib/components/player/NowPlayingWidget.svelte";
+    import ThemeVarsApplier from "$lib/components/layout/ThemeVarsApplier.svelte";
+    import Topography from "$lib/components/layout/Topography.svelte";
+
     import { SvelteTheme } from "svelte-themes";
     import { setLocale, getLL } from "$lib/i18n.svelte";
 
@@ -20,11 +22,35 @@
     const imageUrl = $derived(data.imageUrl);
     const avatarName = $derived(data.avatarName);
     const currentPath = $derived(page.url.pathname);
-    const isLoading = $derived(navigating === null);
+    const isLoading = $derived(navigating.type !== null);
+    let isLight = $state(false);
+
+    $effect(() => {
+        const root = document.documentElement;
+        const sync = () => (isLight = !root.classList.contains("dark"));
+        sync();
+        const mo = new MutationObserver(sync);
+        mo.observe(root, { attributes: true, attributeFilter: ["class"] });
+        return () => mo.disconnect();
+    });
 </script>
 
 <svelte:head>
-    <title>{LL.home.meta.title()}</title>
+    {#if page.url.pathname === "/"}
+        <title>{LL.home.meta.title()}</title>
+        <meta name="description" content={LL.home.hero.description()} />
+        <link rel="canonical" href={`${page.url.origin}${page.url.pathname}`} />
+        <meta property="og:title" content={LL.home.meta.title()} />
+        <meta property="og:description" content={LL.home.hero.description()} />
+        <meta
+            property="og:url"
+            content={`${page.url.origin}${page.url.pathname}`}
+        />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={LL.home.meta.title()} />
+        <meta name="twitter:description" content={LL.home.hero.description()} />
+    {/if}
 </svelte:head>
 
 <div
@@ -32,13 +58,34 @@
     style="opacity: {isLoading ? '1' : '0'}; pointer-events: none"
 >
     <div
-        class="h-full bg-white/50 animate-[progress_1s_ease-in-out_infinite]"
+        class="h-full bg-accent/50 animate-[progress_1s_ease-in-out_infinite]"
     ></div>
 </div>
 
 <SvelteTheme attribute="class">
     <ThemeVarsApplier />
-    <div class="min-h-screen bg-surface text-primary overflow-hidden">
+    <div
+        class="pointer-events-none fixed -z-10 inset-0 mask-[radial-gradient(ellipse_at_50%_30%,#000_20%,transparent_75%)]"
+        aria-hidden="true"
+    >
+        <Topography
+            lightMode={isLight}
+            lowColor={isLight ? "#9db84a" : "#3a4220"}
+            midColor={isLight ? "#5f7a1a" : "#c7f36b"}
+            highColor={isLight ? "#2f3d0a" : "#eaffb8"}
+            opacity={isLight ? 0.25 : 0.2}
+            speed={0.18}
+            morphAmount={3}
+            bands={2.2}
+            thickness={0.008}
+            glow={0.2}
+            contrast={3}
+            grain={false}
+            mouseStrength={0.25}
+            mouseRadius={0.35}
+        />
+    </div>
+    <div class="min-h-screen text-primary overflow-hidden">
         <Navbar {user} {imageUrl} {avatarName} {currentPath} />
 
         <main class="min-h-screen -mt-2">

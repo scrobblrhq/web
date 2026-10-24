@@ -38,13 +38,34 @@ export const PALETTE_VAR_NAMES = [
 export type PaletteVarName = (typeof PALETTE_VAR_NAMES)[number];
 export type PaletteVars = Record<PaletteVarName, string>;
 
+function ensureContrast(
+  candidate: RGB,
+  foreground: RGB,
+  background: RGB,
+  target: number,
+): RGB {
+  if (contrast(candidate, background) >= target) return candidate;
+
+  let low = 0;
+  let high = 1;
+  for (let i = 0; i < 12; i += 1) {
+    const weight = (low + high) / 2;
+    const adjusted = mix(foreground, background, weight);
+    if (contrast(adjusted, background) >= target) high = weight;
+    else low = weight;
+  }
+
+  return mix(foreground, background, high);
+}
+
 /**
  * Derives the full set of --color-* tokens from 5 brand colors, picking
  * roles by contrast/saturation rather than hand-tuning each theme:
  * the darkest color anchors dark-mode backgrounds / light-mode text,
  * the lightest does the opposite, and the most saturated mid-tone
- * becomes the accent. Text tiers are the primary color blended toward
- * the background at fixed ratios, same trick as a text-opacity scale.
+ * becomes the accent. Text tiers begin as blended primary/background values,
+ * then are pulled toward the primary color only when needed to meet their
+ * contrast floor.
  */
 export function generatePaletteVars(
   colors: readonly string[],
@@ -108,9 +129,24 @@ export function generatePaletteVars(
     inverse = bg;
   }
 
-  const secondary = mix(primary, surface, 0.8);
-  const tertiary = mix(primary, surface, 0.5);
-  const quaternary = mix(primary, surface, 0.35);
+  const secondary = ensureContrast(
+    mix(primary, surface, 0.8),
+    primary,
+    card,
+    7.1,
+  );
+  const tertiary = ensureContrast(
+    mix(primary, surface, 0.5),
+    primary,
+    card,
+    4.6,
+  );
+  const quaternary = ensureContrast(
+    mix(primary, surface, 0.35),
+    primary,
+    card,
+    3.1,
+  );
 
   return {
     surface: rgbToHex(surface),

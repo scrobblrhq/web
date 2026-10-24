@@ -2,17 +2,19 @@
     import { browser } from "$app/env";
     import { goto } from "$app/navigation";
     import { page } from "$app/state";
-    import { api, ApiError } from "$lib/api";
-    import type { SearchResponse } from "$lib/api/types";
-    import Avatar from "$lib/components/Avatar.svelte";
+    import { isHttpError } from "@sveltejs/kit";
+    import { search } from "./search.remote";
+    import type { Album, SearchResponse } from "$lib/api/types";
+    import Avatar from "$lib/components/ui/Avatar.svelte";
     import { getLL } from "$lib/i18n.svelte";
-    import MusicNote from "@lucide/svelte/icons/music-2";
     import SearchIcon from "@lucide/svelte/icons/search";
+    import Cover from "$lib/components/tracks/Cover.svelte";
     import XIcon from "@lucide/svelte/icons/x";
     import LoaderIcon from "@lucide/svelte/icons/loader-circle";
     import FrownIcon from "@lucide/svelte/icons/frown";
     import LockIcon from "@lucide/svelte/icons/lock";
-    import VerifiedBadge from "$lib/components/VerifiedBadge.svelte";
+    import VerifiedBadge from "$lib/components/ui/VerifiedBadge.svelte";
+    import { formatCount } from "$lib/utils/format";
 
     let LL = $derived(getLL());
 
@@ -21,19 +23,16 @@
     let query = $state(page.url.searchParams.get("q") ?? "");
     let filter = $state<"all" | "track" | "user" | "artist">("all");
 
-    let results = $state<SearchResponse | null>(null);
+    type SearchResults = Omit<SearchResponse, "tracks"> & {
+        tracks: Array<SearchResponse["tracks"][number] & { album: Album | null }>;
+    };
+    let results = $state<SearchResults | null>(null);
     let loading = $state(false);
     let error = $state("");
     let activeIndex = $state(-1);
     let debounceTimer: ReturnType<typeof setTimeout>;
     let searchSeq = 0;
     let inputEl: HTMLInputElement | undefined = $state();
-
-    function formatCount(n: number): string {
-        if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M";
-        if (n >= 1_000) return (n / 1_000).toFixed(1) + "k";
-        return String(n);
-    }
 
     function formatDuration(ms: number | null): string {
         if (!ms) return "";
@@ -68,7 +67,7 @@
         loading = true;
         error = "";
         try {
-            const data = await api.search.search(trimmed, 15, filter);
+            const data = await search({ q: trimmed, filter });
             if (seq !== searchSeq) return; // superseded by a newer search
             results = data;
             activeIndex = -1;
@@ -77,8 +76,14 @@
             );
         } catch (err) {
             if (seq !== searchSeq) return;
-            if (err instanceof ApiError) error = err.message;
-            else error = (err as Error).message;
+            if (isHttpError(err)) {
+                error = err.status === 419
+                ? LL.search.error.rateLimit()
+                : err.body.message;
+            } else {
+                error = (err as Error).message;
+            }
+
             results = null;
         } finally {
             if (seq === searchSeq) loading = false;
@@ -107,7 +112,7 @@
             activeIndex = -1;
             return;
         }
-        debounceTimer = setTimeout(() => runSearch(query), 300);
+        debounceTimer = setTimeout(() => runSearch(query), 450);
     }
 
     function clearSearch() {
@@ -177,6 +182,7 @@
 </script>
 
 <svelte:head>
+    <meta name="robots" content="noindex, follow" />
     <title
         >{query
             ? LL.search.meta.titlePrefix({ query })
@@ -196,7 +202,6 @@
             <input
                 bind:this={inputEl}
                 type="search"
-                autofocus
                 autocomplete="off"
                 spellcheck="false"
                 bind:value={query}
@@ -243,7 +248,7 @@
                     class="cursor-pointer text-xs px-3 py-1 rounded-full border transition-colors
 					{filter === val
                         ? 'bg-accent text-accent-text border-accent'
-                        : 'border-border text-tertiary hover:text-primary hover:border-border-hover'}"
+                        : 'border-border text-tertiary hover:text-primary hover:border-border-hover bg-accent/10 backdrop-blur-xs'}"
                 >
                     {label}
                 </button>
@@ -274,10 +279,10 @@
         </div>
     {/if}
 
-    <!-- Resultados -->
+    <!-- Results -->
     {#if hasResults}
         <div class="space-y-8 transition-opacity" class:opacity-50={loading}>
-            <!-- Artistas -->
+            <!-- Artists -->
             {#if results!.artists.length > 0 && (filter === "all" || filter === "artist")}
                 <section class="space-y-3">
                     <h2
@@ -311,9 +316,7 @@
                                         <p class="text-xs text-tertiary">
                                             {formatCount(artist.scrobble_count)}
                                             {LL.search.label.scrobbles()}
-                                            · {formatCount(
-                                                artist.listener_count,
-                                            )}
+                                            · {formatCount(artist.listener_count)}
                                             {LL.search.label.listeners()}
                                         </p>
                                     </div>
@@ -324,7 +327,7 @@
                 </section>
             {/if}
 
-            <!-- Usuarios -->
+            <!-- Users -->
             {#if results!.users.length > 0 && (filter === "all" || filter === "user")}
                 <section class="space-y-3">
                     <h2
@@ -381,7 +384,7 @@
                 </section>
             {/if}
 
-            <!-- Canciones -->
+            <!-- Tracks -->
             {#if results!.tracks.length > 0 && (filter === "all" || filter === "track")}
                 <section class="space-y-3">
                     <h2
@@ -392,8 +395,8 @@
                     <ul class="space-y-px">
                         {#each results!.tracks as track, i (track.id)}
                             <li>
-                                <a
-                                    href="/track/{track.id}"
+                                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                                <div
                                     data-result-index={tracksOffset + i}
                                     onmouseenter={() =>
                                         (activeIndex = tracksOffset + i)}
@@ -402,37 +405,34 @@
                                         ? 'bg-hover'
                                         : 'hover:bg-hover'}"
                                 >
-                                    <div
-                                        class="w-10 h-10 rounded bg-hover shrink-0 flex items-center justify-center"
-                                    >
-                                        <span class="text-tertiary text-sm"
-                                            ><MusicNote size={12} /></span
-                                        >
-                                    </div>
+                                    {#if track.album}
+                                        <a href="/album/{track.album.id}" aria-label={track.album.title} class="shrink-0 rounded">
+                                            <Cover url={track.album.image_url} alt={track.album.title} class="size-10 rounded" />
+                                        </a>
+                                    {:else}
+                                        <Cover url={null} alt={track.title} class="size-10 rounded" />
+                                    {/if}
                                     <div class="min-w-0 flex-1">
-                                        <p
-                                            class="text-sm text-secondary group-hover:text-primary transition-colors truncate"
-                                        >
+                                        <a href="/track/{track.id}" class="block text-sm text-secondary group-hover:text-primary transition-colors truncate">
                                             {track.title}
-                                        </p>
+                                        </a>
                                         <p
                                             class="text-xs text-tertiary truncate"
                                         >
                                             {artistMap[track.artist_id] ??
                                                 LL.search.label.unknownArtist()}
+                                            {#if track.album}
+                                                · <a href="/album/{track.album.id}" class="hover:text-secondary">{track.album.title}</a>
+                                            {/if}
                                             {#if track.duration_ms}
-                                                · {formatDuration(
-                                                    track.duration_ms,
-                                                )}
+                                                · {formatDuration(track.duration_ms)}
                                             {/if}
                                         </p>
                                     </div>
-                                    <span
-                                        class="text-xs text-tertiary tabular-nums shrink-0"
-                                    >
+                                    <a href="/track/{track.id}" aria-label={track.title} class="text-xs text-tertiary tabular-nums shrink-0 hover:text-secondary">
                                         {formatCount(track.scrobble_count)}
-                                    </span>
-                                </a>
+                                    </a>
+                                </div>
                             </li>
                         {/each}
                     </ul>

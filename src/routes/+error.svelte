@@ -6,6 +6,7 @@
 </script>
 
 <svelte:head>
+    <meta name="robots" content="noindex, nofollow" />
     <title>{page.status}{LL.error.meta.titleSuffix()}</title>
 </svelte:head>
 

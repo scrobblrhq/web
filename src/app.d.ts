@@ -1,6 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
-import { SessionUser } from "$lib/api/types";
+import { SessionUser, type PublicUser } from "$lib/api/types";
 
 declare global {
   namespace App {
@@ -10,7 +10,7 @@ declare global {
     }
 
     interface PageData {
-      user: SessionUser | undefined;
+      user: PublicUser | undefined;
       lang: string;
     }
 

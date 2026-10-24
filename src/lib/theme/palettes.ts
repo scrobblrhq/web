@@ -1,12 +1,11 @@
 export const PALETTES = {
-  ayase: ["#07BF8C", "#4227F2", "#F27EB4", "#A60D61", "#200224"],
-  aira: ["#64B9F9", "#4574B8", "#389BF8", "#15298A", "#EE5C66"],
-  lobster: ["#F5E9E2", "#E3B5A4", "#D44D5C", "#773344", "#160029"],
-  okarun: ["#F2C230", "#F2921D", "#F24F13", "#8082A6", "#46334F"],
-  winter: ["#EBDFE7", "#C8B4C4", "#261F28", "#978090", "#5C4B57"],
-  chariot: ["#F2F5E2", "#E3DEA4", "#D4954D", "#775533", "#290024"],
-  // lain: ["#FEF3D7", "#0C0002", "#8941AD", "#CC5446", "#EBE6E3"]
-  lain: ["#CB31F7", "#D37F8C", "#99D5DD", "#080404", "#24B5D4"]
+  signal: ["#D6FF5F", "#35D0BA", "#234BFF", "#11151F", "#F5F7EE"],
+  cobalt: ["#62A0FF", "#39D5D0", "#173A7A", "#0B1220", "#F4F7FF"],
+  ember: ["#FF936B", "#FFD166", "#B64755", "#21181A", "#FFF4EB"],
+  moss: ["#C0E85A", "#61B58F", "#245A47", "#10211B", "#F3F7E8"],
+  rose: ["#FF7898", "#CE8BFF", "#6A3D6B", "#211720", "#FFF2F5"],
+  nocturne: ["#9B8CFF", "#5ED5D0", "#31306E", "#11111D", "#F2F1FF"],
+  mono: ["#D7FF64", "#AAB4C4", "#586174", "#12151C", "#F7F8F4"],
 } as const;
 
 export type NamedPalette = keyof typeof PALETTES;

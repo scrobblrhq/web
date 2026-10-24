@@ -1,27 +1,38 @@
 import type { RequestHandler } from "./$types";
-import { API_URL } from "$app/env/public";
+import { createApi } from "$lib/server/api";
 
-export const GET: RequestHandler = async ({ params, locals, fetch, request }) => {
-  const headers: Record<string, string> = {};
-  if (locals.user?.token) {
-    headers.Authorization = `Bearer ${locals.user.token}`;
+export const GET: RequestHandler = async ({
+  params,
+  locals,
+  cookies,
+  request,
+  getClientAddress
+}) => {
+  let upstream: Response;
+  try {
+    upstream = await createApi({ getClientAddress, locals, cookies }).profile.getLive(
+      params.username,
+      request.signal,
+    );
+  } catch {
+    return new Response(null, { status: 502 });
   }
 
-  const upstream = await fetch(`${API_URL}/v1/user/${params.username}/live`, {
-    headers,
-    signal: request.signal,
-  });
-
   if (!upstream.ok || !upstream.body) {
-    return new Response(null, { status: upstream.status });
+    return new Response(await upstream.text().catch(() => null), {
+      status: upstream.status,
+      headers: {
+        "Content-Type": upstream.headers.get("content-type") ?? "text/plain"
+      }
+    });
   }
 
   return new Response(upstream.body, {
-    status: 200,
+    status: upstream.status,
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive",
+      "X-Accel-Buffering": "no"
     },
   });
 };

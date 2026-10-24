@@ -16,10 +16,6 @@ export type Translations = RootTranslation
 type RootTranslation = {
 	nav: {
 		/**
-		 * S​c​r​o​b​b​l​r
-		 */
-		brand: string
-		/**
 		 * B​u​s​c​a​r
 		 */
 		search: string
@@ -43,6 +39,131 @@ type RootTranslation = {
 		 * R​e​g​i​s​t​r​a​r​s​e
 		 */
 		register: string
+	}
+	functions: {
+		time: {
+			/**
+			 * N​u​n​c​a
+			 */
+			never: string
+			/**
+			 * A​h​o​r​a​ ​m​i​s​m​o
+			 */
+			now: string
+			/**
+			 * H​a​c​e​ ​{​m​i​n​s​}​ ​m​i​n​u​t​o​s
+			 * @param {unknown} mins
+			 */
+			minsAgo: RequiredParams<'mins'>
+			/**
+			 * H​a​c​e​ ​{​h​o​u​r​s​}​ ​h​o​r​a​s
+			 * @param {unknown} hours
+			 */
+			hoursAgo: RequiredParams<'hours'>
+			/**
+			 * H​o​y
+			 */
+			today: string
+			/**
+			 * A​y​e​r
+			 */
+			yesterday: string
+			/**
+			 * H​a​c​e​ ​{​d​a​y​s​}​ ​d​í​a​s
+			 * @param {unknown} days
+			 */
+			daysAgo: RequiredParams<'days'>
+		}
+	}
+	common: {
+		/**
+		 * H​a​s​ ​s​u​p​e​r​a​d​o​ ​e​l​ ​l​í​m​i​t​e​ ​d​e​ ​p​e​t​i​c​i​o​n​e​s​.​ ​E​s​p​e​r​a​ ​u​n​ ​m​i​n​u​t​o​ ​e​ ​i​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​.
+		 */
+		rateLimited: string
+	}
+	scrobbler: {
+		authorize: {
+			/**
+			 * A​u​t​o​r​i​z​a​r​ ​a​p​l​i​c​a​c​i​ó​n
+			 */
+			title: string
+			/**
+			 * U​n​a​ ​a​p​l​i​c​a​c​i​ó​n​ ​q​u​i​e​r​e​ ​r​e​g​i​s​t​r​a​r​ ​s​c​r​o​b​b​l​e​s​ ​e​n​ ​t​u​ ​c​u​e​n​t​a​ ​@​{​u​s​e​r​n​a​m​e​}​.
+			 * @param {unknown} username
+			 */
+			intro: RequiredParams<'username'>
+			/**
+			 * A​p​l​i​c​a​c​i​ó​n​ ​(​c​l​a​v​e​ ​A​P​I​)
+			 */
+			appLabel: string
+			/**
+			 * C​u​e​n​t​a
+			 */
+			accountLabel: string
+			/**
+			 * D​e​s​p​u​é​s​ ​i​r​á​s​ ​a
+			 */
+			destinationLabel: string
+			/**
+			 * A​l​ ​a​p​r​o​b​a​r​ ​n​o​ ​s​a​l​d​r​á​s​ ​d​e​ ​e​s​t​a​ ​p​á​g​i​n​a​:​ ​v​u​e​l​v​e​ ​a​ ​l​a​ ​a​p​l​i​c​a​c​i​ó​n​ ​p​a​r​a​ ​t​e​r​m​i​n​a​r​.
+			 */
+			nextToken: string
+			/**
+			 * A​l​ ​a​p​r​o​b​a​r​,​ ​t​u​ ​n​a​v​e​g​a​d​o​r​ ​i​r​á​ ​a​ ​{​h​o​s​t​}​.​ ​A​p​r​u​é​b​a​l​o​ ​s​o​l​o​ ​s​i​ ​r​e​c​o​n​o​c​e​s​ ​e​s​e​ ​s​i​t​i​o​.
+			 * @param {unknown} host
+			 */
+			nextCallback: RequiredParams<'host'>
+			/**
+			 * A​p​r​o​b​a​r
+			 */
+			approve: string
+			/**
+			 * A​p​r​o​b​a​n​d​o​…
+			 */
+			approving: string
+			/**
+			 * C​a​n​c​e​l​a​r
+			 */
+			cancel: string
+			/**
+			 * A​p​r​o​b​a​d​a​.​ ​Y​a​ ​p​u​e​d​e​s​ ​v​o​l​v​e​r​ ​a​ ​l​a​ ​a​p​l​i​c​a​c​i​ó​n​.
+			 */
+			approved: string
+			/**
+			 * E​s​t​a​ ​s​o​l​i​c​i​t​u​d​ ​y​a​ ​e​s​t​a​b​a​ ​a​p​r​o​b​a​d​a​.
+			 */
+			alreadyApproved: string
+			/**
+			 * E​s​t​a​ ​s​o​l​i​c​i​t​u​d​ ​h​a​ ​c​a​d​u​c​a​d​o​.​ ​V​u​e​l​v​e​ ​a​ ​e​m​p​e​z​a​r​ ​d​e​s​d​e​ ​l​a​ ​a​p​l​i​c​a​c​i​ó​n​.
+			 */
+			expired: string
+		}
+		error: {
+			/**
+			 * S​o​l​i​c​i​t​u​d​ ​n​o​ ​v​á​l​i​d​a​.
+			 */
+			invalidRequest: string
+			/**
+			 * L​a​ ​d​i​r​e​c​c​i​ó​n​ ​d​e​ ​r​e​t​o​r​n​o​ ​n​o​ ​e​s​ ​v​á​l​i​d​a​.
+			 */
+			invalidCallback: string
+			/**
+			 * N​o​ ​e​n​c​o​n​t​r​a​m​o​s​ ​e​s​a​ ​s​o​l​i​c​i​t​u​d​.​ ​P​u​e​d​e​ ​h​a​b​e​r​ ​c​a​d​u​c​a​d​o​.
+			 */
+			notFound: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​c​a​r​g​a​r​ ​l​a​ ​s​o​l​i​c​i​t​u​d​.
+			 */
+			loadFailed: string
+			/**
+			 * T​u​ ​s​e​s​i​ó​n​ ​h​a​ ​c​a​d​u​c​a​d​o​.​ ​I​n​i​c​i​a​ ​s​e​s​i​ó​n​ ​d​e​ ​n​u​e​v​o​.
+			 */
+			signedOut: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​a​p​r​o​b​a​r​ ​l​a​ ​a​p​l​i​c​a​c​i​ó​n​.
+			 */
+			approveFailed: string
+		}
 	}
 	home: {
 		meta: {
@@ -233,6 +354,10 @@ type RootTranslation = {
 			 */
 			invalidCredentials: string
 			/**
+			 * D​e​m​a​s​i​a​d​o​s​ ​i​n​t​e​n​t​o​s​.​ ​E​s​p​e​r​a​ ​u​n​ ​m​o​m​e​n​t​o​ ​e​ ​i​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​.
+			 */
+			rateLimited: string
+			/**
 			 * N​o​ ​s​e​ ​p​u​d​o​ ​c​o​n​e​c​t​a​r​ ​c​o​n​ ​e​l​ ​s​e​r​v​i​d​o​r
 			 */
 			serverError: string
@@ -383,6 +508,12 @@ type RootTranslation = {
 		loginLink: string
 	}
 	search: {
+		error: {
+			/**
+			 * D​e​m​a​s​i​a​d​a​s​ ​b​ú​s​q​u​e​d​a​s​ ​e​n​ ​p​o​c​o​ ​t​i​e​m​p​o​.​ ​E​s​p​e​r​a​ ​u​n​ ​m​o​m​e​n​t​o​ ​e​ ​i​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​.
+			 */
+			rateLimit: string
+		}
 		meta: {
 			/**
 			 * B​u​s​c​a​r
@@ -528,6 +659,14 @@ type RootTranslation = {
 			 */
 			notAuthenticated: string
 			/**
+			 * E​l​ ​a​r​c​h​i​v​o​ ​d​e​ ​i​m​a​g​e​n​ ​n​o​ ​e​s​ ​v​á​l​i​d​o​.
+			 */
+			invalidImage: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​s​u​b​i​r​ ​l​a​ ​i​m​a​g​e​n​.
+			 */
+			uploadFailed: string
+			/**
 			 * C​o​m​e​n​t​a​r​i​o​ ​v​a​c​í​o
 			 */
 			emptyComment: string
@@ -601,7 +740,24 @@ type RootTranslation = {
 			deleteFailed: string
 		}
 	}
+	album: {
+		/**
+		 * A​ñ​o​ ​d​e​ ​l​a​n​z​a​m​i​e​n​t​o
+		 */
+		releaseYear: string
+	}
 	profile: {
+		gallery: {
+			/**
+			 * V​e​r​ ​g​a​l​e​r​í​a
+			 */
+			view: string
+			/**
+			 * {​c​o​u​n​t​}​ ​i​m​á​g​e​n​e​s
+			 * @param {unknown} count
+			 */
+			count: RequiredParams<'count'>
+		}
 		meta: {
 			/**
 			 *  ​—​ ​S​c​r​o​b​b​l​r
@@ -610,17 +766,9 @@ type RootTranslation = {
 		}
 		period: {
 			/**
-			 * 7​d
+			 * 1​a
 			 */
-			'7days': string
-			/**
-			 * 3​0​d
-			 */
-			'1month': string
-			/**
-			 * 9​0​d
-			 */
-			'3months': string
+			'1year': string
 			/**
 			 * T​o​d​o
 			 */
@@ -683,6 +831,25 @@ type RootTranslation = {
 			 * E​r​r​o​r​ ​a​l​ ​c​a​m​b​i​a​r​ ​s​e​g​u​i​m​i​e​n​t​o
 			 */
 			followError: string
+			/**
+			 * B​l​o​q​u​e​a​s​t​e​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}
+			 * @param {unknown} username
+			 */
+			blockSuccess: RequiredParams<'username'>
+			/**
+			 * D​e​s​b​l​o​q​u​e​a​s​t​e​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}
+			 * @param {unknown} username
+			 */
+			unblockSuccess: RequiredParams<'username'>
+			/**
+			 * E​r​r​o​r​ ​a​l​ ​c​a​m​b​i​a​r​ ​e​l​ ​b​l​o​q​u​e​o
+			 */
+			blockError: string
+			/**
+			 * ¿​B​l​o​q​u​e​a​r​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}​?​ ​P​o​d​r​á​s​ ​d​e​s​b​l​o​q​u​e​a​r​l​o​ ​d​e​s​p​u​é​s​.
+			 * @param {unknown} username
+			 */
+			confirmBlock: RequiredParams<'username'>
 		}
 		/**
 		 * U​s​u​a​r​i​o​ ​v​e​r​i​f​i​c​a​d​o
@@ -701,6 +868,14 @@ type RootTranslation = {
 			 * S​e​g​u​i​r
 			 */
 			follow: string
+			/**
+			 * B​l​o​q​u​e​a​r
+			 */
+			block: string
+			/**
+			 * D​e​s​b​l​o​q​u​e​a​r
+			 */
+			unblock: string
 		}
 		stat: {
 			/**
@@ -800,6 +975,22 @@ type RootTranslation = {
 			 * S​e​g​u​i​r
 			 */
 			follow: string
+			/**
+			 * B​l​o​q​u​e​a​r
+			 */
+			block: string
+			/**
+			 * D​e​s​b​l​o​q​u​e​a​r
+			 */
+			unblock: string
+			/**
+			 * E​l​i​m​i​n​a​r​ ​s​e​g​u​i​d​o​r
+			 */
+			removeFollower: string
+			/**
+			 * V​e​r​ ​m​á​s
+			 */
+			loadMore: string
 		}
 		toast: {
 			/**
@@ -816,6 +1007,35 @@ type RootTranslation = {
 			 * E​r​r​o​r​ ​a​l​ ​c​a​m​b​i​a​r​ ​s​e​g​u​i​m​i​e​n​t​o
 			 */
 			error: string
+			/**
+			 * B​l​o​q​u​e​a​s​t​e​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}
+			 * @param {unknown} username
+			 */
+			block: RequiredParams<'username'>
+			/**
+			 * D​e​s​b​l​o​q​u​e​a​s​t​e​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}
+			 * @param {unknown} username
+			 */
+			unblock: RequiredParams<'username'>
+			/**
+			 * E​l​i​m​i​n​a​s​t​e​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}​ ​d​e​ ​t​u​s​ ​s​e​g​u​i​d​o​r​e​s
+			 * @param {unknown} username
+			 */
+			removeFollower: RequiredParams<'username'>
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​c​o​m​p​l​e​t​a​r​ ​l​a​ ​a​c​c​i​ó​n
+			 */
+			actionError: string
+			/**
+			 * ¿​E​l​i​m​i​n​a​r​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}​ ​d​e​ ​t​u​s​ ​s​e​g​u​i​d​o​r​e​s​?
+			 * @param {unknown} username
+			 */
+			confirmRemoveFollower: RequiredParams<'username'>
+			/**
+			 * ¿​B​l​o​q​u​e​a​r​ ​a​ ​@​{​u​s​e​r​n​a​m​e​}​?​ ​P​o​d​r​á​s​ ​d​e​s​b​l​o​q​u​e​a​r​l​o​ ​d​e​s​p​u​é​s​.
+			 * @param {unknown} username
+			 */
+			confirmBlock: RequiredParams<'username'>
 		}
 		error: {
 			/**
@@ -849,6 +1069,14 @@ type RootTranslation = {
 			 */
 			profileDesc: string
 			/**
+			 * C​o​n​e​x​i​o​n​e​s
+			 */
+			connections: string
+			/**
+			 * T​r​a​e​ ​t​u​ ​h​i​s​t​o​r​i​a​l​ ​d​e​ ​e​s​c​u​c​h​a​ ​a​ ​S​c​r​o​b​b​l​r​ ​a​u​t​o​m​á​t​i​c​a​m​e​n​t​e​.
+			 */
+			connectionsDesc: string
+			/**
 			 * P​r​i​v​a​c​i​d​a​d
 			 */
 			privacy: string
@@ -861,7 +1089,7 @@ type RootTranslation = {
 			 */
 			apiTokens: string
 			/**
-			 * G​e​s​t​i​o​n​a​ ​t​u​s​ ​t​o​k​e​n​s​ ​p​a​r​a​ ​s​c​r​o​b​b​l​e​a​r​ ​d​e​s​d​e​ ​r​e​p​r​o​d​u​c​t​o​r​e​s​ ​e​x​t​e​r​n​o​s​.
+			 * G​e​s​t​i​o​n​a​ ​t​o​k​e​n​s​ ​d​e​ ​a​c​c​e​s​o​ ​p​a​r​a​ ​c​l​i​e​n​t​e​s​ ​q​u​e​ ​u​s​a​n​ ​d​i​r​e​c​t​a​m​e​n​t​e​ ​l​a​ ​A​P​I​ ​d​e​ ​S​c​r​o​b​b​l​r​.
 			 */
 			apiTokensDesc: string
 			/**
@@ -872,6 +1100,40 @@ type RootTranslation = {
 			 * P​e​r​s​o​n​a​l​i​z​a​ ​c​ó​m​o​ ​s​e​ ​v​e​ ​S​c​r​o​b​b​l​r​ ​p​a​r​a​ ​t​i​.
 			 */
 			appearanceDesc: string
+			/**
+			 * S​e​s​i​o​n​e​s
+			 */
+			sessions: string
+			/**
+			 * G​e​s​t​i​o​n​a​ ​l​a​s​ ​s​e​s​i​o​n​e​s​ ​a​b​i​e​r​t​a​s​ ​e​n​ ​t​u​ ​c​u​e​n​t​a​.
+			 */
+			sessionsDesc: string
+			/**
+			 * C​e​r​r​a​r​ ​s​e​s​i​ó​n​ ​e​n​ ​t​o​d​o​s​ ​l​o​s​ ​d​i​s​p​o​s​i​t​i​v​o​s
+			 */
+			allTitle: string
+			/**
+			 * I​n​v​a​l​i​d​a​ ​t​o​d​a​s​ ​t​u​s​ ​s​e​s​i​o​n​e​s​,​ ​i​n​c​l​u​i​d​a​ ​e​s​t​a​.​ ​T​e​n​d​r​á​s​ ​q​u​e​ ​v​o​l​v​e​r​ ​a​ ​i​n​i​c​i​a​r​ ​s​e​s​i​ó​n​.
+			 */
+			allDesc: string
+		}
+		session: {
+			/**
+			 * C​e​r​r​a​r​ ​t​o​d​a​s​ ​l​a​s​ ​s​e​s​i​o​n​e​s
+			 */
+			allButton: string
+			/**
+			 * C​a​n​c​e​l​a​r
+			 */
+			cancel: string
+			/**
+			 * S​í​,​ ​c​e​r​r​a​r​ ​t​o​d​a​s
+			 */
+			confirm: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​i​e​r​o​n​ ​c​e​r​r​a​r​ ​l​a​s​ ​s​e​s​i​o​n​e​s​.
+			 */
+			error: string
 		}
 		label: {
 			/**
@@ -906,6 +1168,174 @@ type RootTranslation = {
 			 * P​a​l​e​t​a​ ​d​e​ ​c​o​l​o​r
 			 */
 			palette: string
+		}
+		connection: {
+			/**
+			 * C​o​n​e​c​t​a​d​o
+			 */
+			connected: string
+			/**
+			 * N​o​ ​c​o​n​e​c​t​a​d​o
+			 */
+			disconnected: string
+			/**
+			 * C​o​n​e​c​t​a​r​ ​{​p​r​o​v​i​d​e​r​}
+			 * @param {unknown} provider
+			 */
+			connect: RequiredParams<'provider'>
+			/**
+			 * D​e​s​c​o​n​e​c​t​a​r
+			 */
+			disconnect: string
+			/**
+			 * E​l​ ​s​c​r​o​b​b​l​i​n​g​ ​a​u​t​o​m​á​t​i​c​o​ ​e​s​t​á​ ​a​c​t​i​v​o​.
+			 */
+			active: string
+			/**
+			 * C​o​n​e​c​t​a​ ​t​u​ ​c​u​e​n​t​a​ ​p​a​r​a​ ​e​m​p​e​z​a​r​ ​a​ ​s​c​r​o​b​b​l​e​a​r​ ​a​u​t​o​m​á​t​i​c​a​m​e​n​t​e​.
+			 */
+			inactive: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​a​c​t​u​a​l​i​z​a​r​ ​l​a​ ​c​o​n​e​x​i​ó​n​ ​d​e​ ​{​p​r​o​v​i​d​e​r​}​.
+			 * @param {unknown} provider
+			 */
+			error: RequiredParams<'provider'>
+			result: {
+				/**
+				 * {​p​r​o​v​i​d​e​r​}​ ​c​o​n​e​c​t​a​d​o​.
+				 * @param {unknown} provider
+				 */
+				ok: RequiredParams<'provider'>
+				/**
+				 * C​a​n​c​e​l​a​s​t​e​ ​l​a​ ​c​o​n​e​x​i​ó​n​ ​c​o​n​ ​{​p​r​o​v​i​d​e​r​}​.
+				 * @param {unknown} provider
+				 */
+				denied: RequiredParams<'provider'>
+				/**
+				 * L​a​ ​r​e​s​p​u​e​s​t​a​ ​d​e​ ​{​p​r​o​v​i​d​e​r​}​ ​n​o​ ​e​s​ ​v​á​l​i​d​a​.​ ​I​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​.
+				 * @param {unknown} provider
+				 */
+				invalid: RequiredParams<'provider'>
+				/**
+				 * E​s​a​ ​c​u​e​n​t​a​ ​d​e​ ​{​p​r​o​v​i​d​e​r​}​ ​y​a​ ​e​s​t​á​ ​v​i​n​c​u​l​a​d​a​.
+				 * @param {unknown} provider
+				 */
+				conflict: RequiredParams<'provider'>
+				/**
+				 * D​e​m​a​s​i​a​d​o​s​ ​i​n​t​e​n​t​o​s​.​ ​E​s​p​e​r​a​ ​u​n​ ​m​o​m​e​n​t​o​.
+				 */
+				rateLimited: string
+				/**
+				 * {​p​r​o​v​i​d​e​r​}​ ​n​o​ ​e​s​t​á​ ​d​i​s​p​o​n​i​b​l​e​ ​a​h​o​r​a​ ​m​i​s​m​o​.
+				 * @param {unknown} provider
+				 */
+				unavailable: RequiredParams<'provider'>
+				/**
+				 * N​o​ ​s​e​ ​p​u​d​o​ ​c​o​n​e​c​t​a​r​ ​{​p​r​o​v​i​d​e​r​}​.
+				 * @param {unknown} provider
+				 */
+				failed: RequiredParams<'provider'>
+			}
+		}
+		'import': {
+			/**
+			 * I​m​p​o​r​t​a​r​ ​h​i​s​t​o​r​i​a​l​ ​d​e​ ​L​a​s​t​.​f​m
+			 */
+			title: string
+			/**
+			 * T​r​a​e​ ​a​ ​S​c​r​o​b​b​l​r​ ​t​u​s​ ​s​c​r​o​b​b​l​e​s​ ​y​ ​c​a​n​c​i​o​n​e​s​ ​f​a​v​o​r​i​t​a​s​ ​d​e​ ​L​a​s​t​.​f​m​.​ ​S​e​ ​o​m​i​t​e​n​ ​l​o​s​ ​s​c​r​o​b​b​l​e​s​ ​q​u​e​ ​y​a​ ​e​x​i​s​t​e​n​.
+			 */
+			description: string
+			/**
+			 * C​o​n​e​c​t​a​d​o​ ​c​o​m​o​ ​{​u​s​e​r​n​a​m​e​}​.​ ​P​u​e​d​e​s​ ​i​m​p​o​r​t​a​r​ ​a​q​u​í​ ​s​u​ ​h​i​s​t​o​r​i​a​l​.
+			 * @param {unknown} username
+			 */
+			connectedAs: RequiredParams<'username'>
+			/**
+			 * V​i​n​c​u​l​a​ ​L​a​s​t​.​f​m​ ​p​a​r​a​ ​i​m​p​o​r​t​a​r​ ​t​u​ ​h​i​s​t​o​r​i​a​l​ ​d​e​ ​e​s​c​u​c​h​a​ ​y​ ​c​a​n​c​i​o​n​e​s​ ​f​a​v​o​r​i​t​a​s​.
+			 */
+			unlinked: string
+			/**
+			 * I​m​p​o​r​t​a​r​ ​h​i​s​t​o​r​i​a​l
+			 */
+			start: string
+			/**
+			 * I​n​i​c​i​a​n​d​o​…
+			 */
+			starting: string
+			/**
+			 * I​m​p​o​r​t​a​c​i​ó​n​ ​d​e​ ​L​a​s​t​.​f​m​ ​e​n​ ​c​o​l​a​.
+			 */
+			queued: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​i​n​i​c​i​a​r​ ​l​a​ ​i​m​p​o​r​t​a​c​i​ó​n​ ​d​e​ ​L​a​s​t​.​f​m​.
+			 */
+			startFailed: string
+			/**
+			 * V​o​l​v​e​r​ ​a​ ​r​e​v​i​s​a​r​ ​t​o​d​o​ ​e​l​ ​h​i​s​t​o​r​i​a​l
+			 */
+			fullHistory: string
+			/**
+			 * I​m​p​o​r​t​a​c​i​ó​n​ ​m​á​s​ ​r​e​c​i​e​n​t​e
+			 */
+			recent: string
+			/**
+			 * E​n​ ​e​s​p​e​r​a
+			 */
+			pending: string
+			/**
+			 * I​m​p​o​r​t​a​n​d​o
+			 */
+			running: string
+			/**
+			 * C​o​m​p​l​e​t​a​d​a
+			 */
+			done: string
+			/**
+			 * F​a​l​l​i​d​a
+			 */
+			failed: string
+			/**
+			 * C​a​n​c​e​l​a​d​a
+			 */
+			cancelled: string
+			/**
+			 * P​r​o​g​r​e​s​o​ ​d​e​ ​i​m​p​o​r​t​a​c​i​ó​n
+			 */
+			progressLabel: string
+			/**
+			 * {​f​e​t​c​h​e​d​}​ ​d​e​ ​{​t​o​t​a​l​}​ ​s​c​r​o​b​b​l​e​s​ ​l​e​í​d​o​s
+			 * @param {unknown} fetched
+			 * @param {unknown} total
+			 */
+			progress: RequiredParams<'fetched' | 'total'>
+			/**
+			 * {​i​m​p​o​r​t​e​d​}​ ​i​m​p​o​r​t​a​d​o​s​ ​·​ ​{​d​u​p​l​i​c​a​t​e​s​}​ ​d​u​p​l​i​c​a​d​o​s​ ​·​ ​{​s​k​i​p​p​e​d​}​ ​o​m​i​t​i​d​o​s
+			 * @param {unknown} duplicates
+			 * @param {unknown} imported
+			 * @param {unknown} skipped
+			 */
+			summary: RequiredParams<'duplicates' | 'imported' | 'skipped'>
+			/**
+			 * C​a​n​c​e​l​a​r​ ​i​m​p​o​r​t​a​c​i​ó​n
+			 */
+			cancel: string
+			/**
+			 * C​a​n​c​e​l​a​n​d​o​…
+			 */
+			cancelling: string
+			/**
+			 * I​m​p​o​r​t​a​c​i​ó​n​ ​c​a​n​c​e​l​a​d​a​.
+			 */
+			cancelledToast: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​c​a​n​c​e​l​a​r​ ​l​a​ ​i​m​p​o​r​t​a​c​i​ó​n​.
+			 */
+			cancelFailed: string
+			/**
+			 * I​m​p​o​r​t​a​c​i​ó​n​ ​n​o​ ​v​á​l​i​d​a​.
+			 */
+			invalidId: string
 		}
 		placeholder: {
 			/**
@@ -1005,7 +1435,7 @@ type RootTranslation = {
 			 */
 			nameLabel: string
 			/**
-			 * e​j​.​ ​S​p​o​t​i​f​y​,​ ​L​a​s​t​.​f​m​ ​s​c​r​o​b​b​l​e​r​…
+			 * e​j​.​ ​S​p​o​t​i​f​y​,​ ​L​a​s​t​.​f​m​ ​s​c​r​o​b​b​l​e​r​.​.​.
 			 */
 			namePlaceholder: string
 			/**
@@ -1067,25 +1497,6 @@ type RootTranslation = {
 			 */
 			revokeError: string
 		}
-		time: {
-			/**
-			 * N​u​n​c​a
-			 */
-			never: string
-			/**
-			 * H​o​y
-			 */
-			today: string
-			/**
-			 * A​y​e​r
-			 */
-			yesterday: string
-			/**
-			 * H​a​c​e​ ​{​d​a​y​s​}​ ​d​í​a​s
-			 * @param {unknown} days
-			 */
-			daysAgo: RequiredParams<'days'>
-		}
 		error: {
 			/**
 			 * N​o​ ​a​u​t​e​n​t​i​c​a​d​o​.
@@ -1100,7 +1511,7 @@ type RootTranslation = {
 			 */
 			nameTooLong: string
 			/**
-			 * e​j​.​ ​S​p​o​t​i​f​y​,​ ​L​a​s​t​.​f​m​ ​s​c​r​o​b​b​l​e​r​…
+			 * e​j​.​ ​S​p​o​t​i​f​y​,​ ​L​a​s​t​.​f​m​ ​s​c​r​o​b​b​l​e​r​.​.​.
 			 */
 			namePlaceholder: string
 			/**
@@ -1119,6 +1530,14 @@ type RootTranslation = {
 			 * N​o​ ​s​e​ ​p​u​d​i​e​r​o​n​ ​g​u​a​r​d​a​r​ ​l​o​s​ ​c​a​m​b​i​o​s​.
 			 */
 			saveFailed: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​o​ ​c​o​n​e​c​t​a​r​ ​l​a​ ​c​u​e​n​t​a​.
+			 */
+			disconnectFailed: string
+			/**
+			 * N​o​ ​s​e​ ​p​u​d​i​e​r​o​n​ ​c​e​r​r​a​r​ ​l​a​s​ ​s​e​s​i​o​n​e​s​.​ ​I​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​.
+			 */
+			logoutAllFailed: string
 		}
 	}
 	comments: {
@@ -1288,6 +1707,10 @@ type RootTranslation = {
 		 */
 		title: string
 		/**
+		 * C​o​n​e​x​i​o​n​e​s
+		 */
+		connections: string
+		/**
 		 * P​e​r​f​i​l
 		 */
 		profile: string
@@ -1303,6 +1726,10 @@ type RootTranslation = {
 		 * A​p​a​r​i​e​n​c​i​a
 		 */
 		appearance: string
+		/**
+		 * S​e​s​i​o​n​e​s
+		 */
+		sessions: string
 		/**
 		 * V​e​r​ ​p​e​r​f​i​l
 		 */
@@ -1355,10 +1782,6 @@ type RootTranslation = {
 export type TranslationFunctions = {
 	nav: {
 		/**
-		 * Scrobblr
-		 */
-		brand: () => LocalizedString
-		/**
 		 * Buscar
 		 */
 		search: () => LocalizedString
@@ -1382,6 +1805,126 @@ export type TranslationFunctions = {
 		 * Registrarse
 		 */
 		register: () => LocalizedString
+	}
+	functions: {
+		time: {
+			/**
+			 * Nunca
+			 */
+			never: () => LocalizedString
+			/**
+			 * Ahora mismo
+			 */
+			now: () => LocalizedString
+			/**
+			 * Hace {mins} minutos
+			 */
+			minsAgo: (arg: { mins: unknown }) => LocalizedString
+			/**
+			 * Hace {hours} horas
+			 */
+			hoursAgo: (arg: { hours: unknown }) => LocalizedString
+			/**
+			 * Hoy
+			 */
+			today: () => LocalizedString
+			/**
+			 * Ayer
+			 */
+			yesterday: () => LocalizedString
+			/**
+			 * Hace {days} días
+			 */
+			daysAgo: (arg: { days: unknown }) => LocalizedString
+		}
+	}
+	common: {
+		/**
+		 * Has superado el límite de peticiones. Espera un minuto e inténtalo de nuevo.
+		 */
+		rateLimited: () => LocalizedString
+	}
+	scrobbler: {
+		authorize: {
+			/**
+			 * Autorizar aplicación
+			 */
+			title: () => LocalizedString
+			/**
+			 * Una aplicación quiere registrar scrobbles en tu cuenta @{username}.
+			 */
+			intro: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * Aplicación (clave API)
+			 */
+			appLabel: () => LocalizedString
+			/**
+			 * Cuenta
+			 */
+			accountLabel: () => LocalizedString
+			/**
+			 * Después irás a
+			 */
+			destinationLabel: () => LocalizedString
+			/**
+			 * Al aprobar no saldrás de esta página: vuelve a la aplicación para terminar.
+			 */
+			nextToken: () => LocalizedString
+			/**
+			 * Al aprobar, tu navegador irá a {host}. Apruébalo solo si reconoces ese sitio.
+			 */
+			nextCallback: (arg: { host: unknown }) => LocalizedString
+			/**
+			 * Aprobar
+			 */
+			approve: () => LocalizedString
+			/**
+			 * Aprobando…
+			 */
+			approving: () => LocalizedString
+			/**
+			 * Cancelar
+			 */
+			cancel: () => LocalizedString
+			/**
+			 * Aprobada. Ya puedes volver a la aplicación.
+			 */
+			approved: () => LocalizedString
+			/**
+			 * Esta solicitud ya estaba aprobada.
+			 */
+			alreadyApproved: () => LocalizedString
+			/**
+			 * Esta solicitud ha caducado. Vuelve a empezar desde la aplicación.
+			 */
+			expired: () => LocalizedString
+		}
+		error: {
+			/**
+			 * Solicitud no válida.
+			 */
+			invalidRequest: () => LocalizedString
+			/**
+			 * La dirección de retorno no es válida.
+			 */
+			invalidCallback: () => LocalizedString
+			/**
+			 * No encontramos esa solicitud. Puede haber caducado.
+			 */
+			notFound: () => LocalizedString
+			/**
+			 * No se pudo cargar la solicitud.
+			 */
+			loadFailed: () => LocalizedString
+			/**
+			 * Tu sesión ha caducado. Inicia sesión de nuevo.
+			 */
+			signedOut: () => LocalizedString
+			/**
+			 * No se pudo aprobar la aplicación.
+			 */
+			approveFailed: () => LocalizedString
+		}
 	}
 	home: {
 		meta: {
@@ -1572,6 +2115,10 @@ export type TranslationFunctions = {
 			 */
 			invalidCredentials: () => LocalizedString
 			/**
+			 * Demasiados intentos. Espera un momento e inténtalo de nuevo.
+			 */
+			rateLimited: () => LocalizedString
+			/**
 			 * No se pudo conectar con el servidor
 			 */
 			serverError: () => LocalizedString
@@ -1722,6 +2269,12 @@ export type TranslationFunctions = {
 		loginLink: () => LocalizedString
 	}
 	search: {
+		error: {
+			/**
+			 * Demasiadas búsquedas en poco tiempo. Espera un momento e inténtalo de nuevo.
+			 */
+			rateLimit: () => LocalizedString
+		}
 		meta: {
 			/**
 			 * Buscar
@@ -1866,6 +2419,14 @@ export type TranslationFunctions = {
 			 */
 			notAuthenticated: () => LocalizedString
 			/**
+			 * El archivo de imagen no es válido.
+			 */
+			invalidImage: () => LocalizedString
+			/**
+			 * No se pudo subir la imagen.
+			 */
+			uploadFailed: () => LocalizedString
+			/**
 			 * Comentario vacío
 			 */
 			emptyComment: () => LocalizedString
@@ -1939,7 +2500,23 @@ export type TranslationFunctions = {
 			deleteFailed: () => LocalizedString
 		}
 	}
+	album: {
+		/**
+		 * Año de lanzamiento
+		 */
+		releaseYear: () => LocalizedString
+	}
 	profile: {
+		gallery: {
+			/**
+			 * Ver galería
+			 */
+			view: () => LocalizedString
+			/**
+			 * {count} imágenes
+			 */
+			count: (arg: { count: unknown }) => LocalizedString
+		}
 		meta: {
 			/**
 			 *  — Scrobblr
@@ -1948,17 +2525,9 @@ export type TranslationFunctions = {
 		}
 		period: {
 			/**
-			 * 7d
+			 * 1a
 			 */
-			'7days': () => LocalizedString
-			/**
-			 * 30d
-			 */
-			'1month': () => LocalizedString
-			/**
-			 * 90d
-			 */
-			'3months': () => LocalizedString
+			'1year': () => LocalizedString
 			/**
 			 * Todo
 			 */
@@ -2019,6 +2588,22 @@ export type TranslationFunctions = {
 			 * Error al cambiar seguimiento
 			 */
 			followError: () => LocalizedString
+			/**
+			 * Bloqueaste a @{username}
+			 */
+			blockSuccess: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * Desbloqueaste a @{username}
+			 */
+			unblockSuccess: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * Error al cambiar el bloqueo
+			 */
+			blockError: () => LocalizedString
+			/**
+			 * ¿Bloquear a @{username}? Podrás desbloquearlo después.
+			 */
+			confirmBlock: (arg: { username: unknown }) => LocalizedString
 		}
 		/**
 		 * Usuario verificado
@@ -2037,6 +2622,14 @@ export type TranslationFunctions = {
 			 * Seguir
 			 */
 			follow: () => LocalizedString
+			/**
+			 * Bloquear
+			 */
+			block: () => LocalizedString
+			/**
+			 * Desbloquear
+			 */
+			unblock: () => LocalizedString
 		}
 		stat: {
 			/**
@@ -2135,6 +2728,22 @@ export type TranslationFunctions = {
 			 * Seguir
 			 */
 			follow: () => LocalizedString
+			/**
+			 * Bloquear
+			 */
+			block: () => LocalizedString
+			/**
+			 * Desbloquear
+			 */
+			unblock: () => LocalizedString
+			/**
+			 * Eliminar seguidor
+			 */
+			removeFollower: () => LocalizedString
+			/**
+			 * Ver más
+			 */
+			loadMore: () => LocalizedString
 		}
 		toast: {
 			/**
@@ -2149,6 +2758,30 @@ export type TranslationFunctions = {
 			 * Error al cambiar seguimiento
 			 */
 			error: () => LocalizedString
+			/**
+			 * Bloqueaste a @{username}
+			 */
+			block: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * Desbloqueaste a @{username}
+			 */
+			unblock: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * Eliminaste a @{username} de tus seguidores
+			 */
+			removeFollower: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * No se pudo completar la acción
+			 */
+			actionError: () => LocalizedString
+			/**
+			 * ¿Eliminar a @{username} de tus seguidores?
+			 */
+			confirmRemoveFollower: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * ¿Bloquear a @{username}? Podrás desbloquearlo después.
+			 */
+			confirmBlock: (arg: { username: unknown }) => LocalizedString
 		}
 		error: {
 			/**
@@ -2182,6 +2815,14 @@ export type TranslationFunctions = {
 			 */
 			profileDesc: () => LocalizedString
 			/**
+			 * Conexiones
+			 */
+			connections: () => LocalizedString
+			/**
+			 * Trae tu historial de escucha a Scrobblr automáticamente.
+			 */
+			connectionsDesc: () => LocalizedString
+			/**
 			 * Privacidad
 			 */
 			privacy: () => LocalizedString
@@ -2194,7 +2835,7 @@ export type TranslationFunctions = {
 			 */
 			apiTokens: () => LocalizedString
 			/**
-			 * Gestiona tus tokens para scrobblear desde reproductores externos.
+			 * Gestiona tokens de acceso para clientes que usan directamente la API de Scrobblr.
 			 */
 			apiTokensDesc: () => LocalizedString
 			/**
@@ -2205,6 +2846,40 @@ export type TranslationFunctions = {
 			 * Personaliza cómo se ve Scrobblr para ti.
 			 */
 			appearanceDesc: () => LocalizedString
+			/**
+			 * Sesiones
+			 */
+			sessions: () => LocalizedString
+			/**
+			 * Gestiona las sesiones abiertas en tu cuenta.
+			 */
+			sessionsDesc: () => LocalizedString
+			/**
+			 * Cerrar sesión en todos los dispositivos
+			 */
+			allTitle: () => LocalizedString
+			/**
+			 * Invalida todas tus sesiones, incluida esta. Tendrás que volver a iniciar sesión.
+			 */
+			allDesc: () => LocalizedString
+		}
+		session: {
+			/**
+			 * Cerrar todas las sesiones
+			 */
+			allButton: () => LocalizedString
+			/**
+			 * Cancelar
+			 */
+			cancel: () => LocalizedString
+			/**
+			 * Sí, cerrar todas
+			 */
+			confirm: () => LocalizedString
+			/**
+			 * No se pudieron cerrar las sesiones.
+			 */
+			error: () => LocalizedString
 		}
 		label: {
 			/**
@@ -2239,6 +2914,160 @@ export type TranslationFunctions = {
 			 * Paleta de color
 			 */
 			palette: () => LocalizedString
+		}
+		connection: {
+			/**
+			 * Conectado
+			 */
+			connected: () => LocalizedString
+			/**
+			 * No conectado
+			 */
+			disconnected: () => LocalizedString
+			/**
+			 * Conectar {provider}
+			 */
+			connect: (arg: { provider: unknown }) => LocalizedString
+			/**
+			 * Desconectar
+			 */
+			disconnect: () => LocalizedString
+			/**
+			 * El scrobbling automático está activo.
+			 */
+			active: () => LocalizedString
+			/**
+			 * Conecta tu cuenta para empezar a scrobblear automáticamente.
+			 */
+			inactive: () => LocalizedString
+			/**
+			 * No se pudo actualizar la conexión de {provider}.
+			 */
+			error: (arg: { provider: unknown }) => LocalizedString
+			result: {
+				/**
+				 * {provider} conectado.
+				 */
+				ok: (arg: { provider: unknown }) => LocalizedString
+				/**
+				 * Cancelaste la conexión con {provider}.
+				 */
+				denied: (arg: { provider: unknown }) => LocalizedString
+				/**
+				 * La respuesta de {provider} no es válida. Inténtalo de nuevo.
+				 */
+				invalid: (arg: { provider: unknown }) => LocalizedString
+				/**
+				 * Esa cuenta de {provider} ya está vinculada.
+				 */
+				conflict: (arg: { provider: unknown }) => LocalizedString
+				/**
+				 * Demasiados intentos. Espera un momento.
+				 */
+				rateLimited: () => LocalizedString
+				/**
+				 * {provider} no está disponible ahora mismo.
+				 */
+				unavailable: (arg: { provider: unknown }) => LocalizedString
+				/**
+				 * No se pudo conectar {provider}.
+				 */
+				failed: (arg: { provider: unknown }) => LocalizedString
+			}
+		}
+		'import': {
+			/**
+			 * Importar historial de Last.fm
+			 */
+			title: () => LocalizedString
+			/**
+			 * Trae a Scrobblr tus scrobbles y canciones favoritas de Last.fm. Se omiten los scrobbles que ya existen.
+			 */
+			description: () => LocalizedString
+			/**
+			 * Conectado como {username}. Puedes importar aquí su historial.
+			 */
+			connectedAs: (arg: { username: unknown }) => LocalizedString
+			/**
+			 * Vincula Last.fm para importar tu historial de escucha y canciones favoritas.
+			 */
+			unlinked: () => LocalizedString
+			/**
+			 * Importar historial
+			 */
+			start: () => LocalizedString
+			/**
+			 * Iniciando…
+			 */
+			starting: () => LocalizedString
+			/**
+			 * Importación de Last.fm en cola.
+			 */
+			queued: () => LocalizedString
+			/**
+			 * No se pudo iniciar la importación de Last.fm.
+			 */
+			startFailed: () => LocalizedString
+			/**
+			 * Volver a revisar todo el historial
+			 */
+			fullHistory: () => LocalizedString
+			/**
+			 * Importación más reciente
+			 */
+			recent: () => LocalizedString
+			/**
+			 * En espera
+			 */
+			pending: () => LocalizedString
+			/**
+			 * Importando
+			 */
+			running: () => LocalizedString
+			/**
+			 * Completada
+			 */
+			done: () => LocalizedString
+			/**
+			 * Fallida
+			 */
+			failed: () => LocalizedString
+			/**
+			 * Cancelada
+			 */
+			cancelled: () => LocalizedString
+			/**
+			 * Progreso de importación
+			 */
+			progressLabel: () => LocalizedString
+			/**
+			 * {fetched} de {total} scrobbles leídos
+			 */
+			progress: (arg: { fetched: unknown, total: unknown }) => LocalizedString
+			/**
+			 * {imported} importados · {duplicates} duplicados · {skipped} omitidos
+			 */
+			summary: (arg: { duplicates: unknown, imported: unknown, skipped: unknown }) => LocalizedString
+			/**
+			 * Cancelar importación
+			 */
+			cancel: () => LocalizedString
+			/**
+			 * Cancelando…
+			 */
+			cancelling: () => LocalizedString
+			/**
+			 * Importación cancelada.
+			 */
+			cancelledToast: () => LocalizedString
+			/**
+			 * No se pudo cancelar la importación.
+			 */
+			cancelFailed: () => LocalizedString
+			/**
+			 * Importación no válida.
+			 */
+			invalidId: () => LocalizedString
 		}
 		placeholder: {
 			/**
@@ -2338,7 +3167,7 @@ export type TranslationFunctions = {
 			 */
 			nameLabel: () => LocalizedString
 			/**
-			 * ej. Spotify, Last.fm scrobbler…
+			 * ej. Spotify, Last.fm scrobbler...
 			 */
 			namePlaceholder: () => LocalizedString
 			/**
@@ -2400,24 +3229,6 @@ export type TranslationFunctions = {
 			 */
 			revokeError: () => LocalizedString
 		}
-		time: {
-			/**
-			 * Nunca
-			 */
-			never: () => LocalizedString
-			/**
-			 * Hoy
-			 */
-			today: () => LocalizedString
-			/**
-			 * Ayer
-			 */
-			yesterday: () => LocalizedString
-			/**
-			 * Hace {days} días
-			 */
-			daysAgo: (arg: { days: unknown }) => LocalizedString
-		}
 		error: {
 			/**
 			 * No autenticado.
@@ -2432,7 +3243,7 @@ export type TranslationFunctions = {
 			 */
 			nameTooLong: () => LocalizedString
 			/**
-			 * ej. Spotify, Last.fm scrobbler…
+			 * ej. Spotify, Last.fm scrobbler...
 			 */
 			namePlaceholder: () => LocalizedString
 			/**
@@ -2451,6 +3262,14 @@ export type TranslationFunctions = {
 			 * No se pudieron guardar los cambios.
 			 */
 			saveFailed: () => LocalizedString
+			/**
+			 * No se pudo conectar la cuenta.
+			 */
+			disconnectFailed: () => LocalizedString
+			/**
+			 * No se pudieron cerrar las sesiones. Inténtalo de nuevo.
+			 */
+			logoutAllFailed: () => LocalizedString
 		}
 	}
 	comments: {
@@ -2613,6 +3432,10 @@ export type TranslationFunctions = {
 		 */
 		title: () => LocalizedString
 		/**
+		 * Conexiones
+		 */
+		connections: () => LocalizedString
+		/**
 		 * Perfil
 		 */
 		profile: () => LocalizedString
@@ -2628,6 +3451,10 @@ export type TranslationFunctions = {
 		 * Apariencia
 		 */
 		appearance: () => LocalizedString
+		/**
+		 * Sesiones
+		 */
+		sessions: () => LocalizedString
 		/**
 		 * Ver perfil
 		 */

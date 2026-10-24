@@ -24,5 +24,6 @@ vite.config.ts.timestamp-*
 
 # Other
 .ignore/
-.claude/
+.plan/
+.zed/
 .npmrc

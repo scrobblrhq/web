@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * Scrobble a track
-         * @description Records a track listen for the authenticated user. Validates scrobble rules (e.g. minimum listen duration) and deduplicates submissions within a 30-second window.
+         * @description Records a track listen for the authenticated user. Validates scrobble rules (e.g. minimum listen duration), deduplicates the same track within 30 seconds of another of the user's scrobbles, and refuses plays more than 30 days old (import older history instead). Each account may record `SCROBBLER_DAILY_LIMIT` scrobbles (default 3000) per UTC day, counted together with the scrobbler-compatible APIs.
          */
         post: {
             parameters: {
@@ -38,26 +38,50 @@ export interface paths {
                         "application/json": components["schemas"]["ScrobbleResponse"];
                     };
                 };
-                /** @description Invalid scrobble (failed validation or duplicate) */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Needs a session or an API token with the `scrobble` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Invalid scrobble: failed validation, a duplicate, or more than 30 days old */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The account's daily scrobble limit is reached; retry after midnight UTC */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -100,23 +124,347 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Needs a session or an API token with the `scrobble` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List connected accounts
+         * @description Returns the authenticated user's connected third-party accounts. Tokens are not part of this response type at all — the query never selects them.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ConnectedAccountSummary"][];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List imports
+         * @description The authenticated user's 20 most recent history imports, newest first, with progress.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScrobbleImport"][];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an import
+         * @description Progress of one of the authenticated user's imports: scrobbles read against Last.fm's total, how many were new, duplicates and invalid entries skipped, how far back in time it has reached, the loved tracks read and added (`loved_total`, `loved_imported`, `loved_done`, and `loved_error` when they stopped short), and why it failed if it did.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A listening-history import (currently from Last.fm) and its progress. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScrobbleImport"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such import for this user */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Cancel an import
+         * @description Stops a pending or running import after the page in flight. Scrobbles already imported stay.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Cancelled */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No running import with this id for this user */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
             };
         };
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -131,7 +479,7 @@ export interface paths {
         };
         /**
          * Get my own profile
-         * @description Alias for fetching the authenticated user's own profile, regardless of privacy settings.
+         * @description Alias for fetching the authenticated user's own profile, regardless of privacy settings, with the same counts and `scrobble_breakdown`; `is_following`, `follows_you` and `blocking` are `null`.
          */
         get: {
             parameters: {
@@ -151,19 +499,41 @@ export interface paths {
                         "application/json": components["schemas"]["ProfileResponse"];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -174,7 +544,7 @@ export interface paths {
         head?: never;
         /**
          * Update account settings
-         * @description Updates the authenticated user's own profile: display name, bio, avatar URL and privacy. Omitted fields are unchanged; an empty string clears the field.
+         * @description Updates the authenticated user's own profile: display name (at most 40 characters, the registration rules), bio (1000), avatar URL and privacy. Omitted fields are unchanged; an empty string clears the field. The avatar URL is any https URL except an uploaded image's, which only `POST /v1/user/me/avatar` sets; sending back the current avatar's URL, whatever it is, leaves it as it is. A replaced uploaded avatar is deleted.
          */
         patch: {
             parameters: {
@@ -207,24 +577,1222 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/v1/user/me/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Feed of followed accounts
+         * @description What the accounts the signed-in user follows played in the last 14 days, newest first: each entry a scrobble, with who played it and when, the track, its artist and album, its label, and whether the account that played it loves the track (`loved`). Accounts anyone may see only: private ones and those waiting to be deleted are left out, and so are the classifier's suspect plays and duplicates (the same listen reported again); plays not classified yet are in, with `status: null`.
+         *
+         *     Pages of `limit` entries (50 by default, 100 at most); pass `next` as `before` for the next, older page, which stays where it was however many plays arrive meanwhile. `next` is `null` once the page reaches the feed's oldest day; a page can hold fewer entries than asked for and still have a next one. To catch up, poll the first page and stop paging at an entry already seen (entries are unique by `id`). Nothing is pushed: there is no stream.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Entries per page: 50 by default, 100 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the feed */
+                200: {
+                    headers: {
+                        /** @description `private, no-store` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FeedPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/loved": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My loved tracks
+         * @description The signed-in user's loved tracks, whatever the profile's privacy. Newest love first, `limit` entries a page (50 by default, 200 at most): pass `next` as `before` for the following page; `next` is `null` on the last. `total` counts every track the user loves. Each entry shows the track with its artist and the album the catalog files it under (`album_image`, else `artist_image`, for artwork).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of a user's loved tracks, newest love first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LovedTrackPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/community/artists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Community artist chart
+         * @description The artists the accounts the signed-in user follows listened to most over a period (`7d` by default, `30d`, `90d` or `12m`: UTC days ending today, today included) or a custom range of UTC days (`from` and `to`, both included, 366 days at most, within the last year: older weights aren't kept, hence no `all`), ranked as the global rankings are: by listeners, then by plays, each account counting once at most, and less when its plays don't look like real listening, plays weighed the same way, and both rounded.
+         *
+         *     It covers the accounts followed that anyone may see (`following`; private ones and those waiting to be deleted are left out), the most recently active first, as many as the range allows, so a chart's cost doesn't grow with the follows: 2000 over a week, 40 over a year (`accounts`). No account is named, and entities fewer than `min_listeners` of those accounts played are left out (the server's `RANKING_MIN_LISTENERS`, 5 unless configured), so no entry stands for one or two people's listening: following fewer accounts than that gives an empty chart. At most 1000 entries; paged by `limit` (50 by default, 200 at most) and `offset`.
+         *
+         *     A ranking, once computed, is reused for 5 minutes by every request covering the same accounts and days, so pages of one chart agree and positions are that old at most; following or unfollowing, or an account turning private, makes another. Pages carry a weak `ETag` and `Cache-Control: private, max-age=60`: send the tag back in `If-None-Match` for a 304 while the ranking is the same.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The first UTC day of a custom range (`YYYY-MM-DD`), with `to`. */
+                    from?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Entries to skip, 0 by default: `offset=50` starts at the 51st. */
+                    offset?: number | null;
+                    /**
+                     * @description `7d` (the default), `30d`, `90d`, `12m` (365 days) or `all`: UTC days
+                     *      ending today, today included. Not with `from` and `to`.
+                     */
+                    period?: components["schemas"]["ChartPeriod"] | null;
+                    /**
+                     * @description The last UTC day of a custom range, included, with `from`: not after
+                     *      today, and 366 days at most from `from`.
+                     */
+                    to?: string | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the ranking hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the chart */
+                200: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CommunityArtistChart"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
                     content?: never;
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Unknown period, `all`, a period with a range, an invalid, too long or too old range, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/community/tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Community track chart
+         * @description The tracks the accounts the signed-in user follows listened to most over a period (`7d` by default, `30d`, `90d` or `12m`: UTC days ending today, today included) or a custom range of UTC days (`from` and `to`, both included, 366 days at most, within the last year: older weights aren't kept, hence no `all`), ranked as the global rankings are: by listeners, then by plays, each account counting once at most, and less when its plays don't look like real listening, plays weighed the same way, and both rounded.
+         *
+         *     It covers the accounts followed that anyone may see (`following`; private ones and those waiting to be deleted are left out), the most recently active first, as many as the range allows, so a chart's cost doesn't grow with the follows: 2000 over a week, 40 over a year (`accounts`). No account is named, and entities fewer than `min_listeners` of those accounts played are left out (the server's `RANKING_MIN_LISTENERS`, 5 unless configured), so no entry stands for one or two people's listening: following fewer accounts than that gives an empty chart. At most 1000 entries; paged by `limit` (50 by default, 200 at most) and `offset`.
+         *
+         *     A ranking, once computed, is reused for 5 minutes by every request covering the same accounts and days, so pages of one chart agree and positions are that old at most; following or unfollowing, or an account turning private, makes another. Pages carry a weak `ETag` and `Cache-Control: private, max-age=60`: send the tag back in `If-None-Match` for a 304 while the ranking is the same.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The first UTC day of a custom range (`YYYY-MM-DD`), with `to`. */
+                    from?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Entries to skip, 0 by default: `offset=50` starts at the 51st. */
+                    offset?: number | null;
+                    /**
+                     * @description `7d` (the default), `30d`, `90d`, `12m` (365 days) or `all`: UTC days
+                     *      ending today, today included. Not with `from` and `to`.
+                     */
+                    period?: components["schemas"]["ChartPeriod"] | null;
+                    /**
+                     * @description The last UTC day of a custom range, included, with `from`: not after
+                     *      today, and 366 days at most from `from`.
+                     */
+                    to?: string | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the ranking hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the chart */
+                200: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CommunityTrackChart"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown period, `all`, a period with a range, an invalid, too long or too old range, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/community/albums": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Community album chart
+         * @description The albums the accounts the signed-in user follows listened to most over a period (`7d` by default, `30d`, `90d` or `12m`: UTC days ending today, today included) or a custom range of UTC days (`from` and `to`, both included, 366 days at most, within the last year: older weights aren't kept, hence no `all`), ranked as the global rankings are: by listeners, then by plays, each account counting once at most, and less when its plays don't look like real listening, plays weighed the same way, and both rounded.
+         *
+         *     It covers the accounts followed that anyone may see (`following`; private ones and those waiting to be deleted are left out), the most recently active first, as many as the range allows, so a chart's cost doesn't grow with the follows: 2000 over a week, 40 over a year (`accounts`). No account is named, and entities fewer than `min_listeners` of those accounts played are left out (the server's `RANKING_MIN_LISTENERS`, 5 unless configured), so no entry stands for one or two people's listening: following fewer accounts than that gives an empty chart. At most 1000 entries; paged by `limit` (50 by default, 200 at most) and `offset`.
+         *
+         *     A ranking, once computed, is reused for 5 minutes by every request covering the same accounts and days, so pages of one chart agree and positions are that old at most; following or unfollowing, or an account turning private, makes another. Pages carry a weak `ETag` and `Cache-Control: private, max-age=60`: send the tag back in `If-None-Match` for a 304 while the ranking is the same.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The first UTC day of a custom range (`YYYY-MM-DD`), with `to`. */
+                    from?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Entries to skip, 0 by default: `offset=50` starts at the 51st. */
+                    offset?: number | null;
+                    /**
+                     * @description `7d` (the default), `30d`, `90d`, `12m` (365 days) or `all`: UTC days
+                     *      ending today, today included. Not with `from` and `to`.
+                     */
+                    period?: components["schemas"]["ChartPeriod"] | null;
+                    /**
+                     * @description The last UTC day of a custom range, included, with `from`: not after
+                     *      today, and 366 days at most from `from`.
+                     */
+                    to?: string | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the ranking hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the chart */
+                200: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CommunityAlbumChart"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown period, `all`, a period with a range, an invalid, too long or too old range, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/recommendations/artists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Artists recommended to me
+         * @description Artists the signed-in user hasn't listened to, ranked by how much the listeners of the artists they listen to also play them. Each says why, with one of the user's own artists: "listeners of `because` also play this", and how many of the user's artists led to it (`because_count`); nothing names another account. The user's whole history counts, imports included, recent listening more (a half-life of 180 days by default); what other accounts play counts as for similar artists.
+         *
+         *     Recomputed once a day; artists the user played or skipped since are left out at once. `status`: `ready`, `none` (too little listening yet, or nothing similar enough: at least 5 artists are needed by default), `off` (the user turned similarity off) or `pending` (nothing computed yet). Up to 100 recommendations, paged by `limit` (20 by default, 100 at most) and `offset`; `score` is relative to the first.
+         *
+         *     Responses carry a weak `ETag` and `Cache-Control: private, no-cache`: send the tag back in `If-None-Match` for a 304 while nothing changed (a new run, a play, a skip).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries per page: 20 by default, 100 at most. */
+                    limit?: number | null;
+                    /** @description Entries to skip, 0 by default. */
+                    offset?: number | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if nothing changed since */
+                    "If-None-Match"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the recommendations */
+                200: {
+                    headers: {
+                        /** @description The version of the recommendations, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, no-cache` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArtistRecommendations"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The version of the recommendations, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, no-cache` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/similarity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My similarity setting
+         * @description How the signed-in user's listening is used for similarity, and whether others see them as a taste neighbour now (`shown`). `listed`: the account's listening counts, anonymously, towards similar artists and others' recommendations, and it may be shown as a taste neighbour of others while its profile is public. `anonymous` (the default): it counts, anonymously, and is never shown as anyone's taste neighbour. `off`: nothing is computed from or for the account: no recommendations and no taste neighbours, and its listening leaves similar artists at the next daily computation.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Whether the account's listening is used for similarity, and shown. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SimilaritySettings"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        /**
+         * Change my similarity setting
+         * @description `listed`: the account's listening counts, anonymously, towards similar artists and others' recommendations, and it may be shown as a taste neighbour of others while its profile is public. `anonymous` (the default): it counts, anonymously, and is never shown as anyone's taste neighbour. `off`: nothing is computed from or for the account: no recommendations and no taste neighbours, and its listening leaves similar artists at the next daily computation.
+         *
+         *     Takes effect at once for what names the account: leaving `listed` removes it from every taste neighbour list, `off` deletes the account's recommendations and taste neighbours. Its anonymous part in similar artists changes at the next daily computation. Takes a session: an API token can't change it.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SimilaritySettingsRequest"];
+                };
+            };
+            responses: {
+                /** @description Whether the account's listening is used for similarity, and shown. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SimilaritySettings"];
+                    };
+                };
+                /** @description Unknown mode */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My tags
+         * @description The signed-in user's tags, newest first, each with what it is on: `limit` a page (50 by default, 200 at most), `next` as `before` for the following page (`null` on the last). `artist`, `album` or `track` keeps those on one entity, as its page shows them.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    album?: number | null;
+                    /** @description Only the tags on this artist (or album, or track: one of the three). */
+                    artist?: number | null;
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    track?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the signed-in user's tags, newest first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserTagPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor, or more than one entity named */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `read` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/connect/{provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Start linking an account
+         * @description Returns the provider's authorize URL to send the user's browser to: `spotify` (auto-scrobbling) or `lastfm` (proves ownership of the Last.fm account before importing its history). The provider sends the browser back to the web app's `/connect/{provider}/callback` (Spotify: to `SPOTIFY_REDIRECT_URI`), which finishes the link with `POST /v1/connect/{provider}/callback` and the same user's session within 10 minutes.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description `spotify` or `lastfm`. */
+                    provider: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthorizeResponse"];
+                    };
+                };
+                /** @description Unsupported provider */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The provider isn't configured on this server, or (Last.fm) it has no web app to come back to (`WEB_APP_URL`) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Disconnect an account
+         * @description Removes a connected third-party account. The worker stops polling it immediately; a fresh OAuth flow is required to relink.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description `spotify` or `lastfm`. */
+                    provider: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Disconnected */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No connection for this provider */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/import/lastfm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Last.fm history
+         * @description Queues an import of the scrobble history of the Last.fm account linked through `GET /v1/connect/lastfm` (linking proves the user owns it). The worker runs it in the background; poll `GET /v1/imports/{id}` for progress. Imports are resumable and deduplicated: by default only scrobbles since the last completed import (minus two weeks, for late scrobbles) are fetched, and `full: true` rescans everything without creating duplicates. Scrobbles already sent to Scrobblr live are not imported twice. The account's loved tracks come first (`user.getLovedTracks`, newer than the window on a re-import, so a track unloved here stays unloved unless `full`), added to the user's loves up to the 50,000 an account may have; tracks already loved keep their love, and loves don't count against the scrobble cap. One import per user at a time, and one a day.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StartImportRequest"];
+                };
+            };
+            responses: {
+                /** @description A listening-history import (currently from Last.fm) and its progress. */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScrobbleImport"];
+                    };
+                };
+                /** @description No Last.fm account connected */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An import is already running */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An import finished less than a day ago */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Last.fm isn't configured on this server */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/user/{username}/follow": {
@@ -238,18 +1806,20 @@ export interface paths {
         put?: never;
         /**
          * Follow a user
-         * @description Follows the specified user on behalf of the authenticated user. Returns 400 if attempting to follow yourself.
+         * @description Follows the specified user on behalf of the authenticated user; following an account already followed changes nothing. Following takes no approval, and opens nothing a private profile hides: its owner alone sees it. An account may follow 2000 accounts at most, follow 100 times an hour (300 from one address), refused attempts included, and follow the same account 3 times a day (following again after an unfollow counts); unfollowing is free. An account that blocks the follower is not found, as one that doesn't exist; one the follower blocks, or that removed the follower from its followers in the last 30 days, can't be followed (409).
          */
         post: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description Successfully followed */
+                /** @description Followed, now or before */
                 204: {
                     headers: {
                         [name: string]: unknown;
@@ -261,40 +1831,77 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Target user not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Already following 2000 accounts, blocking this account, or removed from its followers recently */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 100 follows an hour for this account or 300 from this address, 3 new follows of this account today, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
         /**
          * Unfollow a user
-         * @description Unfollows the specified user on behalf of the authenticated user.
+         * @description Unfollows the specified user on behalf of the authenticated user. An account that blocks the user is not found, as one that doesn't exist.
          */
         delete: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -311,28 +1918,1823 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Target user not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/track/{id}/love": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Love a track
+         * @description Adds the track to the user's loved tracks; loving a track already loved changes nothing (its first `loved_at` stands). An account may love 50000 tracks at most, and love or unlove 300 times an hour (1000 from one address), through this API and the Last.fm-compatible one together, refused attempts included. Loves are shown with the profile, under its privacy, and feed nothing else: rankings, recommendations, similarity and album attribution don't read them, and no count of a track's loves is published.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Loved, now or before */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content?: never;
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Track not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Already loving 50000 tracks */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 300 loves and unloves an hour for this account or 1000 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        /**
+         * Unlove a track
+         * @description Takes the track out of the user's loved tracks; unloving a track not loved changes nothing. Counts against the same hourly limits as loving.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Not loved any more */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Track not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 300 loves and unloves an hour for this account or 1000 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artist/{id}/bio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Artist bio
+         * @description The bio as it stands: its current revision, written by the community (accounts a week old may edit it) or imported from Last.fm before anyone did. `revision_id` and `body` are `null` when there is none. The text is plain: show it as text, a paragraph at each blank line, `http://` and `https://` URLs as links marked `rel="nofollow ugc"`, never embedded. An author is named unless the account is deleted or waiting to be, or blocks the signed-in viewer or is blocked by it; imported text and moderators' reverts have none.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An artist's or album's bio as it stands. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Bio"];
+                    };
+                };
+                /** @description Artist not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        /**
+         * Edit an artist bio
+         * @description Writes a new revision of the bio over `base_revision_id`, the revision the text was written over; if another came since, nothing is written (409: read the bio again and merge). Accounts may edit from 7 days after registering, unless a moderator suspended them, they wait to be deleted, or the anti-botting coordination detection has halved their weight or more over the last 28 days (403, telling them only that they can't edit now); nobody may edit a bio a moderator locked (403). An account writes 50 revisions a day at most, and 3 of one bio, so two accounts can't keep reverting each other. An edit that looks like spam (a link host repeated more than twice; a host its author added to two other bios in a week, or anyone to four in a day; a long text copied from another bio) is held for a moderator: 202, with `status: held` and why in `held_reason`, and the bio unchanged.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["EditBioRequest"];
+                };
+            };
+            responses: {
+                /** @description A revision of a bio. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioRevision"];
+                    };
+                };
+                /** @description Held for review: the bio is unchanged */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioRevision"];
+                    };
+                };
+                /** @description Text empty, too long, with too many links or unsafe characters, or the current text already */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Artist not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The bio changed since `base_revision_id` */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 30 edits and reverts an hour for this account or 60 from this address, 50 revisions in 24 hours, or 3 of one bio; or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/album/{id}/bio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Album bio
+         * @description The bio as it stands: its current revision, written by the community (accounts a week old may edit it) or imported from Last.fm before anyone did. `revision_id` and `body` are `null` when there is none. The text is plain: show it as text, a paragraph at each blank line, `http://` and `https://` URLs as links marked `rel="nofollow ugc"`, never embedded. An author is named unless the account is deleted or waiting to be, or blocks the signed-in viewer or is blocked by it; imported text and moderators' reverts have none.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An artist's or album's bio as it stands. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Bio"];
+                    };
+                };
+                /** @description Album not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        /**
+         * Edit an album bio
+         * @description Writes a new revision of the bio over `base_revision_id`, the revision the text was written over; if another came since, nothing is written (409: read the bio again and merge). Accounts may edit from 7 days after registering, unless a moderator suspended them, they wait to be deleted, or the anti-botting coordination detection has halved their weight or more over the last 28 days (403, telling them only that they can't edit now); nobody may edit a bio a moderator locked (403). An account writes 50 revisions a day at most, and 3 of one bio, so two accounts can't keep reverting each other. An edit that looks like spam (a link host repeated more than twice; a host its author added to two other bios in a week, or anyone to four in a day; a long text copied from another bio) is held for a moderator: 202, with `status: held` and why in `held_reason`, and the bio unchanged.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["EditBioRequest"];
+                };
+            };
+            responses: {
+                /** @description A revision of a bio. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioRevision"];
+                    };
+                };
+                /** @description Held for review: the bio is unchanged */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioRevision"];
+                    };
+                };
+                /** @description Text empty, too long, with too many links or unsafe characters, or the current text already */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Album not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The bio changed since `base_revision_id` */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 30 edits and reverts an hour for this account or 60 from this address, 50 revisions in 24 hours, or 3 of one bio; or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artist/{id}/bio/revert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revert an artist bio
+         * @description Restores the text of `revision_id`, an earlier published revision of this bio that no moderator hid, as a new revision (`kind: revert`) over `base_revision_id`, as an edit would; a revert is never held for review. Accounts may edit from 7 days after registering, unless a moderator suspended them, they wait to be deleted, or the anti-botting coordination detection has halved their weight or more over the last 28 days (403, telling them only that they can't edit now); nobody may edit a bio a moderator locked (403). An account writes 50 revisions a day at most, and 3 of one bio, so two accounts can't keep reverting each other. Reverts count with edits.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RevertBioRequest"];
+                };
+            };
+            responses: {
+                /** @description A revision of a bio. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioRevision"];
+                    };
+                };
+                /** @description `revision_id` isn't a published, visible revision of this bio, or its text is the current one */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Artist not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The bio changed since `base_revision_id` */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 30 edits and reverts an hour for this account or 60 from this address, 50 revisions in 24 hours, or 3 of one bio; or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/album/{id}/bio/revert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revert an album bio
+         * @description Restores the text of `revision_id`, an earlier published revision of this bio that no moderator hid, as a new revision (`kind: revert`) over `base_revision_id`, as an edit would; a revert is never held for review. Accounts may edit from 7 days after registering, unless a moderator suspended them, they wait to be deleted, or the anti-botting coordination detection has halved their weight or more over the last 28 days (403, telling them only that they can't edit now); nobody may edit a bio a moderator locked (403). An account writes 50 revisions a day at most, and 3 of one bio, so two accounts can't keep reverting each other. Reverts count with edits.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["RevertBioRequest"];
+                };
+            };
+            responses: {
+                /** @description A revision of a bio. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioRevision"];
+                    };
+                };
+                /** @description `revision_id` isn't a published, visible revision of this bio, or its text is the current one */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Album not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The bio changed since `base_revision_id` */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 30 edits and reverts an hour for this account or 60 from this address, 50 revisions in 24 hours, or 3 of one bio; or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report a bio revision or a tag
+         * @description Puts a bio revision, or a tag (on one artist, album or track, or anywhere), in the queue the server's operator reviews: they can revert or lock a bio, hide a revision, take a tag off, block it, or suspend an account from editing and tagging. A tag can be reported where it can be seen: shown on an entity, or on a public profile. A second report of the same target while the first is open changes nothing. The reporter isn't notified of what came of it; its export lists its reports, with whether each is open, resolved or dismissed. Nobody is told who reported what. 20 reports an hour per account, 60 per address.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ReportRequest"];
+                };
+            };
+            responses: {
+                /** @description Reported */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Neither or both of a revision and a tag, more than one entity, an invalid tag, or a note too long or with unsafe characters */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such revision (or one held and not yours) or entity, or a tag shown nowhere and on no public profile */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 20 reports an hour for this account or 60 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artist/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An artist's tags
+         * @description The artist's tags, most taggers first (100 at most). Each account counts once, weighed as the rankings weigh listeners: in full from a week after registering, at its factor when the anti-botting coordination detection flagged it, not at all while suspended or waiting to be deleted; private accounts count, unnamed. A tag is shown on an entity from the server's minimum of weighted accounts (`RANKING_MIN_LISTENERS`, 5 unless configured), so nobody can put one there alone. The worker recounts an entity within a minute of a change, and every entity every 6 hours. Tags feed nothing else: rankings, recommendations and similar artists don't read them. Cacheable for 5 minutes, with an `ETag`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description The `ETag` of a response fetched before: 304 if it hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An artist's, album's or track's tags, most taggers first. */
+                200: {
+                    headers: {
+                        /** @description A tag of the body, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TopTags"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description A tag of the body */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No such artist */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Tag the artist
+         * @description Adds tags to the user's own on the artist and returns them all; tags already there change nothing. Tags are normalized (lowercase, NFKC, single spaces), 1 to 40 letters, digits, spaces and `- & ' . + ! _`; a term the operator blocked refuses the request. An account puts at most 10 tags on one artist, album or track and holds 50000 in all, and an entity carries 500 different tags at most (409). A suspended account can't tag (403); a new one may, its tags weighing nothing in the counts for a week. Adding and removing count together against 120 changes an hour per account, 300 per address, through this API and the Last.fm-compatible one.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddTagsRequest"];
+                };
+            };
+            responses: {
+                /** @description The signed-in user's tags on one artist, album or track. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EntityTags"];
+                    };
+                };
+                /** @description No tags or more than 10, an invalid tag, or a blocked one */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such artist */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Past a cap */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 120 tag changes an hour for this account or 300 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/album/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * An album's tags
+         * @description The album's tags, most taggers first (100 at most). Each account counts once, weighed as the rankings weigh listeners: in full from a week after registering, at its factor when the anti-botting coordination detection flagged it, not at all while suspended or waiting to be deleted; private accounts count, unnamed. A tag is shown on an entity from the server's minimum of weighted accounts (`RANKING_MIN_LISTENERS`, 5 unless configured), so nobody can put one there alone. The worker recounts an entity within a minute of a change, and every entity every 6 hours. Tags feed nothing else: rankings, recommendations and similar artists don't read them. Cacheable for 5 minutes, with an `ETag`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description The `ETag` of a response fetched before: 304 if it hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An artist's, album's or track's tags, most taggers first. */
+                200: {
+                    headers: {
+                        /** @description A tag of the body, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TopTags"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description A tag of the body */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No such album */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Tag the album
+         * @description Adds tags to the user's own on the album and returns them all; tags already there change nothing. Tags are normalized (lowercase, NFKC, single spaces), 1 to 40 letters, digits, spaces and `- & ' . + ! _`; a term the operator blocked refuses the request. An account puts at most 10 tags on one artist, album or track and holds 50000 in all, and an entity carries 500 different tags at most (409). A suspended account can't tag (403); a new one may, its tags weighing nothing in the counts for a week. Adding and removing count together against 120 changes an hour per account, 300 per address, through this API and the Last.fm-compatible one.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddTagsRequest"];
+                };
+            };
+            responses: {
+                /** @description The signed-in user's tags on one artist, album or track. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EntityTags"];
+                    };
+                };
+                /** @description No tags or more than 10, an invalid tag, or a blocked one */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such album */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Past a cap */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 120 tag changes an hour for this account or 300 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/track/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A track's tags
+         * @description The track's tags, most taggers first (100 at most). Each account counts once, weighed as the rankings weigh listeners: in full from a week after registering, at its factor when the anti-botting coordination detection flagged it, not at all while suspended or waiting to be deleted; private accounts count, unnamed. A tag is shown on an entity from the server's minimum of weighted accounts (`RANKING_MIN_LISTENERS`, 5 unless configured), so nobody can put one there alone. The worker recounts an entity within a minute of a change, and every entity every 6 hours. Tags feed nothing else: rankings, recommendations and similar artists don't read them. Cacheable for 5 minutes, with an `ETag`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description The `ETag` of a response fetched before: 304 if it hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An artist's, album's or track's tags, most taggers first. */
+                200: {
+                    headers: {
+                        /** @description A tag of the body, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TopTags"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description A tag of the body */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No such track */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Tag the track
+         * @description Adds tags to the user's own on the track and returns them all; tags already there change nothing. Tags are normalized (lowercase, NFKC, single spaces), 1 to 40 letters, digits, spaces and `- & ' . + ! _`; a term the operator blocked refuses the request. An account puts at most 10 tags on one artist, album or track and holds 50000 in all, and an entity carries 500 different tags at most (409). A suspended account can't tag (403); a new one may, its tags weighing nothing in the counts for a week. Adding and removing count together against 120 changes an hour per account, 300 per address, through this API and the Last.fm-compatible one.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AddTagsRequest"];
+                };
+            };
+            responses: {
+                /** @description The signed-in user's tags on one artist, album or track. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["EntityTags"];
+                    };
+                };
+                /** @description No tags or more than 10, an invalid tag, or a blocked one */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such track */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Past a cap */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 120 tag changes an hour for this account or 300 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artist/{id}/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Untag the artist
+         * @description Takes the tag off the user's own on the artist; removing one not there changes nothing. Counts against the same hourly limits as adding.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    tag: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Not among the user's tags any more */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not a valid tag */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such artist */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 120 tag changes an hour for this account or 300 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/album/{id}/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Untag the album
+         * @description Takes the tag off the user's own on the album; removing one not there changes nothing. Counts against the same hourly limits as adding.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    tag: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Not among the user's tags any more */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not a valid tag */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such album */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 120 tag changes an hour for this account or 300 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/track/{id}/tags/{tag}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Untag the track
+         * @description Takes the tag off the user's own on the track; removing one not there changes nothing. Counts against the same hourly limits as adding.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                    tag: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Not among the user's tags any more */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not a valid tag */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such track */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 120 tag changes an hour for this account or 300 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/recommendations/artists/{id}/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Skip a recommended artist
+         * @description Hides the artist from the signed-in user's recommendations for 90 days, at once; skipping it again starts the 90 days over. The newest 1000 skips are kept. Any artist can be skipped, recommended or not.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Skipped */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such artist */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        /**
+         * Take back a skip
+         * @description The artist may be recommended again, from the next request if it still is. 204 also when it wasn't skipped.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No longer skipped */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -358,7 +3760,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -371,26 +3775,50 @@ export interface paths {
                         "application/json": components["schemas"]["RefreshResponse"];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Track not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -417,7 +3845,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -430,26 +3860,50 @@ export interface paths {
                         "application/json": components["schemas"]["RefreshResponse"];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Artist not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -476,7 +3930,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -489,26 +3945,50 @@ export interface paths {
                         "application/json": components["schemas"]["RefreshResponse"];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Album not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -535,7 +4015,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -548,26 +4030,50 @@ export interface paths {
                         "application/json": components["schemas"]["ImageCandidate"][];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Candidate not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -579,7 +4085,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -592,26 +4100,50 @@ export interface paths {
                         "application/json": components["schemas"]["ImageCandidate"][];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Candidate not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -629,13 +4161,15 @@ export interface paths {
         };
         /**
          * List artist comments
-         * @description Returns comments on an artist, newest first.
+         * @description Returns comments on an artist, newest first; for a signed-in viewer, without those of accounts blocking it or blocked by it.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -653,14 +4187,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -673,7 +4220,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody: {
@@ -696,28 +4245,54 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Artist not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -736,13 +4311,15 @@ export interface paths {
         };
         /**
          * List track comments
-         * @description Returns comments on a track, newest first.
+         * @description Returns comments on a track, newest first; for a signed-in viewer, without those of accounts blocking it or blocked by it.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -760,14 +4337,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -780,7 +4370,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody: {
@@ -803,28 +4395,54 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Track not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -852,7 +4470,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -865,29 +4485,1064 @@ export interface paths {
                         "application/json": components["schemas"]["DeletedResponse"];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Comment not found or not owned */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload avatar
+         * @description Sets the authenticated user's avatar from a multipart `image` file field (JPEG/PNG/WebP, re-encoded server-side as a JPEG of at most 512 px a side, max 8 MiB). Returns the updated profile.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** @description JPEG, PNG or WebP, at most 8 MiB, 12000 px a side and 40 megapixels */
+                        image: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Public-facing profile (no sensitive fields) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserProfile"];
+                    };
+                };
+                /** @description Not a valid image, or too many pixels */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Larger than 8 MiB */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 20 uploads an hour for this account or 30 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artist/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propose an artist image
+         * @description Adds a community image candidate for the artist (multipart `image` field). Uploads never replace the current image directly — the most-liked candidate becomes the displayed image once it clears the vote threshold. Returns the refreshed candidate list.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** @description JPEG, PNG or WebP, at most 8 MiB, 12000 px a side and 40 megapixels */
+                        image: string;
+                    };
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImageCandidate"][];
+                    };
+                };
+                /** @description Not a valid image, or too many pixels */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Artist not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Larger than 8 MiB */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 20 uploads an hour for this account or 30 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/album/{id}/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Propose an album cover
+         * @description Adds a community cover candidate for the album (multipart `image` field). Uploads never replace the current cover directly — the most-liked candidate becomes the displayed cover once it clears the vote threshold. Returns the refreshed candidate list.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** @description JPEG, PNG or WebP, at most 8 MiB, 12000 px a side and 40 megapixels */
+                        image: string;
+                    };
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ImageCandidate"][];
+                    };
+                };
+                /** @description Not a valid image, or too many pixels */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session or an API token with the `write` scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Album not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Larger than 8 MiB */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 20 uploads an hour for this account or 30 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/blocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Accounts I block
+         * @description A page of the accounts the user blocks, newest block first: pass `next` as `before` for the following page; `next` is `null` on the last. A private account shows its username only (`display_name` and `image_url` are `null`); accounts waiting to be deleted are left out, so a page can hold fewer entries than `limit` while more follow. Nobody else can see this list, and nobody can see who blocks them.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the accounts the user blocks, newest block first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BlockPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Block a user
+         * @description Blocks the account: the follows between the two end, and neither can follow the other while the block stands. The user disappears for the blocked account, which finds no such account wherever it looks while signed in (404 on the user's profile and everything under it, absent from lists of people, search, comments, image candidates, feeds and community charts) and is never told; a profile is public to anyone signed out, so a block hides it from the account, not from the person. The blocked account in turn leaves the user's lists of people, search, comments and image candidates; its profile stays visible to the user, with `blocking: true`. Blocking an account already blocked changes nothing. An account may block 10000 accounts at most, and block, unblock or remove followers 200 times an hour (600 from one address), refused attempts included, and block the same account 3 times a day.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Blocked, now or before */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
+                /** @description Cannot block yourself */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found, waiting to be deleted, or blocking the user */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Already blocking 10000 accounts */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 200 blocks, unblocks and removed followers an hour for this account or 600 from this address, 3 blocks of this account today, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
             };
         };
+        /**
+         * Unblock a user
+         * @description Lifts the user's block of the account; the follows it ended don't come back. Unblocking an account not blocked changes nothing. Counts against the same hourly limits as blocking.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Not blocked any more */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found, or not blocked and waiting to be deleted or blocking the user */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 200 blocks, unblocks and removed followers an hour for this account or 600 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/followers/{username}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a follower
+         * @description Ends the account's follow of the user, without blocking it: its profile and the user's stay visible to each other, and it can't follow the user again for 30 days (it is told so if it tries). Removing an account that doesn't follow the user changes nothing. Counts against the same hourly limits as blocking.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Not a follower any more */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Cannot remove yourself */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found, waiting to be deleted, or blocking the user */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 200 blocks, unblocks and removed followers an hour for this account or 600 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export my account
+         * @description Downloads everything Scrobblr holds about the authenticated user as a ZIP archive (`scrobblr-export/1`), streamed as it is read: `account.json` (profile and settings, follows, the accounts the user blocks and the followers it removed (never who blocks or removed it), comments, image uploads and likes, sessions without their ids, API tokens and scrobbler credentials without their values, linked accounts without their OAuth tokens, imports, now playing, the similarity setting, recommended artists and taste neighbours as last computed and the skipped recommendations, and `not_included`: what is left out and why), `scrobbles.csv` and `scrobbles.json` (every scrobble, oldest first, with its source, client, import and the classifier's label, never ranking weights), `loved_tracks.csv` and `loved_tracks.json` (every loved track, oldest love first, with how the love came), and `uploads/` (the avatar and artwork the user uploaded). Nothing is stored on the server: a broken download is asked for again. Takes a session, never an API token. At most 3 exports a day per account and 10 per address, and 2 at once on the server.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The archive, as an attachment */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/zip": string;
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 3 exports today for this account or 10 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Other exports are running: try again in a few minutes */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/me/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Delete my account
+         * @description Deletes the authenticated user's account, given its password and its username typed out as `confirm`. At once: every session (this one included), API token, scrobbler credential and authorization, and linked account (with its stored OAuth tokens) is revoked, imports in progress stop, and the account disappears from profiles, search, listener lists, comments and follower lists. Its history stays for a grace period (`ACCOUNT_DELETION_GRACE_DAYS`, 7 days by default) during which logging in with the password restores it (credentials and links have to be made again); after it the worker erases everything about the account, its plays from catalog counts and rankings included. Takes a session, never an API token. At most 5 attempts an hour per account and 10 per address.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["DeleteAccountRequest"];
+                };
+            };
+            responses: {
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DeletionScheduled"];
+                    };
+                };
+                /** @description `confirm` isn't the account's username */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over 5 attempts this hour for this account or 10 from this address, or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/connect/{provider}/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Forward a provider's callback to the web app
+         * @description For a provider whose redirect URI is this API's (`SPOTIFY_REDIRECT_URI` pointing here): sends the browser on to `{WEB_APP_URL}/connect/{provider}/callback` with the provider's query, where the web app finishes the link with `POST /v1/connect/{provider}/callback`. Links nothing itself.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description `spotify` or `lastfm`. */
+                    provider: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description To `{WEB_APP_URL}/connect/{provider}/callback?{query}` */
+                303: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unsupported provider */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description This server has no web app (`WEB_APP_URL`) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Finish linking an account
+         * @description For the web app's page the provider sends the browser back to (`/connect/{provider}/callback`): the `state` from its query, and Spotify's `code` or Last.fm's `token`. The session must be that of the user who started the link with `GET /v1/connect/{provider}`, so a page can't have someone else's browser link their account to another user's. A linked Spotify account is polled for scrobbles; a linked Last.fm account is what lets the user import its history.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description `spotify` or `lastfm`. */
+                    provider: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["FinishConnectRequest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ConnectResult"];
+                    };
+                };
+                /** @description A missing `code` or `token`; a `state` that's unknown, expired, used, or another user's; or the provider rejected the grant */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description That account is already linked to another Scrobblr user */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The provider isn't configured on this server */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -902,7 +5557,7 @@ export interface paths {
         };
         /**
          * List API tokens
-         * @description Returns all active API tokens belonging to the authenticated user. The raw token value is never returned here — only metadata.
+         * @description With a session, returns every API token of the authenticated user; with an API token, only that token, so a client can check the token it was given (its scopes and expiry). The raw token value is never returned here — only metadata.
          */
         get: {
             parameters: {
@@ -921,26 +5576,39 @@ export interface paths {
                         "application/json": components["schemas"]["ApiToken"][];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
         put?: never;
         /**
          * Create an API token
-         * @description Generates a new long-lived API token for programmatic access (e.g. scrobbling from a music player). The raw token is only shown once — store it securely.
+         * @description Generates a new long-lived API token for programmatic access (e.g. scrobbling from a music player). The raw token is only shown once — store it securely. `scopes` (default `["scrobble"]`) says what it may do, and scopes don't imply one another: `scrobble` submits scrobbles and now playing, `read` reads the account's own data (profile, imports, connected accounts), and `write` changes the account and posts as it (profile, follows, comments, votes, uploads, imports, catalog refreshes). `expires_days`, 1 to 3650 (ten years), sets when it expires; without it, it never does. Only a session can create, list all or revoke tokens, log out, manage scrobbler credentials and connect accounts.
          */
         post: {
             parameters: {
@@ -963,19 +5631,50 @@ export interface paths {
                         "application/json": components["schemas"]["CreateTokenResponse"];
                     };
                 };
-                /** @description Not authenticated */
+                /** @description A name that's empty or over 100 characters, an unknown scope or none, or `expires_days` outside 1 to 3650 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1003,7 +5702,9 @@ export interface paths {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1015,26 +5716,50 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Token not found or not owned by the authenticated user */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1054,11 +5779,14 @@ export interface paths {
         put?: never;
         /**
          * Log out
-         * @description Invalidates all active sessions for the authenticated user (logout from all devices). Requires a valid session token.
+         * @description Ends the session the request is made with; the user's other devices stay signed in. With `all=true`, ends every session of the user instead. API tokens are left alone either way. Requires a session.
          */
         post: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description End every session of the user, on every device, not just this one. */
+                    all?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -1072,19 +5800,41 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1094,72 +5844,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/user/me/avatar": {
+    "/v1/scrobbler/credentials": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * Upload avatar
-         * @description Sets the authenticated user's avatar from a multipart `image` file field (JPEG/PNG/WebP, re-encoded server-side, max 8 MiB). Returns the updated profile.
+         * List scrobbler credentials
+         * @description The tokens the user made for third-party scrobblers and the Last.fm sessions clients obtained with them or by logging in. Secrets are never returned.
          */
-        post: {
+        get: {
             parameters: {
                 query?: never;
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
-            /** @description multipart form data */
-            requestBody: {
-                content: {
-                    "multipart/form-data": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
-                /** @description Public-facing profile (no sensitive fields) */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["UserProfile"];
+                        "application/json": components["schemas"]["ScrobblerCredential"][];
                     };
                 };
-                /** @description Not a valid image */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/v1/artist/{id}/image": {
+    "/v1/scrobbler/credentials/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1168,69 +5927,82 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        post?: never;
         /**
-         * Propose an artist image
-         * @description Adds a community image candidate for the artist (multipart `image` field). Uploads never replace the current image directly — the most-liked candidate becomes the displayed image once it clears the vote threshold. Returns the refreshed candidate list.
+         * Revoke a scrobbler credential
+         * @description Clients using it are signed out at once, including Audioscrobbler 1.2 sessions it opened.
          */
-        post: {
+        delete: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: string;
+                };
                 cookie?: never;
             };
-            /** @description multipart form data */
-            requestBody: {
-                content: {
-                    "multipart/form-data": unknown[];
-                };
-            };
+            requestBody?: never;
             responses: {
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ImageCandidate"][];
-                    };
-                };
-                /** @description Not a valid image */
-                400: {
+                /** @description Revoked */
+                204: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Artist not found */
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such credential of this user */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/v1/album/{id}/image": {
+    "/v1/scrobbler/tokens": {
         parameters: {
             query?: never;
             header?: never;
@@ -1240,8 +6012,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Propose an album cover
-         * @description Adds a community cover candidate for the album (multipart `image` field). Uploads never replace the current cover directly — the most-liked candidate becomes the displayed cover once it clears the vote threshold. Returns the refreshed candidate list.
+         * Create a scrobbler token
+         * @description A secret to paste into a third-party scrobbler: the user token of a ListenBrainz client, the password of an Audioscrobbler 1.2 client, or the password of a Last.fm-API client (instead of the account password). It can scrobble and nothing else, and is shown only in this response. `legacy_auth` is false when the server has no TOKEN_ENCRYPTION_KEY, which Audioscrobbler 1.2 needs.
          */
         post: {
             parameters: {
@@ -1250,48 +6022,347 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            /** @description multipart form data */
             requestBody: {
                 content: {
-                    "multipart/form-data": unknown[];
+                    "application/json": components["schemas"]["CreateScrobblerTokenRequest"];
                 };
             };
             responses: {
+                /** @description A new scrobbler token and its secret, which is never shown again. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CreatedScrobblerToken"];
+                    };
+                };
+                /** @description Missing or overlong name */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scrobbler/authorizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Authorize a web-flow scrobbler
+         * @description For a Last.fm-API client that sent the user with a callback (`/api/auth/?api_key=…&cb=…`): approves it at once and returns the callback URL with the token, which the client trades for a session key with `auth.getSession` within 10 minutes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthorizeCallbackRequest"];
+                };
+            };
+            responses: {
+                /**
+                 * @description Where the browser goes after approving a web-flow client: the client's
+                 *      callback, carrying the authorized token.
+                 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["ImageCandidate"][];
+                        "application/json": components["schemas"]["ScrobblerAuthorizationRedirect"];
                     };
                 };
-                /** @description Not a valid image */
+                /** @description Invalid api_key or callback */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Not authenticated */
+                /** @description No credential, or an invalid or expired one */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Album not found */
-                404: {
+                /** @description Needs a session: API tokens can't do this */
+                403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scrobbler/authorizations/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Show a scrobbler authorization request
+         * @description For the page a Last.fm-API client sends the user to (`/api/auth/?api_key=…&token=…`, forwarded to the web app's `/scrobbler/authorize`): which client asks, and whether the request is still pending.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /**
+                 * @description A Last.fm-API client asking to scrobble for the user, as the browser
+                 *      authorization page shows it.
+                 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScrobblerAuthorization"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Unknown token */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scrobbler/authorizations/{token}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve a scrobbler authorization request
+         * @description Lets the Last.fm-API client that holds the token scrobble for the user: its next `auth.getSession` gets a session key. Desktop flow.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Approved */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content?: never;
+                };
+                /** @description The request expired (they last an hour) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No credential, or an invalid or expired one */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Needs a session: API tokens can't do this */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Unknown token */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Approved by another user already */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1312,7 +6383,7 @@ export interface paths {
         put?: never;
         /**
          * Register a new user
-         * @description Creates a new user account and returns a session token. Username must be at least 2 characters and password at least 8.
+         * @description Creates a new user account and returns a session token. Usernames are 2-30 characters of ASCII letters, digits and the separators `_ - .`, starting and ending alphanumeric. Passwords are 12-128 characters combining at least three of lowercase, uppercase, digits and symbols, and may not contain the username or email.
          */
         post: {
             parameters: {
@@ -1335,26 +6406,50 @@ export interface paths {
                         "application/json": components["schemas"]["AuthResponse"];
                     };
                 };
-                /** @description Validation error (username too short or reserved, password too short) */
+                /** @description Validation error on username, email, password or display name */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Missing or invalid first-party app signature */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description Username or email already taken */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1375,7 +6470,7 @@ export interface paths {
         put?: never;
         /**
          * Log in
-         * @description Authenticates a user with username and password. Returns a session token to be used as `Bearer` in the `Authorization` header.
+         * @description Authenticates a user with username and password. Returns a session token to be used as `Bearer` in the `Authorization` header. Attempts are limited per address, and per address and username, together with the scrobbler APIs' password logins; a success resets that address's count for the username. Failed attempts from elsewhere never block a username. Logging in to an account whose deletion was asked for restores it (`account_restored`), until the worker has begun erasing it.
          */
         post: {
             parameters: {
@@ -1398,75 +6493,35 @@ export interface paths {
                         "application/json": components["schemas"]["AuthResponse"];
                     };
                 };
-                /** @description Invalid credentials */
+                /** @description Invalid credentials, or missing/invalid first-party app signature */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
-                };
-                /** @description Error response of the API (JSON with format { error: string }) */
-                default: {
-                    headers: {
-                        [name: string]: unknown;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
                     };
-                    content?: never;
                 };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/track/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get a track
-         * @description Returns catalog metadata for a single track by its internal ID, including title, artist, album, and duration.
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Track */
-                200: {
+                /** @description More than 20 attempts from this address, or 10 for this username from this address, in 15 minutes */
+                429: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Track"];
+                        "application/json": components["schemas"]["ErrorBody"];
                     };
                 };
-                /** @description Track not found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1482,13 +6537,15 @@ export interface paths {
         };
         /**
          * Get an artist
-         * @description Returns catalog metadata for a single artist by its internal ID.
+         * @description Returns catalog metadata for a single artist by its internal ID. `scrobble_count` is `null` for an artist fewer than the minimum of listeners played; `listener_count` is always `null` (it was never kept). Catalog-wide counts include every user's plays, private profiles' too, so they are served only for entities at least `RANKING_MIN_LISTENERS` (5 by default) distinct users have played, counted from the daily aggregates (a new listener counts from their next refresh, within the hour; today's plays from tomorrow): a count is never one or two people's listening.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1507,14 +6564,99 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/album/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an album
+         * @description Returns catalog metadata for a single album by its internal ID, with its artist's name. Each track belongs to one album, the one the accounts playing it named (one say per account at least a week old, a release MusicBrainz lists the recording on counting double; another album needs half again the current one's accounts to take the track), and its plays count for that album here and in charts, from whichever release they were played. `scrobble_count` (the plays of its tracks) is `null` for an album fewer than the minimum of listeners played. Catalog-wide counts include every user's plays, private profiles' too, so they are served only for entities at least `RANKING_MIN_LISTENERS` (5 by default) distinct users have played, counted from the daily aggregates (a new listener counts from their next refresh, within the hour; today's plays from tomorrow): a count is never one or two people's listening.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /**
+                 * @description Album. Its tracks are those the catalog files under it (each track has
+                 *      one album, the one the accounts playing it named, decided as
+                 *      docs/social.md says), and their plays are its plays.
+                 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Album"];
+                    };
+                };
+                /** @description Album not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1535,7 +6677,7 @@ export interface paths {
         };
         /**
          * Artist's top tracks
-         * @description Returns the artist's most-scrobbled tracks across all users, ranked by play count.
+         * @description Returns the artist's most-scrobbled tracks across all users, ranked by play count, leaving out tracks fewer than the minimum of listeners played (of the 200 most played). Catalog-wide counts include every user's plays, private profiles' too, so they are served only for entities at least `RANKING_MIN_LISTENERS` (5 by default) distinct users have played, counted from the daily aggregates (a new listener counts from their next refresh, within the hour; today's plays from tomorrow): a count is never one or two people's listening.
          */
         get: {
             parameters: {
@@ -1543,7 +6685,9 @@ export interface paths {
                     limit?: number | null;
                 };
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1561,14 +6705,921 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artist/{id}/similar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Similar artists
+         * @description Artists whose listeners also play this one, the most similar first: their audiences overlap more than chance would have them, against their sizes. Each account counts once at most, whatever it plays, and less when its plays don't look like real listening; an artist is only listed when at least 10 accounts listen to both, and a tenth of this artist's listeners also play it, so a few accounts can't attach one artist to another. `common_listeners` is a lower bound (10, 20, 50, 100, …), never an exact count, and nothing names an account.
+         *
+         *     The server recomputes them once a day: `computed_at` says when, and when a recomputation is overdue the last ones are still served, with `stale: true`. An artist with too few listeners has none (`total: 0`); before the first computation `computed_at` is `null`.
+         *
+         *     Pages carry an `ETag` and may be cached for an hour; send the tag back in `If-None-Match` for a 304 while they haven't changed.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries per page: 20 by default, 50 at most. */
+                    limit?: number | null;
+                    /** @description Positions to skip, 0 by default. */
+                    offset?: number | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if they haven't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the similar artists */
+                200: {
+                    headers: {
+                        /** @description The version of the similar artists, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=3600, stale-while-revalidate=3600` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SimilarArtists"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The version of the similar artists, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=3600, stale-while-revalidate=3600` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
                     content?: never;
+                };
+                /** @description Negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description No such artist */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tag/{tag}/artists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The artists a tag is on
+         * @description The artists the tag is shown on, most taggers first, `limit` a page (50 by default, 200 at most) from `offset`; `total` counts them all; a tag shown nowhere, used or not, gives an empty page. The tag is normalized as tags are (case, spacing and Unicode forms don't matter). Each account counts once, weighed as the rankings weigh listeners: in full from a week after registering, at its factor when the anti-botting coordination detection flagged it, not at all while suspended or waiting to be deleted; private accounts count, unnamed. A tag is shown on an entity from the server's minimum of weighted accounts (`RANKING_MIN_LISTENERS`, 5 unless configured), so nobody can put one there alone. The worker recounts an entity within a minute of a change, and every entity every 6 hours. Tags feed nothing else: rankings, recommendations and similar artists don't read them. Cacheable for 5 minutes, with an `ETag`.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Positions to skip, 0 by default. */
+                    offset?: number | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a response fetched before: 304 if it hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    tag: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /**
+                 * @description A page of the artists, albums or tracks a tag is on, most taggers
+                 *      first.
+                 */
+                200: {
+                    headers: {
+                        /** @description A tag of the body, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TaggedEntityPage"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description A tag of the body */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not a valid tag, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tag/{tag}/albums": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The albums a tag is on
+         * @description The albums the tag is shown on, most taggers first, `limit` a page (50 by default, 200 at most) from `offset`; `total` counts them all; a tag shown nowhere, used or not, gives an empty page. The tag is normalized as tags are (case, spacing and Unicode forms don't matter). Each account counts once, weighed as the rankings weigh listeners: in full from a week after registering, at its factor when the anti-botting coordination detection flagged it, not at all while suspended or waiting to be deleted; private accounts count, unnamed. A tag is shown on an entity from the server's minimum of weighted accounts (`RANKING_MIN_LISTENERS`, 5 unless configured), so nobody can put one there alone. The worker recounts an entity within a minute of a change, and every entity every 6 hours. Tags feed nothing else: rankings, recommendations and similar artists don't read them. Cacheable for 5 minutes, with an `ETag`.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Positions to skip, 0 by default. */
+                    offset?: number | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a response fetched before: 304 if it hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    tag: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /**
+                 * @description A page of the artists, albums or tracks a tag is on, most taggers
+                 *      first.
+                 */
+                200: {
+                    headers: {
+                        /** @description A tag of the body, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TaggedEntityPage"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description A tag of the body */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not a valid tag, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/tag/{tag}/tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The tracks a tag is on
+         * @description The tracks the tag is shown on, most taggers first, `limit` a page (50 by default, 200 at most) from `offset`; `total` counts them all; a tag shown nowhere, used or not, gives an empty page. The tag is normalized as tags are (case, spacing and Unicode forms don't matter). Each account counts once, weighed as the rankings weigh listeners: in full from a week after registering, at its factor when the anti-botting coordination detection flagged it, not at all while suspended or waiting to be deleted; private accounts count, unnamed. A tag is shown on an entity from the server's minimum of weighted accounts (`RANKING_MIN_LISTENERS`, 5 unless configured), so nobody can put one there alone. The worker recounts an entity within a minute of a change, and every entity every 6 hours. Tags feed nothing else: rankings, recommendations and similar artists don't read them. Cacheable for 5 minutes, with an `ETag`.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Positions to skip, 0 by default. */
+                    offset?: number | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a response fetched before: 304 if it hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    tag: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /**
+                 * @description A page of the artists, albums or tracks a tag is on, most taggers
+                 *      first.
+                 */
+                200: {
+                    headers: {
+                        /** @description A tag of the body, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TaggedEntityPage"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description A tag of the body */
+                        ETag: string;
+                        /** @description `public, max-age=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Not a valid tag, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/rankings/artists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Global artist ranking
+         * @description The most listened artists of the last week, month or year (rolling UTC days ending today), ranked by listeners, then by plays. Each account counts once at most, and less when its plays don't look like real listening; plays are weighed the same way. No account is named, and artists with fewer listeners than the server's minimum (5 unless configured) are left out, so the ranking may be shorter than 1,000 positions.
+         *
+         *     The server recomputes week and month rankings every hour and the year's every day: a page says when its ranking was computed (`computed_at`) and which days it covers (`from`, `to`). When a recomputation is overdue, the last ranking is still served, with `stale: true`; before the first one, 404.
+         *
+         *     Pages carry an `ETag` and may be cached for 5 minutes; send the tag back in `If-None-Match` to get a 304 while the ranking hasn't changed.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Positions to skip, 0 by default: `offset=50` starts at position 51. */
+                    offset?: number | null;
+                    /** @description `week` (the default), `month` or `year`. */
+                    period?: components["schemas"]["RankingPeriod"] | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the ranking hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the ranking */
+                200: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300, stale-while-revalidate=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArtistRanking"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300, stale-while-revalidate=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown period or negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The server hasn't computed a ranking for this period yet */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/rankings/tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Global track ranking
+         * @description The most listened tracks of the last week, month or year (rolling UTC days ending today), ranked by listeners, then by plays. Each account counts once at most, and less when its plays don't look like real listening; plays are weighed the same way. No account is named, and tracks with fewer listeners than the server's minimum (5 unless configured) are left out, so the ranking may be shorter than 1,000 positions.
+         *
+         *     The server recomputes week and month rankings every hour and the year's every day: a page says when its ranking was computed (`computed_at`) and which days it covers (`from`, `to`). When a recomputation is overdue, the last ranking is still served, with `stale: true`; before the first one, 404.
+         *
+         *     Pages carry an `ETag` and may be cached for 5 minutes; send the tag back in `If-None-Match` to get a 304 while the ranking hasn't changed.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Positions to skip, 0 by default: `offset=50` starts at position 51. */
+                    offset?: number | null;
+                    /** @description `week` (the default), `month` or `year`. */
+                    period?: components["schemas"]["RankingPeriod"] | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the ranking hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the ranking */
+                200: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300, stale-while-revalidate=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackRanking"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The ranking's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `public, max-age=300, stale-while-revalidate=300` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown period or negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description The server hasn't computed a ranking for this period yet */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/track/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a track
+         * @description Returns catalog metadata for a single track by its internal ID, including title, album, duration and the full artist credit list (primary artist first, then featured collaborators in billing order), and for a signed-in viewer whether it loves the track (`loved`, `null` signed out). `scrobble_count` is `null` for a track fewer than the minimum of listeners played. Catalog-wide counts include every user's plays, private profiles' too, so they are served only for entities at least `RANKING_MIN_LISTENERS` (5 by default) distinct users have played, counted from the daily aggregates (a new listener counts from their next refresh, within the hour; today's plays from tomorrow): a count is never one or two people's listening.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A track together with its full credit list. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackWithCredits"];
+                    };
+                };
+                /** @description Track not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/artist/{id}/bio/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Artist bio history
+         * @description Every published revision of the bio, newest first, `limit` a page (50 by default, 200 at most): pass `next` as `before` for the following page; `next` is `null` on the last. Entries carry no `body`: `GET /v1/bio/revisions/{id}` has it. A revision a moderator hid stays, with `hidden: true` and neither summary nor text. Edits held for review aren't listed. An author is named unless the account is deleted or waiting to be, or blocks the signed-in viewer or is blocked by it; imported text and moderators' reverts have none.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Revisions per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of a bio's history, newest revision first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioHistoryPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Artist not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/album/{id}/bio/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Album bio history
+         * @description Every published revision of the bio, newest first, `limit` a page (50 by default, 200 at most): pass `next` as `before` for the following page; `next` is `null` on the last. Entries carry no `body`: `GET /v1/bio/revisions/{id}` has it. A revision a moderator hid stays, with `hidden: true` and neither summary nor text. Edits held for review aren't listed. An author is named unless the account is deleted or waiting to be, or blocks the signed-in viewer or is blocked by it; imported text and moderators' reverts have none.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Revisions per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of a bio's history, newest revision first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioHistoryPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Album not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/bio/revisions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A bio revision
+         * @description One revision of a bio, with its text (`null` when a moderator hid it). An edit held for review, or one a moderator rejected, is its author's to see only. An author is named unless the account is deleted or waiting to be, or blocks the signed-in viewer or is blocked by it; imported text and moderators' reverts have none.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A revision of a bio. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BioRevision"];
+                    };
+                };
+                /** @description No such revision, or one held or rejected and not yours */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1589,7 +7640,7 @@ export interface paths {
         };
         /**
          * Artist's top listeners
-         * @description Returns the users who scrobble this artist the most (public profiles only), ranked by play count.
+         * @description Returns the users who scrobble this artist the most (public profiles only, never accounts waiting to be deleted nor, for a signed-in viewer, accounts blocking it or blocked by it), ranked by play count: what their public profiles already show.
          */
         get: {
             parameters: {
@@ -1597,7 +7648,9 @@ export interface paths {
                     limit?: number | null;
                 };
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1615,14 +7668,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1643,7 +7709,7 @@ export interface paths {
         };
         /**
          * Track's top listeners
-         * @description Returns the users who scrobble this track the most (public profiles only), ranked by play count.
+         * @description Returns the users who scrobble this track the most (public profiles only, never accounts waiting to be deleted nor, for a signed-in viewer, accounts blocking it or blocked by it), ranked by play count: what their public profiles already show.
          */
         get: {
             parameters: {
@@ -1651,7 +7717,9 @@ export interface paths {
                     limit?: number | null;
                 };
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1669,14 +7737,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1697,7 +7778,7 @@ export interface paths {
         };
         /**
          * Search catalog and users
-         * @description Full-text search across artists, tracks and users. Use the `type` parameter to restrict results to `track`, `artist`, `user`, or `all` (default). Returns up to 30 results per type. Query must not be empty.
+         * @description Full-text search across artists, tracks and users. Use the `type` parameter to restrict results to `track`, `artist`, `user`, or `all` (default). Returns up to 30 results per type. Query must not be empty. Users are public profiles only, never accounts waiting to be deleted nor, for a signed-in viewer, accounts blocking it or blocked by it. Artists' and tracks' `scrobble_count` are as `GET /v1/artist/{id}` and `GET /v1/track/{id}` serve them. Catalog-wide counts include every user's plays, private profiles' too, so they are served only for entities at least `RANKING_MIN_LISTENERS` (5 by default) distinct users have played, counted from the daily aggregates (a new listener counts from their next refresh, within the hour; today's plays from tomorrow): a count is never one or two people's listening.
          */
         get: {
             parameters: {
@@ -1720,38 +7801,35 @@ export interface paths {
                         "application/json": components["schemas"]["SearchResponse"];
                     };
                 };
-                /** @description Empty search query */
+                /** @description Empty or overlong search query */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/health": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
         put?: never;
         post?: never;
         delete?: never;
@@ -1769,13 +7847,15 @@ export interface paths {
         };
         /**
          * Get user profile
-         * @description Returns the public profile for a user. If the viewer is authenticated, also includes `is_following`. Private profiles return 403 to non-owners.
+         * @description Returns the public profile for a user, with how many accounts follow it and it follows (`followers_count`, `following_count`: every follow, private accounts' included). A signed-in viewer also gets `is_following` (the viewer follows this account), `follows_you` (it follows the viewer) and `blocking` (the viewer blocks it); all three are `null` otherwise. An account that blocks the signed-in viewer is not found (404), as one that doesn't exist. `scrobble_count` leaves out the scrobbles the classifier found to be the same listen reported again (duplicates); `scrobble_breakdown` divides it into verified plays and unverified ones (over the listening time real time allows, of tracks with no known length, or not classified yet). Private profiles return 403 to everyone but their owner, followers included (following takes no approval).
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1794,21 +7874,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description User not found */
+                /** @description User not found, waiting to be deleted, or blocking the viewer */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1829,13 +7924,15 @@ export interface paths {
         };
         /**
          * Get followers and following
-         * @description Returns both the follower list and the following list for a given user.
+         * @description Returns the 100 most recent followers and the 100 most recent accounts followed, newest follow first; `GET /v1/user/{username}/followers` and `/following` page through all of them. Private accounts are left out of both, except the viewer's own, and so are accounts waiting to be deleted and, for a signed-in viewer, accounts blocking it or blocked by it. Private profiles return 403 to everyone but their owner.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1853,21 +7950,304 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description User not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Followers
+         * @description A page of the accounts following the user, newest follow first: pass `next` as `before` for the following page; `next` is `null` on the last. Private accounts are left out, except the viewer's own, and so are accounts waiting to be deleted and, for a signed-in viewer, accounts blocking it or blocked by it, so a page can hold fewer entries than `limit` while more follow. A signed-in viewer gets `is_following` and `follows_you` for each account. Private profiles return 403 to everyone but their owner.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of followers or following, newest follow first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FollowPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Following
+         * @description A page of the accounts the user follows, newest follow first: pass `next` as `before` for the following page; `next` is `null` on the last. Private accounts are left out, except the viewer's own, and so are accounts waiting to be deleted and, for a signed-in viewer, accounts blocking it or blocked by it, so a page can hold fewer entries than `limit` while more follow. A signed-in viewer gets `is_following` and `follows_you` for each account. Private profiles return 403 to everyone but their owner.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of followers or following, newest follow first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["FollowPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/similar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A user's taste neighbours
+         * @description Accounts whose listening is closest to this user's, the closest first, with the artists both listen to (`shared_artists`) and the rarest three of them. Only accounts that chose to be shown appear (`PUT /v1/user/me/similarity` with `listed`), while their profile is public and they aren't waiting to be deleted, and never one blocking or blocked by the user or the signed-in viewer.
+         *
+         *     The user's own list is theirs to see whatever their setting (`status: off` and no entries if they turned similarity off); someone else's is shown only when that user is listed, and is otherwise not found (404), as a user who doesn't exist. A private profile's list is its owner's alone (403), and an account blocking the viewer or waiting to be deleted is not found, as for its profile.
+         *
+         *     Recomputed once a day (`computed_at`, `stale` as for similar artists); `status` says whether there is nothing yet (`none`: too little listening, or no listed account close enough) or nothing computed at all (`pending`).
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Entries: 10 by default, 30 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The neighbours */
+                200: {
+                    headers: {
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SimilarUsers"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found, waiting to be deleted, blocking the viewer, or not sharing their taste neighbours */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1888,13 +8268,15 @@ export interface paths {
         };
         /**
          * List artist image candidates
-         * @description Returns the community image candidates for an artist, most-liked first. `has_voted` reflects the authenticated viewer; `is_default` marks the currently displayed image.
+         * @description Returns the community image candidates for an artist, most-liked first. `has_voted` reflects the authenticated viewer; `is_default` marks the currently displayed image. A signed-in viewer doesn't get those uploaded by accounts blocking it or blocked by it.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1912,14 +8294,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1940,13 +8335,15 @@ export interface paths {
         };
         /**
          * List album cover candidates
-         * @description Returns the community cover candidates for an album, most-liked first.
+         * @description Returns the community cover candidates for an album, most-liked first, as for an artist.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    id: number;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -1964,14 +8361,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -1992,7 +8402,7 @@ export interface paths {
         };
         /**
          * Get recent scrobbles
-         * @description Returns the most recent scrobbles for a user, ordered by `played_at` descending. Maximum 200 per request. Supports cursor-based pagination via the `before` timestamp. Returns 403 for private profiles.
+         * @description Returns the most recent scrobbles for a user, ordered by `played_at` descending, each with its `status` (`counted`, `suspect`, `no_data`, or `null` until classified) and whether the user loves the track now (`loved`). Duplicates (the same listen reported again) are left out. Maximum 200 per request. Supports cursor-based pagination via the `before` timestamp. Returns 403 for private profiles.
          */
         get: {
             parameters: {
@@ -2001,38 +8411,57 @@ export interface paths {
                     limit?: number | null;
                 };
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description List of recent scrobbles */
+                /** @description Recent scrobbles, newest first */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ScrobbleRich"][];
+                    };
                 };
                 /** @description Profile is private */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description User not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -2053,44 +8482,231 @@ export interface paths {
         };
         /**
          * Live now playing (SSE)
-         * @description Server-Sent Events stream that pushes real-time now-playing updates for a user. Emits the current state immediately on connect, then sends an event on every change. Sends `null` when the user stops listening. The connection is kept alive automatically via SSE keep-alive.
+         * @description Server-Sent Events stream of a user's now playing. The first event is the current state (`null` when nothing is playing), then one per update, each a JSON `NowPlayingRich`. An entry that expires sends no event: compare `expires_at` with the clock. An idle stream sends a comment every 15 seconds, and tells proxies not to buffer it (`X-Accel-Buffering: no`).
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description SSE stream — content-type: text/event-stream */
+                /** @description `text/event-stream`; each event's data is the JSON shown */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/event-stream": components["schemas"]["NowPlayingRich"] | null;
+                    };
                 };
                 /** @description Profile is private */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description User not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description This address already holds 50 streams open, or this signed-in viewer 20; or over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/loved": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A user's loved tracks
+         * @description Newest love first, `limit` entries a page (50 by default, 200 at most): pass `next` as `before` for the following page; `next` is `null` on the last. `total` counts every track the user loves. Each entry shows the track with its artist and the album the catalog files it under (`album_image`, else `artist_image`, for artwork). They are as visible as the profile: a private profile answers 403 to everyone but its owner, and an account waiting to be deleted or blocking the signed-in viewer 404, as one that doesn't exist.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The previous page's `next`, for the page after it. */
+                    before?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                };
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of a user's loved tracks, newest love first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LovedTrackPage"];
+                    };
+                };
+                /** @description Invalid `before` cursor */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found, waiting to be deleted, or blocking the viewer */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A user's tags
+         * @description The tags the user uses, with how many artists, albums and tracks each is on, most used first (200 at most). As visible as the profile: a private profile answers 403 to everyone but its owner, and an account waiting to be deleted or blocking the signed-in viewer 404, as one that doesn't exist.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The tags a user uses, most used first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserTags"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found, waiting to be deleted, or blocking the viewer */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -2111,7 +8727,7 @@ export interface paths {
         };
         /**
          * Get top artists
-         * @description Returns the most scrobbled artists for a user in a given period. Supported periods: `7days`, `1month`, `3months`, `6months`, `1year`, `overall` (default). Maximum 50 results.
+         * @description Returns the most scrobbled artists for a user in a given period, duplicates left out; `unverified_count` is how many of the plays the classifier labelled `suspect` or `no_data`. Supported periods: `7days`, `1month`, `3months`, `6months`, `1year`, `overall` (default), each UTC days ending today. Maximum 50 results; `GET /v1/user/{username}/charts/artists` pages through all of them, and takes custom ranges.
          */
         get: {
             parameters: {
@@ -2121,7 +8737,9 @@ export interface paths {
                     period?: string | null;
                 };
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -2131,28 +8749,45 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["TopArtist"][];
+                    };
                 };
                 /** @description Profile is private */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description User not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -2173,7 +8808,7 @@ export interface paths {
         };
         /**
          * Get top tracks
-         * @description Returns the most scrobbled tracks for a user in a given period. Supported periods: `7days`, `1month`, `3months`, `6months`, `1year`, `overall` (default). Maximum 50 results.
+         * @description Returns the most scrobbled tracks for a user in a given period, duplicates left out; `unverified_count` is how many of the plays the classifier labelled `suspect` or `no_data`. Supported periods: `7days`, `1month`, `3months`, `6months`, `1year`, `overall` (default), each UTC days ending today. Maximum 50 results; `GET /v1/user/{username}/charts/tracks` pages through all of them, and takes custom ranges.
          */
         get: {
             parameters: {
@@ -2183,7 +8818,9 @@ export interface paths {
                     period?: string | null;
                 };
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
@@ -2193,28 +8830,414 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["TopTrack"][];
+                    };
                 };
                 /** @description Profile is private */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description User not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
                 default: {
                     headers: {
                         [name: string]: unknown;
                     };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/charts/artists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * User's artist chart
+         * @description The artists a user played most over a period (`7d` by default, `30d`, `90d`, `12m` or `all`: UTC days ending today, today included) or a custom range of UTC days (`from` and `to`, both included, 366 days at most, not after today), most played first, ties by id. Plays are the profile's: suspect ones included and counted in `unverified_count` with those of tracks without a known length, duplicates (the same listen reported again) left out; today's count as they arrive, and a play counts as a play until it is classified. An album's plays are its tracks' (each track belongs to the album the catalog files it under).
+         *
+         *     Paged by `limit` (50 by default, 200 at most) and `offset`; `total` is how many artists the chart has, and a page past them is empty. Pages carry a weak `ETag` and `Cache-Control: private, max-age=60`: send the tag back in `If-None-Match` for a 304 while the chart hasn't changed. The server keeps a page it computed until the user's next play or the hour's end, so a late play reaching an old day, or a new name or image, can take up to an hour to show. Private profiles return 403 to everyone but their owner.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The first UTC day of a custom range (`YYYY-MM-DD`), with `to`. */
+                    from?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Entries to skip, 0 by default: `offset=50` starts at the 51st. */
+                    offset?: number | null;
+                    /**
+                     * @description `7d` (the default), `30d`, `90d`, `12m` (365 days) or `all`: UTC days
+                     *      ending today, today included. Not with `from` and `to`.
+                     */
+                    period?: components["schemas"]["ChartPeriod"] | null;
+                    /**
+                     * @description The last UTC day of a custom range, included, with `from`: not after
+                     *      today, and 366 days at most from `from`.
+                     */
+                    to?: string | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the chart hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the chart */
+                200: {
+                    headers: {
+                        /** @description The chart's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ArtistChart"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The chart's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
                     content?: never;
+                };
+                /** @description Unknown period, a period with a range, an invalid or too long range, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/charts/tracks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * User's track chart
+         * @description The tracks a user played most over a period (`7d` by default, `30d`, `90d`, `12m` or `all`: UTC days ending today, today included) or a custom range of UTC days (`from` and `to`, both included, 366 days at most, not after today), most played first, ties by id. Plays are the profile's: suspect ones included and counted in `unverified_count` with those of tracks without a known length, duplicates (the same listen reported again) left out; today's count as they arrive, and a play counts as a play until it is classified. An album's plays are its tracks' (each track belongs to the album the catalog files it under).
+         *
+         *     Paged by `limit` (50 by default, 200 at most) and `offset`; `total` is how many tracks the chart has, and a page past them is empty. Pages carry a weak `ETag` and `Cache-Control: private, max-age=60`: send the tag back in `If-None-Match` for a 304 while the chart hasn't changed. The server keeps a page it computed until the user's next play or the hour's end, so a late play reaching an old day, or a new name or image, can take up to an hour to show. Private profiles return 403 to everyone but their owner.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The first UTC day of a custom range (`YYYY-MM-DD`), with `to`. */
+                    from?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Entries to skip, 0 by default: `offset=50` starts at the 51st. */
+                    offset?: number | null;
+                    /**
+                     * @description `7d` (the default), `30d`, `90d`, `12m` (365 days) or `all`: UTC days
+                     *      ending today, today included. Not with `from` and `to`.
+                     */
+                    period?: components["schemas"]["ChartPeriod"] | null;
+                    /**
+                     * @description The last UTC day of a custom range, included, with `from`: not after
+                     *      today, and 366 days at most from `from`.
+                     */
+                    to?: string | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the chart hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the chart */
+                200: {
+                    headers: {
+                        /** @description The chart's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TrackChart"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The chart's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown period, a period with a range, an invalid or too long range, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/user/{username}/charts/albums": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * User's album chart
+         * @description The albums a user played most over a period (`7d` by default, `30d`, `90d`, `12m` or `all`: UTC days ending today, today included) or a custom range of UTC days (`from` and `to`, both included, 366 days at most, not after today), most played first, ties by id. Plays are the profile's: suspect ones included and counted in `unverified_count` with those of tracks without a known length, duplicates (the same listen reported again) left out; today's count as they arrive, and a play counts as a play until it is classified. An album's plays are its tracks' (each track belongs to the album the catalog files it under).
+         *
+         *     Paged by `limit` (50 by default, 200 at most) and `offset`; `total` is how many albums the chart has, and a page past them is empty. Pages carry a weak `ETag` and `Cache-Control: private, max-age=60`: send the tag back in `If-None-Match` for a 304 while the chart hasn't changed. The server keeps a page it computed until the user's next play or the hour's end, so a late play reaching an old day, or a new name or image, can take up to an hour to show. Private profiles return 403 to everyone but their owner.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The first UTC day of a custom range (`YYYY-MM-DD`), with `to`. */
+                    from?: string | null;
+                    /** @description Entries per page: 50 by default, 200 at most. */
+                    limit?: number | null;
+                    /** @description Entries to skip, 0 by default: `offset=50` starts at the 51st. */
+                    offset?: number | null;
+                    /**
+                     * @description `7d` (the default), `30d`, `90d`, `12m` (365 days) or `all`: UTC days
+                     *      ending today, today included. Not with `from` and `to`.
+                     */
+                    period?: components["schemas"]["ChartPeriod"] | null;
+                    /**
+                     * @description The last UTC day of a custom range, included, with `from`: not after
+                     *      today, and 366 days at most from `from`.
+                     */
+                    to?: string | null;
+                };
+                header?: {
+                    /** @description The `ETag` of a page fetched before: 304 if the chart hasn't changed since */
+                    "If-None-Match"?: string;
+                };
+                path: {
+                    username: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of the chart */
+                200: {
+                    headers: {
+                        /** @description The chart's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AlbumChart"];
+                    };
+                };
+                /** @description Not modified since the `ETag` in `If-None-Match` */
+                304: {
+                    headers: {
+                        /** @description The chart's version, for `If-None-Match` */
+                        ETag: string;
+                        /** @description `private, max-age=60` */
+                        "Cache-Control": string;
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unknown period, a period with a range, an invalid or too long range, or a negative offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description User not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
             };
         };
@@ -2235,40 +9258,582 @@ export interface paths {
         };
         /**
          * Get activity heatmap
-         * @description Returns daily scrobble counts for the past 365 days, suitable for rendering a GitHub-style activity heatmap. Each entry contains a date and a listen count.
+         * @description Returns daily scrobble counts for the past 365 days, suitable for rendering a GitHub-style activity heatmap. Each entry contains a day (UTC midnight) and a scrobble count, duplicates left out; days without scrobbles are left out.
          */
         get: {
             parameters: {
                 query?: never;
                 header?: never;
-                path?: never;
+                path: {
+                    username: string;
+                };
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description Array of { date, count } objects for the past year */
+                /** @description Days with scrobbles in the past year, oldest first */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ActivityDay"][];
+                    };
                 };
                 /** @description Profile is private */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
                 };
                 /** @description User not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description Over the request limit for this address */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+                /** @description An error, as `{ "error": message }` */
+                default: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorBody"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/2.0/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Last.fm API 2.0 (read methods)
+         * @description Last.fm API 2.0 for scrobblers: `auth.getToken`, `auth.getSession`, `auth.getMobileSession` (POST), `track.scrobble` (POST, up to 50 as `artist[i]` …), `track.updateNowPlaying` (POST), `track.love` and `track.unlove` (POST), `track.getInfo` (by `artist` and `track` or `mbid`; with `username` or a session, `userloved` and `userplaycount` where that user's profile may be seen; no `listeners`, and `playcount` only past `RANKING_MIN_LISTENERS`; `toptags` as shown), `artist.getInfo` (the community bio, `summary` its first paragraph; tags; `playcount` past the minimum; `userplaycount` as for tracks; no `listeners` or similar artists), `artist.addTags`, `album.addTags` and `track.addTags` (POST, `tags` comma-separated, 10 at most), `.removeTag` (POST, `tag`), `.getTags` (the tags `user`, or the session's user, put on it, as visible as the profile) and `.getTopTags` (the tags shown on it, `count` its weighted taggers) of each, `user.getTopTags`, `user.getInfo`, `user.getRecentTracks` (with `extended=1`, the artist as an object and `loved`) and `user.getLovedTracks`. Tagging an artist, album or track the server doesn't know is error 6: tags create nothing. Parameters come as a query string or a form body. Authenticated with a Scrobblr scrobbler credential as `sk` (a session key, or a scrobbler token given as the password to `auth.getMobileSession`), never with native API tokens. `api_sig` is checked for API keys the server knows the secret of. Answers in Last.fm's XML, or JSON with `format=json`; errors carry Last.fm's codes.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Last.fm method name */
+                    method?: string;
+                    /** @description The client's API key */
+                    api_key?: string;
+                    /** @description `json` for JSON answers */
+                    format?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Last.fm-shaped answer */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                        "text/xml": string;
+                    };
+                };
+                /** @description Invalid parameters (Last.fm error 6, also a love past 50,000 loved tracks, a tag past a cap, an invalid or blocked tag, or an unknown artist, album or track) or method (3) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content?: never;
                 };
-                /** @description Error response of the API (JSON with format { error: string }) */
-                default: {
+                /** @description Invalid API key (10), session (9), signature (13) or authentication (4, also an account suspended from tagging) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limit exceeded (29): requests, logins, loves, tag changes or the daily scrobble limit */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Temporarily unavailable (16) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Last.fm API 2.0
+         * @description Last.fm API 2.0 for scrobblers: `auth.getToken`, `auth.getSession`, `auth.getMobileSession` (POST), `track.scrobble` (POST, up to 50 as `artist[i]` …), `track.updateNowPlaying` (POST), `track.love` and `track.unlove` (POST), `track.getInfo` (by `artist` and `track` or `mbid`; with `username` or a session, `userloved` and `userplaycount` where that user's profile may be seen; no `listeners`, and `playcount` only past `RANKING_MIN_LISTENERS`; `toptags` as shown), `artist.getInfo` (the community bio, `summary` its first paragraph; tags; `playcount` past the minimum; `userplaycount` as for tracks; no `listeners` or similar artists), `artist.addTags`, `album.addTags` and `track.addTags` (POST, `tags` comma-separated, 10 at most), `.removeTag` (POST, `tag`), `.getTags` (the tags `user`, or the session's user, put on it, as visible as the profile) and `.getTopTags` (the tags shown on it, `count` its weighted taggers) of each, `user.getTopTags`, `user.getInfo`, `user.getRecentTracks` (with `extended=1`, the artist as an object and `loved`) and `user.getLovedTracks`. Tagging an artist, album or track the server doesn't know is error 6: tags create nothing. Parameters come as a query string or a form body. Authenticated with a Scrobblr scrobbler credential as `sk` (a session key, or a scrobbler token given as the password to `auth.getMobileSession`), never with native API tokens. `api_sig` is checked for API keys the server knows the secret of. Answers in Last.fm's XML, or JSON with `format=json`; errors carry Last.fm's codes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        /** @description `json` for JSON answers; XML otherwise */
+                        format?: string;
+                        /** @description Album; `album[i]` in batches */
+                        album?: string;
+                        /** @description The client's Last.fm API key (at most 64 characters) */
+                        api_key?: string;
+                        /** @description Last.fm request signature */
+                        api_sig?: string;
+                        /** @description Artist; `artist[i]` in batches */
+                        artist?: string;
+                        /** @description track.getInfo, artist.getInfo: accepted and ignored; names match as scrobbling matches them (case and surrounding spaces aside) */
+                        autocorrect?: string;
+                        /** @description Track length in seconds */
+                        duration?: string;
+                        /** @description user.getRecentTracks: `1` for the artist as an object and `loved` */
+                        extended?: string;
+                        /** @description user.getRecentTracks (200 at most), user.getLovedTracks (1000 at most), user.getTopTags (200 at most): entries a page, 50 by default */
+                        limit?: string;
+                        /** @description MusicBrainz id: an enrichment hint when scrobbling, the track (or artist) to look up in track.getInfo, artist.getInfo and the tag methods */
+                        mbid?: string;
+                        /** @description Last.fm method name, e.g. track.scrobble */
+                        method?: string;
+                        /** @description Page number, from 1 */
+                        page?: string;
+                        /** @description auth.getMobileSession: a scrobbler token, or the account password when allowed */
+                        password?: string;
+                        /** @description Session key (a scrobbler credential) */
+                        sk?: string;
+                        /** @description artist/album/track.removeTag: the tag */
+                        tag?: string;
+                        /** @description artist/album/track.addTags: up to 10 tags, comma-separated */
+                        tags?: string;
+                        /** @description Unix seconds the play started; `timestamp[i]` in batches */
+                        timestamp?: string;
+                        /** @description auth.getSession: the authorized token */
+                        token?: string;
+                        /** @description Track; `track[i]` in batches */
+                        track?: string;
+                        /** @description user.getInfo, user.getRecentTracks, user.getLovedTracks, user.getTopTags, the getTags methods: the Scrobblr username; the session's when absent */
+                        user?: string;
+                        /** @description track.getInfo, artist.getInfo: whose `userplaycount` (and `userloved`) to show; also auth.getMobileSession's Scrobblr username */
+                        username?: string;
+                    } & {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description Last.fm-shaped answer */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                        "text/xml": string;
+                    };
+                };
+                /** @description Invalid parameters (Last.fm error 6, also a love past 50,000 loved tracks, a tag past a cap, an invalid or blocked tag, or an unknown artist, album or track) or method (3) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid API key (10), session (9), signature (13) or authentication (4, also an account suspended from tagging) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limit exceeded (29): requests, logins, loves, tag changes or the daily scrobble limit */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Temporarily unavailable (16) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/2.0": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Last.fm API 2.0 (read methods)
+         * @description Last.fm API 2.0 for scrobblers: `auth.getToken`, `auth.getSession`, `auth.getMobileSession` (POST), `track.scrobble` (POST, up to 50 as `artist[i]` …), `track.updateNowPlaying` (POST), `track.love` and `track.unlove` (POST), `track.getInfo` (by `artist` and `track` or `mbid`; with `username` or a session, `userloved` and `userplaycount` where that user's profile may be seen; no `listeners`, and `playcount` only past `RANKING_MIN_LISTENERS`; `toptags` as shown), `artist.getInfo` (the community bio, `summary` its first paragraph; tags; `playcount` past the minimum; `userplaycount` as for tracks; no `listeners` or similar artists), `artist.addTags`, `album.addTags` and `track.addTags` (POST, `tags` comma-separated, 10 at most), `.removeTag` (POST, `tag`), `.getTags` (the tags `user`, or the session's user, put on it, as visible as the profile) and `.getTopTags` (the tags shown on it, `count` its weighted taggers) of each, `user.getTopTags`, `user.getInfo`, `user.getRecentTracks` (with `extended=1`, the artist as an object and `loved`) and `user.getLovedTracks`. Tagging an artist, album or track the server doesn't know is error 6: tags create nothing. Parameters come as a query string or a form body. Authenticated with a Scrobblr scrobbler credential as `sk` (a session key, or a scrobbler token given as the password to `auth.getMobileSession`), never with native API tokens. `api_sig` is checked for API keys the server knows the secret of. Answers in Last.fm's XML, or JSON with `format=json`; errors carry Last.fm's codes.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Last.fm method name */
+                    method?: string;
+                    /** @description The client's API key */
+                    api_key?: string;
+                    /** @description `json` for JSON answers */
+                    format?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Last.fm-shaped answer */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                        "text/xml": string;
+                    };
+                };
+                /** @description Invalid parameters (Last.fm error 6, also a love past 50,000 loved tracks, a tag past a cap, an invalid or blocked tag, or an unknown artist, album or track) or method (3) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid API key (10), session (9), signature (13) or authentication (4, also an account suspended from tagging) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limit exceeded (29): requests, logins, loves, tag changes or the daily scrobble limit */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Temporarily unavailable (16) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Last.fm API 2.0
+         * @description Last.fm API 2.0 for scrobblers: `auth.getToken`, `auth.getSession`, `auth.getMobileSession` (POST), `track.scrobble` (POST, up to 50 as `artist[i]` …), `track.updateNowPlaying` (POST), `track.love` and `track.unlove` (POST), `track.getInfo` (by `artist` and `track` or `mbid`; with `username` or a session, `userloved` and `userplaycount` where that user's profile may be seen; no `listeners`, and `playcount` only past `RANKING_MIN_LISTENERS`; `toptags` as shown), `artist.getInfo` (the community bio, `summary` its first paragraph; tags; `playcount` past the minimum; `userplaycount` as for tracks; no `listeners` or similar artists), `artist.addTags`, `album.addTags` and `track.addTags` (POST, `tags` comma-separated, 10 at most), `.removeTag` (POST, `tag`), `.getTags` (the tags `user`, or the session's user, put on it, as visible as the profile) and `.getTopTags` (the tags shown on it, `count` its weighted taggers) of each, `user.getTopTags`, `user.getInfo`, `user.getRecentTracks` (with `extended=1`, the artist as an object and `loved`) and `user.getLovedTracks`. Tagging an artist, album or track the server doesn't know is error 6: tags create nothing. Parameters come as a query string or a form body. Authenticated with a Scrobblr scrobbler credential as `sk` (a session key, or a scrobbler token given as the password to `auth.getMobileSession`), never with native API tokens. `api_sig` is checked for API keys the server knows the secret of. Answers in Last.fm's XML, or JSON with `format=json`; errors carry Last.fm's codes.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        /** @description `json` for JSON answers; XML otherwise */
+                        format?: string;
+                        /** @description Album; `album[i]` in batches */
+                        album?: string;
+                        /** @description The client's Last.fm API key (at most 64 characters) */
+                        api_key?: string;
+                        /** @description Last.fm request signature */
+                        api_sig?: string;
+                        /** @description Artist; `artist[i]` in batches */
+                        artist?: string;
+                        /** @description track.getInfo, artist.getInfo: accepted and ignored; names match as scrobbling matches them (case and surrounding spaces aside) */
+                        autocorrect?: string;
+                        /** @description Track length in seconds */
+                        duration?: string;
+                        /** @description user.getRecentTracks: `1` for the artist as an object and `loved` */
+                        extended?: string;
+                        /** @description user.getRecentTracks (200 at most), user.getLovedTracks (1000 at most), user.getTopTags (200 at most): entries a page, 50 by default */
+                        limit?: string;
+                        /** @description MusicBrainz id: an enrichment hint when scrobbling, the track (or artist) to look up in track.getInfo, artist.getInfo and the tag methods */
+                        mbid?: string;
+                        /** @description Last.fm method name, e.g. track.scrobble */
+                        method?: string;
+                        /** @description Page number, from 1 */
+                        page?: string;
+                        /** @description auth.getMobileSession: a scrobbler token, or the account password when allowed */
+                        password?: string;
+                        /** @description Session key (a scrobbler credential) */
+                        sk?: string;
+                        /** @description artist/album/track.removeTag: the tag */
+                        tag?: string;
+                        /** @description artist/album/track.addTags: up to 10 tags, comma-separated */
+                        tags?: string;
+                        /** @description Unix seconds the play started; `timestamp[i]` in batches */
+                        timestamp?: string;
+                        /** @description auth.getSession: the authorized token */
+                        token?: string;
+                        /** @description Track; `track[i]` in batches */
+                        track?: string;
+                        /** @description user.getInfo, user.getRecentTracks, user.getLovedTracks, user.getTopTags, the getTags methods: the Scrobblr username; the session's when absent */
+                        user?: string;
+                        /** @description track.getInfo, artist.getInfo: whose `userplaycount` (and `userloved`) to show; also auth.getMobileSession's Scrobblr username */
+                        username?: string;
+                    } & {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description Last.fm-shaped answer */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": Record<string, never>;
+                        "text/xml": string;
+                    };
+                };
+                /** @description Invalid parameters (Last.fm error 6, also a love past 50,000 loved tracks, a tag past a cap, an invalid or blocked tag, or an unknown artist, album or track) or method (3) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid API key (10), session (9), signature (13) or authentication (4, also an account suspended from tagging) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limit exceeded (29): requests, logins, loves, tag changes or the daily scrobble limit */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Temporarily unavailable (16) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Last.fm browser authorization
+         * @description Where Last.fm-API clients send the user's browser: `?api_key=…&token=…` (desktop flow) or `?api_key=…&cb=…` (web flow). Redirects, with the same query, to the web app's `/scrobbler/authorize` (`WEB_APP_URL`), which approves through `/v1/scrobbler/authorizations`.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The client's Last.fm API key */
+                    api_key?: string;
+                    /** @description Desktop flow: the token from auth.getToken */
+                    token?: string;
+                    /** @description Web flow: where to send the browser back to */
+                    cb?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description To `{WEB_APP_URL}/scrobbler/authorize?{query}` */
+                303: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description WEB_APP_URL isn't set (an HTML page explains token logins) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/html": string;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Last.fm browser authorization
+         * @description Where Last.fm-API clients send the user's browser: `?api_key=…&token=…` (desktop flow) or `?api_key=…&cb=…` (web flow). Redirects, with the same query, to the web app's `/scrobbler/authorize` (`WEB_APP_URL`), which approves through `/v1/scrobbler/authorizations`.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The client's Last.fm API key */
+                    api_key?: string;
+                    /** @description Desktop flow: the token from auth.getToken */
+                    token?: string;
+                    /** @description Web flow: where to send the browser back to */
+                    cb?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description To `{WEB_APP_URL}/scrobbler/authorize?{query}` */
+                303: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description WEB_APP_URL isn't set (an HTML page explains token logins) */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/html": string;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Audioscrobbler 1.2 handshake
+         * @description `?hs=true&p=1.2.1&c=…&v=…&u=USER&t=UNIX&a=md5(md5(TOKEN)+t)`, where TOKEN is a scrobbler token made while TOKEN_ENCRYPTION_KEY was set; or the web-services form with `api_key` and `sk`. Answers `OK`, a session id and the now-playing and submission URLs, or `BADAUTH`, `BADTIME`, `FAILED …`. Without `hs=true`: 404.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description `true` */
+                    hs?: string;
+                    /** @description Protocol version, 1.2 or 1.2.1 */
+                    p?: string;
+                    /** @description Client id */
+                    c?: string;
+                    /** @description Client version */
+                    v?: string;
+                    /** @description Username */
+                    u?: string;
+                    /** @description Unix time, within 5 minutes of the server's */
+                    t?: string;
+                    /** @description md5(md5(token) + t) */
+                    a?: string;
+                    /** @description Web-services form: API key */
+                    api_key?: string;
+                    /** @description Web-services form: session key */
+                    sk?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description `OK\n{session}\n{now-playing URL}\n{submissions URL}`, or a failure line */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                    };
+                };
+                /** @description Not a handshake (no `hs=true`) */
+                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2284,6 +9849,896 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/1.2/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Audioscrobbler 1.2 handshake
+         * @description `?hs=true&p=1.2.1&c=…&v=…&u=USER&t=UNIX&a=md5(md5(TOKEN)+t)`, where TOKEN is a scrobbler token made while TOKEN_ENCRYPTION_KEY was set; or the web-services form with `api_key` and `sk`. Answers `OK`, a session id and the now-playing and submission URLs, or `BADAUTH`, `BADTIME`, `FAILED …`. Without `hs=true`: 404.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description `true` */
+                    hs?: string;
+                    /** @description Protocol version, 1.2 or 1.2.1 */
+                    p?: string;
+                    /** @description Client id */
+                    c?: string;
+                    /** @description Client version */
+                    v?: string;
+                    /** @description Username */
+                    u?: string;
+                    /** @description Unix time, within 5 minutes of the server's */
+                    t?: string;
+                    /** @description md5(md5(token) + t) */
+                    a?: string;
+                    /** @description Web-services form: API key */
+                    api_key?: string;
+                    /** @description Web-services form: session key */
+                    sk?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description `OK\n{session}\n{now-playing URL}\n{submissions URL}`, or a failure line */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                    };
+                };
+                /** @description Not a handshake (no `hs=true`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1.2": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Audioscrobbler 1.2 handshake
+         * @description `?hs=true&p=1.2.1&c=…&v=…&u=USER&t=UNIX&a=md5(md5(TOKEN)+t)`, where TOKEN is a scrobbler token made while TOKEN_ENCRYPTION_KEY was set; or the web-services form with `api_key` and `sk`. Answers `OK`, a session id and the now-playing and submission URLs, or `BADAUTH`, `BADTIME`, `FAILED …`. Without `hs=true`: 404.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description `true` */
+                    hs?: string;
+                    /** @description Protocol version, 1.2 or 1.2.1 */
+                    p?: string;
+                    /** @description Client id */
+                    c?: string;
+                    /** @description Client version */
+                    v?: string;
+                    /** @description Username */
+                    u?: string;
+                    /** @description Unix time, within 5 minutes of the server's */
+                    t?: string;
+                    /** @description md5(md5(token) + t) */
+                    a?: string;
+                    /** @description Web-services form: API key */
+                    api_key?: string;
+                    /** @description Web-services form: session key */
+                    sk?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description `OK\n{session}\n{now-playing URL}\n{submissions URL}`, or a failure line */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                    };
+                };
+                /** @description Not a handshake (no `hs=true`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1.2/nowplaying": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Audioscrobbler 1.2: now playing
+         * @description Form fields `s` (session), `a`, `t`, `b`, `l` (seconds), `n`, `m` (MusicBrainz recording id).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        /** @description Artist */
+                        a?: string;
+                        /** @description Album */
+                        b?: string;
+                        /** @description Length in seconds */
+                        l?: string;
+                        /** @description MusicBrainz recording id */
+                        m?: string;
+                        /** @description Session id from the handshake */
+                        s?: string;
+                        /** @description Track */
+                        t?: string;
+                    } & {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description `OK`, `BADSESSION` or `FAILED …` */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1.2/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Audioscrobbler 1.2: submissions
+         * @description Form fields `s`, then `a[i]`, `t[i]`, `i[i]` (Unix seconds), `o[i]`, `r[i]` (`S` or `B` drop the play, `L` loves its track), `l[i]`, `b[i]`, `n[i]`, `m[i]` for up to 50 plays.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/x-www-form-urlencoded": {
+                        /** @description Artist */
+                        "a[0]"?: string;
+                        /** @description Album */
+                        "b[0]"?: string;
+                        /** @description Unix seconds the play started */
+                        "i[0]"?: string;
+                        /** @description Length in seconds */
+                        "l[0]"?: string;
+                        /** @description MusicBrainz recording id */
+                        "m[0]"?: string;
+                        /** @description Session id from the handshake */
+                        s?: string;
+                        /** @description Track */
+                        "t[0]"?: string;
+                    } & {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description `OK`, `BADSESSION` or `FAILED …` */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1/submit-listens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ListenBrainz: submit listens
+         * @description ListenBrainz's submission API with a scrobbler token as the user token (`Authorization: Token …`). `listen_type` is `single`, `playing_now` or `import` (up to 1000 listens). `track_metadata.additional_info` may carry `duration_ms` or `duration`, `recording_mbid` (an enrichment hint) and the submitting client. With `return_msid`, a `playing_now` answer carries the track's `recording_msid`, for loving it through the feedback API.
+         */
+        post: {
+            parameters: {
+                query?: {
+                    /** @description Any value but an empty one: a `playing_now` answer carries `recording_msid` */
+                    return_msid?: string;
+                };
+                header: {
+                    /** @description `Token {scrobbler token}` */
+                    Authorization: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        listen_type: "single" | "playing_now" | "import";
+                        payload: {
+                            /** @description Unix seconds; not for playing_now */
+                            listened_at?: number;
+                            track_metadata?: {
+                                additional_info?: {
+                                    [key: string]: unknown;
+                                };
+                                artist_name: string;
+                                release_name?: string;
+                                track_name: string;
+                            };
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Accepted */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /**
+                             * Format: uuid
+                             * @description With `return_msid`, for `playing_now`
+                             */
+                            recording_msid?: string;
+                            /** @enum {string} */
+                            status?: "ok";
+                        };
+                    };
+                };
+                /** @description Malformed submission */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Missing or invalid token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Too many requests, or the daily scrobble limit */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Temporarily unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1/validate-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ListenBrainz: validate a token
+         * @description Whether a scrobbler token is valid, and whose it is.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Deprecated: the token as a query parameter */
+                    token?: string;
+                };
+                header?: {
+                    /** @description `Token {scrobbler token}` */
+                    Authorization?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description `valid` says whether the token is good */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            message?: string;
+                            user_name?: string;
+                            valid?: boolean;
+                        };
+                    };
+                };
+                /** @description No token given */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1/feedback/recording-feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ListenBrainz: love or unlove a recording
+         * @description ListenBrainz's feedback with a scrobbler token. `score` 1 loves the recording's track, 0 takes the love back; -1 (hate) takes it back too and is not stored. The recording is a `recording_mbid` (the track MusicBrainz enrichment matched, else one a client sent it for) or a `recording_msid` this server handed out (`submit-listens` with `return_msid`, or the read side). A love of a recording the catalog doesn't have is refused (404), never created. Counted against the love limits shared with every API (300 an hour per account, 1,000 per address), whatever the score; 50,000 loved tracks at most. Loves feed nothing: no ranking, recommendation or similarity reads them.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description `Token {scrobbler token}` */
+                    Authorization: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        recording_mbid?: string;
+                        /** Format: uuid */
+                        recording_msid?: string;
+                        /** @enum {integer} */
+                        score: -1 | 0 | 1;
+                    };
+                };
+            };
+            responses: {
+                /** @description Done, or nothing to do */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {string} */
+                            status?: "ok";
+                        };
+                    };
+                };
+                /** @description Malformed feedback: a bad score, no recording, an invalid UUID or another key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Missing or invalid token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description A love of a recording the catalog doesn't have */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description The account loves 50,000 tracks already */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Too many requests, or loves and unloves */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Temporarily unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1/feedback/user/{user_name}/get-feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ListenBrainz: a user's loved recordings
+         * @description A user's loved tracks as ListenBrainz feedback (score 1), newest first, as visible as the profile. Each carries `recording_msid` (this server's, for unloving), and `recording_mbid` when MusicBrainz enrichment matched the track.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description `1` for loves (the default lists them too); `-1` lists nothing: hates aren't kept */
+                    score?: string;
+                    /** @description Entries, 25 by default, 1000 at most */
+                    count?: string;
+                    /** @description Entries to skip */
+                    offset?: string;
+                    /** @description `true` for each track's `track_metadata` */
+                    metadata?: string;
+                };
+                header?: {
+                    /** @description `Token {scrobbler token}`: optional, names the viewer (its own private profile) */
+                    Authorization?: string;
+                };
+                path: {
+                    user_name: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The user's loves, newest first */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            count?: number;
+                            feedback?: {
+                                /** @description Unix seconds the love was made */
+                                created?: number | null;
+                                /** Format: uuid */
+                                recording_mbid?: string | null;
+                                /** Format: uuid */
+                                recording_msid?: string | null;
+                                /** @enum {integer} */
+                                score?: 0 | 1;
+                                track_metadata?: {
+                                    [key: string]: unknown;
+                                } | null;
+                                /** @description The username */
+                                user_id?: string;
+                            }[];
+                            offset?: number;
+                            total_count?: number;
+                        };
+                    };
+                };
+                /** @description A score other than 1 or -1, or a bad count or offset */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description The profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description No such user, one waiting to be deleted, or one blocking the token's account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Too many requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/1/feedback/user/{user_name}/get-feedback-for-recordings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ListenBrainz: a user's scores for recordings
+         * @description The user's score for each recording asked about: 1 for a loved track, 0 otherwise (unknown recordings included), as visible as the profile.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Comma-separated MSIDs (`recordings`, deprecated, also) */
+                    recording_msids?: string;
+                    /** @description Comma-separated MBIDs */
+                    recording_mbids?: string;
+                };
+                header?: {
+                    /** @description `Token {scrobbler token}`: optional, names the viewer (its own private profile) */
+                    Authorization?: string;
+                };
+                path: {
+                    user_name: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description One entry per recording asked about, in order: score 1 if loved, else 0 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            feedback?: {
+                                /** @description Unix seconds the love was made */
+                                created?: number | null;
+                                /** Format: uuid */
+                                recording_mbid?: string | null;
+                                /** Format: uuid */
+                                recording_msid?: string | null;
+                                /** @enum {integer} */
+                                score?: 0 | 1;
+                                track_metadata?: {
+                                    [key: string]: unknown;
+                                } | null;
+                                /** @description The username */
+                                user_id?: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description No recording, an invalid UUID, or more than 1000 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description The profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description No such user, one waiting to be deleted, or one blocking the token's account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Too many requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * ListenBrainz: a user's scores for recordings
+         * @description The user's score for each recording asked about: 1 for a loved track, 0 otherwise (unknown recordings included), as visible as the profile.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description `Token {scrobbler token}`: optional, names the viewer (its own private profile) */
+                    Authorization?: string;
+                };
+                path: {
+                    user_name: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        recording_mbids?: string[];
+                        recording_msids?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description One entry per recording asked about, in order: score 1 if loved, else 0 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            feedback?: {
+                                /** @description Unix seconds the love was made */
+                                created?: number | null;
+                                /** Format: uuid */
+                                recording_mbid?: string | null;
+                                /** Format: uuid */
+                                recording_msid?: string | null;
+                                /** @enum {integer} */
+                                score?: 0 | 1;
+                                track_metadata?: {
+                                    [key: string]: unknown;
+                                } | null;
+                                /** @description The username */
+                                user_id?: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description No recording, an invalid UUID, or more than 1000 */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description The profile is private */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description No such user, one waiting to be deleted, or one blocking the token's account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+                /** @description Too many requests */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            code?: number;
+                            error?: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2291,11 +10746,71 @@ export interface components {
         ActivityDay: {
             /** Format: date-time */
             day: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Duplicates left out.
+             */
             scrobble_count: number;
         };
-        /** @enum {string} */
-        ApiKeyLocation: "query" | "header" | "cookie";
+        AddTagsRequest: {
+            /**
+             * @description Up to 10 tags, each 1 to 40 letters, digits, spaces and `- & ' . + ! _`
+             *      (normalized: lowercase, NFKC, single spaces).
+             */
+            tags: string[];
+        };
+        /**
+         * @description Album. Its tracks are those the catalog files under it (each track has
+         *      one album, the one the accounts playing it named, decided as
+         *      docs/social.md says), and their plays are its plays.
+         */
+        Album: {
+            title: string;
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: int64 */
+            id: number;
+            image_url?: string | null;
+            /** Format: uuid */
+            mbid?: string | null;
+            /** Format: date */
+            release_date?: string | null;
+            /**
+             * Format: int64
+             * @description Plays of its tracks; `null` unless at least `RANKING_MIN_LISTENERS`
+             *      (5) users played them.
+             */
+            scrobble_count?: number | null;
+            title_normalized: string;
+        };
+        /** @description A page of a user's top albums. */
+        AlbumChart: {
+            entries: components["schemas"]["TopAlbum"][];
+            /**
+             * Format: date
+             * @description The first UTC day covered; `null` for `all`.
+             */
+            from?: string | null;
+            /** Format: int64 */
+            limit: number;
+            /** Format: int64 */
+            offset: number;
+            /** @description The period asked for; `null` for a custom range. */
+            period?: components["schemas"]["ChartPeriod"] | null;
+            /**
+             * Format: date
+             * @description The last UTC day covered, included: today for a period.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Entries the chart has; a page past them is empty.
+             */
+            total: number;
+        };
         ApiToken: {
             /** Format: date-time */
             created_at: string;
@@ -2313,27 +10828,284 @@ export interface components {
         };
         /** @description Artist */
         Artist: {
+            /**
+             * @description The community bio's current text; `GET /v1/artist/{id}/bio` has its
+             *      revision and author.
+             */
             bio?: string | null;
             /** Format: date-time */
             created_at: string;
             /** Format: int64 */
             id: number;
             image_url?: string | null;
-            /** Format: int64 */
-            listener_count: number;
+            /**
+             * Format: int64
+             * @description Never computed: always `null`.
+             */
+            listener_count?: number | null;
             /** Format: uuid */
             mbid?: string | null;
             name: string;
             name_normalized: string;
+            /**
+             * Format: int64
+             * @description `null` unless at least `RANKING_MIN_LISTENERS` (5) users played it.
+             */
+            scrobble_count?: number | null;
+        };
+        /** @description A page of a user's top artists. */
+        ArtistChart: {
+            entries: components["schemas"]["TopArtist"][];
+            /**
+             * Format: date
+             * @description The first UTC day covered; `null` for `all`.
+             */
+            from?: string | null;
             /** Format: int64 */
-            scrobble_count: number;
+            limit: number;
+            /** Format: int64 */
+            offset: number;
+            /** @description The period asked for; `null` for a custom range. */
+            period?: components["schemas"]["ChartPeriod"] | null;
+            /**
+             * Format: date
+             * @description The last UTC day covered, included: today for a period.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Entries the chart has; a page past them is empty.
+             */
+            total: number;
+        };
+        /** @description A page of the global artist ranking. */
+        ArtistRanking: {
+            /**
+             * Format: date-time
+             * @description When the server computed it. Week and month rankings are recomputed
+             *      every hour, the year's every day, and each when the UTC day changes.
+             */
+            computed_at: string;
+            entries: components["schemas"]["RankedArtist"][];
+            /**
+             * Format: date
+             * @description The first UTC day the ranking covers.
+             */
+            from: string;
+            /** Format: int64 */
+            limit: number;
+            /** Format: int64 */
+            offset: number;
+            period: components["schemas"]["RankingPeriod"];
+            /**
+             * @description Its recomputation is overdue by more than 15 minutes: this is the
+             *      last ranking the server managed to compute.
+             */
+            stale: boolean;
+            /**
+             * Format: date
+             * @description The last UTC day it covers (included): the day it was computed.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Positions this ranking has; a page past them is empty.
+             */
+            total: number;
+        };
+        /** @description A page of the artists recommended to the signed-in user. */
+        ArtistRecommendations: {
+            /**
+             * Format: date-time
+             * @description When the server computed them; `null` before it first did.
+             */
+            computed_at?: string | null;
+            entries: components["schemas"]["RecommendedArtist"][];
+            /** Format: int64 */
+            limit: number;
+            /** Format: int64 */
+            offset: number;
+            /** @description The daily recomputation is overdue. */
+            stale: boolean;
+            status: components["schemas"]["SimilarityStatus"];
+            /**
+             * Format: int64
+             * @description Recommendations left after skips and plays since they were computed.
+             */
+            total: number;
+        };
+        /** @description An artist, as an explanation names it. */
+        ArtistRef: {
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
         };
         AuthResponse: {
+            /**
+             * @description This login cancelled the account's deletion; its API tokens,
+             *      scrobbler credentials and linked accounts must be made again.
+             */
+            account_restored: boolean;
+            /**
+             * Format: date-time
+             * @description When the session ends: 30 days after login, however much it's used.
+             */
+            expires_at: string;
             /** Format: uuid */
             token: string;
             /** Format: int64 */
             user_id: number;
             username: string;
+        };
+        AuthorizeCallbackRequest: {
+            api_key: string;
+            /** @description The client's `cb` parameter: where the browser goes with the token. */
+            callback: string;
+        };
+        AuthorizeResponse: {
+            authorize_url: string;
+        };
+        /** @description An artist's or album's bio as it stands. */
+        Bio: {
+            /**
+             * @description Who wrote the current revision; `null` for imported text, a
+             *      moderator's revert, and an account deleted or waiting to be, or
+             *      blocking the viewer or blocked by it.
+             */
+            author?: components["schemas"]["UserSummary"] | null;
+            /**
+             * @description Plain text: show it as text, a paragraph at each blank line, and
+             *      `http://` and `https://` URLs as links (`rel="nofollow ugc"`), never
+             *      embedded or previewed.
+             */
+            body?: string | null;
+            /** Format: int64 */
+            entity_id: number;
+            entity_type: components["schemas"]["CatalogKind"];
+            kind?: components["schemas"]["RevisionKind"] | null;
+            /** @description Locked by a moderator: nobody may edit or revert it. */
+            locked: boolean;
+            /**
+             * Format: int64
+             * @description The current revision; `null` when there is no bio.
+             */
+            revision_id?: number | null;
+            /**
+             * Format: int64
+             * @description Published revisions in its history.
+             */
+            revisions: number;
+            /** Format: date-time */
+            updated_at?: string | null;
+        };
+        /** @description A page of a bio's history, newest revision first. */
+        BioHistoryPage: {
+            entries: components["schemas"]["BioRevision"][];
+            /** @description `before` for the next page; `null` on the last one. */
+            next?: string | null;
+        };
+        /** @description A revision of a bio. */
+        BioRevision: {
+            /** @description As [`Bio::author`]. */
+            author?: components["schemas"]["UserSummary"] | null;
+            /**
+             * @description The text; `null` in history pages (fetch the revision for it) and
+             *      when a moderator hid the revision.
+             */
+            body?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** @description It is the bio's current text. */
+            current: boolean;
+            /** Format: int64 */
+            entity_id: number;
+            entity_type: components["schemas"]["CatalogKind"];
+            /**
+             * @description Why a held edit waits for review: `repeated_link`,
+             *      `link_across_bios` or `duplicate_text`.
+             */
+            held_reason?: string | null;
+            /** @description A moderator hid its text and summary. */
+            hidden: boolean;
+            /** Format: int64 */
+            id: number;
+            kind: components["schemas"]["RevisionKind"];
+            /**
+             * Format: int64
+             * @description Characters in the text.
+             */
+            length: number;
+            /**
+             * Format: int64
+             * @description The revision that was current when it was written; `null` for the
+             *      first.
+             */
+            parent_id?: number | null;
+            /**
+             * Format: int64
+             * @description For a revert, the revision whose text it restored.
+             */
+            reverted_to?: number | null;
+            status: components["schemas"]["RevisionStatus"];
+            /**
+             * @description The edit summary (maybe empty); `null` when a moderator hid the
+             *      revision.
+             */
+            summary?: string | null;
+        };
+        /** @description An account the user blocks. A private account shows its username only. */
+        BlockEntry: {
+            /** Format: date-time */
+            blocked_at: string;
+            display_name?: string | null;
+            /** Format: int64 */
+            id: number;
+            image_url?: string | null;
+            username: string;
+        };
+        /** @description A page of the accounts the user blocks, newest block first. */
+        BlockPage: {
+            entries: components["schemas"]["BlockEntry"][];
+            /** @description `before` for the next page; `null` on the last one. */
+            next?: string | null;
+        };
+        /**
+         * @description What a bio or a tag is about.
+         * @enum {string}
+         */
+        CatalogKind: "artist" | "album" | "track";
+        /**
+         * @description A rolling window of UTC days ending today, today included, or all of
+         *      history.
+         */
+        ChartPeriod: ("7d" | "30d" | "90d" | "all") | "12m";
+        ChartQuery: {
+            /**
+             * Format: date
+             * @description The first UTC day of a custom range (`YYYY-MM-DD`), with `to`.
+             */
+            from?: string | null;
+            /**
+             * Format: int64
+             * @description Entries per page: 50 by default, 200 at most.
+             */
+            limit?: number | null;
+            /**
+             * Format: int64
+             * @description Entries to skip, 0 by default: `offset=50` starts at the 51st.
+             */
+            offset?: number | null;
+            /**
+             * @description `7d` (the default), `30d`, `90d`, `12m` (365 days) or `all`: UTC days
+             *      ending today, today included. Not with `from` and `to`.
+             */
+            period?: components["schemas"]["ChartPeriod"] | null;
+            /**
+             * Format: date
+             * @description The last UTC day of a custom range, included, with `from`: not after
+             *      today, and 366 days at most from `from`.
+             */
+            to?: string | null;
         };
         /** @description A user comment on a catalog entity, joined with the commenter's identity. */
         Comment: {
@@ -2348,79 +11120,178 @@ export interface components {
             user_id: number;
             username: string;
         };
-        /**
-         * @description Holds a set of reusable objects for different aspects of the OAS.
-         *      All objects defined within the components object will have no effect
-         *      on the API unless they are explicitly referenced from properties
-         *      outside the components object.
-         */
-        Components: {
-            /** @description An object to hold reusable Callback Objects. */
-            callbacks?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Map_of_ReferenceOr_for_PathItem"];
-            };
-            /** @description An object to hold reusable Example Objects. */
-            examples?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Example"];
-            };
-            /** @description An object to hold reusable Header Objects. */
-            headers?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Header"];
-            };
-            /** @description An object to hold reusable Link Objects. */
-            links?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Link"];
-            };
-            /** @description An object to hold reusable Parameter Objects. */
-            parameters?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Parameter"];
-            };
-            /** @description An object to hold reusable Path Item Objects. */
-            pathItems?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_PathItem"];
-            };
-            /** @description An object to hold reusable Request Body Objects. */
-            requestBodies?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_RequestBody"];
-            };
-            /** @description An object to hold reusable Response Objects. */
-            responses?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Response"];
-            };
-            /** @description An object to hold reusable Schema Objects. */
-            schemas?: {
-                [key: string]: components["schemas"]["SchemaObject"];
-            };
-            /** @description An object to hold reusable Security Scheme Objects. */
-            securitySchemes?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_SecurityScheme"];
-            };
-        } & {
-            [key: string]: unknown;
-        };
-        /** @description Contact information for the exposed API. */
-        Contact: {
+        /** @description A page of the albums the accounts a user follows listen to. */
+        CommunityAlbumChart: {
             /**
-             * @description The email address of the contact person/organization.
-             *      This MUST be in the format of an email address.
+             * Format: int64
+             * @description Those the chart covers: the most recently active, as many as the
+             *      range allows (every one over a week, 40 over a year).
              */
-            email?: string | null;
-            /** @description The identifying name of the contact person/organization. */
-            name?: string | null;
+            accounts: number;
+            entries: components["schemas"]["RankedAlbum"][];
             /**
-             * @description The URL pointing to the contact information.
-             *      This MUST be in the format of a URL.
+             * Format: int64
+             * @description Accounts the viewer follows that the chart may cover: public ones
+             *      not waiting to be deleted.
              */
-            url?: string | null;
-        } & {
-            [key: string]: unknown;
-        };
-        /** @enum {string} */
-        CookieStyle: "form";
-        CreateTokenRequest: {
+            following: number;
+            /**
+             * Format: date
+             * @description The first UTC day covered.
+             */
+            from: string;
             /** Format: int64 */
-            expires_days?: number | null;
+            limit: number;
+            /**
+             * Format: int64
+             * @description Listeners an entry needs: entities fewer of these accounts played
+             *      are left out, so no entry stands for one or two people's listening.
+             */
+            min_listeners: number;
+            /** Format: int64 */
+            offset: number;
+            /** @description The period asked for; `null` for a custom range. */
+            period?: components["schemas"]["ChartPeriod"] | null;
+            /**
+             * Format: date
+             * @description The last UTC day covered, included: today for a period.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Entries the chart has; a page past them is empty.
+             */
+            total: number;
+        };
+        /** @description A page of the artists the accounts a user follows listen to. */
+        CommunityArtistChart: {
+            /**
+             * Format: int64
+             * @description Those the chart covers: the most recently active, as many as the
+             *      range allows (every one over a week, 40 over a year).
+             */
+            accounts: number;
+            entries: components["schemas"]["RankedArtist"][];
+            /**
+             * Format: int64
+             * @description Accounts the viewer follows that the chart may cover: public ones
+             *      not waiting to be deleted.
+             */
+            following: number;
+            /**
+             * Format: date
+             * @description The first UTC day covered.
+             */
+            from: string;
+            /** Format: int64 */
+            limit: number;
+            /**
+             * Format: int64
+             * @description Listeners an entry needs: entities fewer of these accounts played
+             *      are left out, so no entry stands for one or two people's listening.
+             */
+            min_listeners: number;
+            /** Format: int64 */
+            offset: number;
+            /** @description The period asked for; `null` for a custom range. */
+            period?: components["schemas"]["ChartPeriod"] | null;
+            /**
+             * Format: date
+             * @description The last UTC day covered, included: today for a period.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Entries the chart has; a page past them is empty.
+             */
+            total: number;
+        };
+        /** @description A page of the tracks the accounts a user follows listen to. */
+        CommunityTrackChart: {
+            /**
+             * Format: int64
+             * @description Those the chart covers: the most recently active, as many as the
+             *      range allows (every one over a week, 40 over a year).
+             */
+            accounts: number;
+            entries: components["schemas"]["RankedTrack"][];
+            /**
+             * Format: int64
+             * @description Accounts the viewer follows that the chart may cover: public ones
+             *      not waiting to be deleted.
+             */
+            following: number;
+            /**
+             * Format: date
+             * @description The first UTC day covered.
+             */
+            from: string;
+            /** Format: int64 */
+            limit: number;
+            /**
+             * Format: int64
+             * @description Listeners an entry needs: entities fewer of these accounts played
+             *      are left out, so no entry stands for one or two people's listening.
+             */
+            min_listeners: number;
+            /** Format: int64 */
+            offset: number;
+            /** @description The period asked for; `null` for a custom range. */
+            period?: components["schemas"]["ChartPeriod"] | null;
+            /**
+             * Format: date
+             * @description The last UTC day covered, included: today for a period.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Entries the chart has; a page past them is empty.
+             */
+            total: number;
+        };
+        ConnectResult: {
+            connected: boolean;
+            provider: string;
+        };
+        /**
+         * @description What `GET /v1/connect` returns: a connection stripped of token material.
+         *      A separate type rather than `#[serde(skip_serializing)]` on
+         *      [`ConnectedAccount`], so the user-facing query never selects — and never
+         *      decrypts — the token columns in the first place.
+         */
+        ConnectedAccountSummary: {
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at?: string | null;
+            /** Format: int64 */
+            id: number;
+            is_active: boolean;
+            last_error?: string | null;
+            /** Format: date-time */
+            last_polled_at?: string | null;
+            provider: string;
+            provider_user_id: string;
+            scope?: string | null;
+            token_type: string;
+            /** Format: date-time */
+            updated_at: string;
+            /** Format: int64 */
+            user_id: number;
+        };
+        CreateScrobblerTokenRequest: {
+            /** @description Which client it's for, e.g. "Pano Scrobbler on my phone". */
             name: string;
+        };
+        CreateTokenRequest: {
+            /**
+             * Format: int64
+             * @description Days until the token expires, 1 to 3650; it never does when omitted.
+             */
+            expires_days?: number | null;
+            /** @description 1 to 100 characters, e.g. the client it's for. */
+            name: string;
+            /** @description Any of `scrobble`, `read` and `write`; `["scrobble"]` when omitted. */
             scopes?: string[] | null;
         };
         CreateTokenResponse: {
@@ -2434,162 +11305,190 @@ export interface components {
             scopes: string[];
             token: string;
         };
+        /** @description A new scrobbler token and its secret, which is never shown again. */
+        CreatedScrobblerToken: {
+            credential: components["schemas"]["ScrobblerCredential"];
+            token: string;
+        };
+        DeleteAccountRequest: {
+            /** @description The account's username, typed out to confirm (case doesn't matter). */
+            confirm: string;
+            /** @description The account's password, checked again. */
+            password: string;
+        };
         DeletedResponse: {
             deleted: boolean;
         };
-        /** @description A single encoding definition applied to a single schema property. */
-        Encoding: {
+        DeletionScheduled: {
             /**
-             * @description Determines whether the parameter value SHOULD allow reserved characters,
-             *      as defined by RFC3986 :/?#[]@!$&'()*+,;= to be included without
-             *      percent-encoding. The default value is false. This property SHALL be
-             *      ignored if the request body media type is not
-             *      application/x-www-form-urlencoded or multipart/form-data. If a value is
-             *      explicitly defined, then the value of `contentType` (implicit or
-             *      explicit) SHALL be ignored.
+             * Format: date-time
+             * @description When the worker erases the account. Logging in with the password
+             *      before then restores it.
              */
-            allowReserved?: boolean;
-            /**
-             * @description The Content-Type for encoding a specific property.
-             *      Default value depends on the property type:
-             *      for object - application/json;
-             *      for array – the default is defined based on the inner type.
-             *      for all other cases the default is `application/octet-stream`.
-             *      The value can be a specific media type (e.g. application/json),
-             *      a wildcard media type (e.g. image/*), or a comma-separated list of the
-             *      two types.
-             */
-            contentType?: string | null;
-            /**
-             * @description When this is true, property values of type array or object generate
-             *      separate parameters for each value of the array, or key-value-pair
-             *      of the map. For other types of properties this property has no effect.
-             *      When style is form, the default value is true.
-             *      For all other styles, the default value is false. This property
-             *      SHALL be ignored if the request body media type is
-             *      not application/x-www-form-urlencoded or multipart/form-data. If a value
-             *      is explicitly defined, then the value of `contentType` (implicit or
-             *      explicit) SHALL be ignored.
-             *
-             *      In this Library this value defaults to false always despite the
-             *      specification.
-             */
-            explode?: boolean;
-            /**
-             * @description A map allowing additional information to be provided as headers,
-             *      for example Content-Disposition. Content-Type is described separately
-             *      and SHALL be ignored in this section. This property SHALL be ignored
-             *      if the request body media type is not a multipart.
-             */
-            headers?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Header"];
-            };
-            /**
-             * @description Describes how a specific property value will be serialized depending
-             *      on its type. See Parameter Object for details on the style property.
-             *      The behavior follows the same values as query parameters, including
-             *      default values. This property SHALL be ignored if the request body
-             *      media type is not application/x-www-form-urlencoded  or
-             *      multipart/form-data. If a value is explicitly defined, then the value of
-             *      `contentType` (implicit or explicit) SHALL be ignored.
-             */
-            style?: components["schemas"]["QueryStyle"] | null;
-        } & {
-            [key: string]: unknown;
+            delete_after: string;
         };
-        Example: {
+        EditBioRequest: {
             /**
-             * @description Long description for the example.
-             *      CommonMark syntax MAY be used for rich text representation.
+             * Format: int64
+             * @description `revision_id` of the bio the text was written over; `null` when it
+             *      had none. Another revision since is a 409.
              */
-            description?: string | null;
+            base_revision_id?: number | null;
             /**
-             * @description A URI that points to the literal example.
-             *      This provides the capability to reference examples that cannot
-             *      easily be included in JSON or YAML documents. The `value` field and
-             *      `externalValue` field are mutually exclusive. See the rules for
-             *      resolving Relative References.
+             * @description The new text: plain text, at most 10,000 characters and five links,
+             *      no control, invisible or bidirectional formatting characters.
              */
-            externalValue?: string | null;
-            /** @description Short description for the example. */
-            summary?: string | null;
+            body: string;
             /**
-             * @description Embedded literal example. The `value` field and `externalValue`
-             *      field are mutually exclusive. To represent examples of
-             *      media types that cannot naturally represented in JSON or YAML,
-             *      use a string value to contain the example, escaping where necessary.
+             * @description What changed, for the history: one line, 200 characters at most.
+             * @default
              */
-            value?: unknown;
-        } & {
-            [key: string]: unknown;
+            summary: string;
         };
-        /** @description Allows referencing an external resource for extended documentation. */
-        ExternalDocumentation: {
+        /** @description The signed-in user's tags on one artist, album or track. */
+        EntityTags: {
+            /** Format: int64 */
+            entity_id: number;
+            entity_type: components["schemas"]["CatalogKind"];
+            tags: string[];
+        };
+        /** @description The body of every error the native API answers with. */
+        ErrorBody: {
+            /** @description What went wrong, for people (not a stable code). */
+            error: string;
+        };
+        /** @description A scrobble in the feed of the accounts a user follows. */
+        FeedEntry: {
             /**
-             * @description A description of the target documentation.
-             *      CommonMark syntax MAY be used for rich text representation.
+             * Format: int64
+             * @description The album the play named, else the one the catalog files the track
+             *      under.
              */
-            description?: string | null;
+            album_id?: number | null;
+            album_image?: string | null;
+            album_title?: string | null;
+            /** Format: int64 */
+            artist_id: number;
+            /** @description For when the album has no cover, or there is no album. */
+            artist_image?: string | null;
+            artist_name: string;
             /**
-             * @description REQUIRED. The URL for the target documentation.
-             *      This MUST be in the format of a URL.
+             * Format: int64
+             * @description The scrobble's id: an entry seen on two pages (when the client polls
+             *      the first page again) is the same entry.
              */
-            url: string;
-        } & {
-            [key: string]: unknown;
+            id: number;
+            /** @description Whether the account that played it loves the track. */
+            loved: boolean;
+            /** Format: date-time */
+            played_at: string;
+            /**
+             * @description `counted`, `no_data` (a track without a known length), or `null`
+             *      until it is classified; suspect plays and duplicates aren't in the
+             *      feed.
+             */
+            status?: components["schemas"]["ScrobbleLabel"] | null;
+            /** Format: int64 */
+            track_id: number;
+            track_title: string;
+            user: components["schemas"]["UserSummary"];
+        };
+        /** @description A page of the feed, newest first. */
+        FeedPage: {
+            entries: components["schemas"]["FeedEntry"][];
+            /**
+             * @description `before` for the next, older page; `null` once the feed's oldest day
+             *      is reached. A page may hold fewer entries than asked for and still
+             *      have a next one.
+             */
+            next?: string | null;
+        };
+        FeedQuery: {
+            /** @description The previous page's `next`, for the page after it. */
+            before?: string | null;
+            /**
+             * Format: int64
+             * @description Entries per page: 50 by default, 100 at most.
+             */
+            limit?: number | null;
+        };
+        FinishConnectRequest: {
+            /** @description Spotify's `code`. */
+            code?: string | null;
+            /** @description The `state` the provider sent back. */
+            state: string;
+            /** @description Last.fm's `token`. */
+            token?: string | null;
+        };
+        /** @description An account in someone's followers or following. */
+        FollowEntry: {
+            bio?: string | null;
+            country?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            display_name?: string | null;
+            /**
+             * Format: date-time
+             * @description When the follow began.
+             */
+            followed_at: string;
+            /** @description Whether this account follows the signed-in viewer; `null` likewise. */
+            follows_you?: boolean | null;
+            /** Format: int64 */
+            id: number;
+            image_url?: string | null;
+            /**
+             * @description Whether the signed-in viewer follows this account; `null` when
+             *      signed out, or for the viewer's own entry.
+             */
+            is_following?: boolean | null;
+            is_private: boolean;
+            is_verified: boolean;
+            /** Format: date-time */
+            last_seen_at?: string | null;
+            /** Format: int64 */
+            scrobble_count: number;
+            username: string;
+            website_url?: string | null;
+        };
+        FollowListQuery: {
+            /** @description The previous page's `next`, for the page after it. */
+            before?: string | null;
+            /**
+             * Format: int64
+             * @description Entries per page: 50 by default, 200 at most.
+             */
+            limit?: number | null;
+        };
+        /** @description A page of followers or following, newest follow first. */
+        FollowPage: {
+            entries: components["schemas"]["FollowEntry"][];
+            /** @description `before` for the next page; `null` on the last one. */
+            next?: string | null;
         };
         FriendsResponse: {
             followers: components["schemas"]["UserProfile"][];
             following: components["schemas"]["UserProfile"][];
         };
-        /**
-         * @description The Header Object follows the structure of the Parameter Object with the
-         *      following changes:
-         *
-         *      1) name MUST NOT be specified, it is given in the corresponding headers map.
-         *      2) in MUST NOT be specified, it is implicitly in header.
-         *      3) All traits that are affected by the location MUST be applicable to a
-         *      location of header (for example, style).
-         */
-        Header: ({
+        HistoryQuery: {
+            /** @description The previous page's `next`, for the page after it. */
+            before?: string | null;
             /**
-             * @description A brief description of the parameter. This could
-             *      contain examples of use. CommonMark syntax MAY be
-             *      used for rich text representation.
+             * Format: int64
+             * @description Revisions per page: 50 by default, 200 at most.
              */
-            description?: string | null;
-            content?: unknown;
-            /**
-             * @description Specifies that a parameter is deprecated and SHOULD
-             *      be transitioned out of usage.
-             */
-            deprecated?: boolean | null;
-            example?: unknown;
-            examples?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Example"];
-            };
-            /**
-             * @description Determines whether this parameter is mandatory.
-             *      If the parameter location is "path", this property
-             *      is REQUIRED and its value MUST be true. Otherwise,
-             *      the property MAY be included and its default value
-             *      is false.
-             */
-            required?: boolean;
-            schema?: unknown;
-            /** @default simple */
-            style: components["schemas"]["HeaderStyle"];
-        } & {
-            [key: string]: unknown;
-        }) & ({
-            schema: components["schemas"]["SchemaObject"];
-        } | {
-            content: {
-                [key: string]: components["schemas"]["MediaType"];
-            };
-        });
-        /** @enum {string} */
-        HeaderStyle: "simple";
+            limit?: number | null;
+        };
+        /** @description Path parameters, named so the OpenAPI spec documents them. */
+        IdPath: {
+            /** Format: int64 */
+            id: number;
+        };
+        IdTagPath: {
+            /** Format: int64 */
+            id: number;
+            tag: string;
+        };
         /**
          * @description A community-uploaded image candidate for an artist or album. Uploads add
          *      candidates rather than replacing the image; the most-liked candidate
@@ -2612,116 +11511,77 @@ export interface components {
             /** Format: int64 */
             vote_count: number;
         };
-        /**
-         * @description The object provides metadata about the API.
-         *      The metadata MAY be used by the clients if needed,
-         *      and MAY be presented in editing or documentation generation tools for
-         *      convenience.
-         */
-        Info: {
-            /** @description REQUIRED. The title of the application. */
-            title: string;
-            /**
-             * @description A description of the API.
-             *      CommonMark syntax MAY be used for rich text representation.
-             */
-            description?: string | null;
-            /** @description The contact information for the exposed API. */
-            contact?: components["schemas"]["Contact"] | null;
-            /** @description The license information for the exposed API. */
-            license?: components["schemas"]["License"] | null;
-            /** @description A short summary of the API. */
-            summary?: string | null;
-            /**
-             * @description A URL to the Terms of Service for the API.
-             *      This MUST be in the format of a URL.
-             */
-            termsOfService?: string | null;
-            /**
-             * @description REQUIRED. The version of the OpenAPI document (which is distinct from
-             *      the OpenAPI Specification version or the API implementation version).
-             */
-            version: string;
-        } & {
-            [key: string]: unknown;
-        };
-        /** @description License information for the exposed API. */
-        License: {
-            /** @description An [SPDX](https://spdx.org/spdx-specification-21-web-version#h.jxpfx0ykyb60) license expression for the API. The `identifier` field is mutually exclusive of the `url` field. */
-            identifier?: string | null;
-            /** @description REQUIRED. The license name used for the API. */
-            name: string;
-            /**
-             * @description A URL to the license used for the API. This MUST be in the form of a
-             *      URL. The `url` field is mutually exclusive of the `identifier` field.
-             */
-            url?: string | null;
-        } & {
-            [key: string]: unknown;
-        };
-        /**
-         * @description The Link object represents a possible design-time link for a response.
-         *      The presence of a link does not guarantee the caller's ability to
-         *      successfully invoke it, rather it provides a known relationship and
-         *      traversal mechanism between responses and other operations.
-         *
-         *      Unlike dynamic links (i.e. links provided in the response payload),
-         *      the OAS linking mechanism does not require link information in the runtime
-         *      response.
-         *
-         *      For computing links, and providing instructions to execute them,
-         *      a runtime expression is used for accessing values in an operation
-         *      and using them as parameters while invoking the linked operation.
-         */
-        Link: ({
-            /**
-             * @description A description of the link.
-             *      CommonMark syntax MAY be used for rich text representation.
-             */
-            description?: string | null;
-            operationId?: unknown;
-            operationRef?: unknown;
-            /**
-             * @description A map representing parameters to pass to an operation
-             *      as specified with operationId or identified via operationRef.
-             *      The key is the parameter name to be used, whereas the value
-             *      can be a constant or an expression to be evaluated and passed
-             *      to the linked operation. The parameter name can be qualified
-             *      using the parameter location [{in}.]{name} for operations
-             *      that use the same parameter name in different locations (e.g. path.id).
-             */
-            parameters?: {
-                [key: string]: unknown;
-            };
-            /**
-             * @description A literal value or {expression} to use as a request body
-             *      when calling the target operation.
-             */
-            requestBody?: unknown;
-            /** @description A server object to be used by the target operation. */
-            server?: components["schemas"]["Server"] | null;
-        } & {
-            [key: string]: unknown;
-        }) & ({
-            operationRef: string;
-        } | {
-            operationId: string;
-        });
+        /** @enum {string} */
+        ImportStatus: "pending" | "running" | "done" | "failed" | "cancelled";
         LoginRequest: {
             password: string;
             username: string;
         };
-        MediaType: {
-            encoding?: {
-                [key: string]: components["schemas"]["Encoding"];
-            };
-            example?: unknown;
-            examples?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Example"];
-            };
-            schema?: components["schemas"]["SchemaObject"] | null;
-        } & {
-            [key: string]: unknown;
+        LogoutQuery: {
+            /**
+             * @description End every session of the user, on every device, not just this one.
+             * @default false
+             */
+            all: boolean;
+        };
+        LovedQuery: {
+            /** @description The previous page's `next`, for the page after it. */
+            before?: string | null;
+            /**
+             * Format: int64
+             * @description Entries per page: 50 by default, 200 at most.
+             */
+            limit?: number | null;
+        };
+        /** @description A track a user loves. */
+        LovedTrack: {
+            /**
+             * Format: int64
+             * @description The album the catalog files the track under (the one its listeners
+             *      named); `null` without one.
+             */
+            album_id?: number | null;
+            album_image?: string | null;
+            album_title?: string | null;
+            /** Format: int64 */
+            artist_id: number;
+            /** @description For when the album has no cover, or there is no album. */
+            artist_image?: string | null;
+            artist_name: string;
+            /** Format: date-time */
+            loved_at: string;
+            /** Format: int64 */
+            track_id: number;
+            track_title: string;
+        };
+        /** @description A page of a user's loved tracks, newest love first. */
+        LovedTrackPage: {
+            entries: components["schemas"]["LovedTrack"][];
+            /** @description `before` for the next page; `null` on the last one. */
+            next?: string | null;
+            /**
+             * Format: int64
+             * @description Every track the user loves.
+             */
+            total: number;
+        };
+        MyTagsQuery: {
+            /** Format: int64 */
+            album?: number | null;
+            /**
+             * Format: int64
+             * @description Only the tags on this artist (or album, or track: one of the three).
+             */
+            artist?: number | null;
+            /** @description The previous page's `next`, for the page after it. */
+            before?: string | null;
+            /**
+             * Format: int64
+             * @description Entries per page: 50 by default, 200 at most.
+             */
+            limit?: number | null;
+            /** Format: int64 */
+            track?: number | null;
         };
         NewCommentRequest: {
             body: string;
@@ -2731,605 +11591,36 @@ export interface components {
             artist: string;
             /** Format: int32 */
             duration_ms?: number | null;
+            /** @default [] */
+            featured_artists: string[];
+            /**
+             * Format: uuid
+             * @description As for scrobbles.
+             */
+            recording_mbid?: string | null;
             source?: string | null;
             track: string;
         };
-        OAuth2Flows: ({
-            implicit: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-            };
-        } | {
-            password: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            clientCredentials: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            authorizationCode: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        }) & ({
-            implicit: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-            };
-        } | {
-            password: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            clientCredentials: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            authorizationCode: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        }) & ({
-            implicit: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-            };
-        } | {
-            password: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            clientCredentials: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            authorizationCode: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        }) & ({
-            implicit: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-            };
-        } | {
-            password: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            clientCredentials: {
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        } | {
-            authorizationCode: {
-                authorizationUrl: string;
-                refreshUrl?: string | null;
-                /** @default {} */
-                scopes: {
-                    [key: string]: string;
-                };
-                tokenUrl: string;
-            };
-        });
-        OpenApi: {
-            /** @description An element to hold various schemas for the document. */
-            components?: components["schemas"]["Components"] | null;
-            /** @description Additional external documentation. */
-            externalDocs?: components["schemas"]["ExternalDocumentation"] | null;
+        NowPlayingRich: {
+            album_image?: string | null;
+            album_title?: string | null;
             /**
-             * @description REQUIRED. Provides metadata about the API.
-             *      The metadata MAY be used by tooling as required.
+             * @description Fallback artwork for clients when the album has no cover (tracks have
+             *      no artwork of their own — the album cover is the track's image).
              */
-            info: components["schemas"]["Info"];
+            artist_image?: string | null;
+            artist_name: string;
+            /** Format: date-time */
+            expires_at: string;
+            source: string;
+            /** Format: date-time */
+            started_at: string;
             /**
-             * @description The default value for the `$schema` keyword within Schema Objects
-             *      contained within this OAS document. This MUST be in the form of a URI.
+             * Format: int64
+             * @description For loving it, or opening its page.
              */
-            jsonSchemaDialect?: string | null;
-            openapi: string;
-            /** @description The available paths and operations for the API. */
-            paths?: components["schemas"]["Paths"] | null;
-            /**
-             * @description A declaration of which security mechanisms can be used across the API.
-             *
-             *      The list of values includes alternative security requirement objects
-             *      that can be used. Only one of the security requirement objects need to
-             *      be satisfied to authorize a request. Individual operations can override
-             *      this definition. Global security settings may be overridden on a
-             *      per-path basis.
-             */
-            security?: {
-                [key: string]: string[];
-            }[];
-            /**
-             * @description An array of Server Objects, which provide connectivity information to a
-             *      target server. If the servers property is not provided, or is an empty
-             *      array, the default value would be a Server Object with a url value of /.
-             */
-            servers?: components["schemas"]["Server"][];
-            /**
-             * @description A list of tags used by the document with additional metadata.
-             *
-             *      The order of the tags can be used to reflect on their order by the
-             *      parsing tools. Not all tags that are used by the Operation Object
-             *      must be declared. The tags that are not declared MAY be organized
-             *      randomly or based on the tool's logic. Each tag name in the list
-             *      MUST be unique.
-             */
-            tags?: components["schemas"]["Tag"][];
-            /**
-             * @description The incoming webhooks that MAY be received as part of this API and that
-             *      the API consumer MAY choose to implement. Closely related to the
-             *      `callbacks` feature, this section describes requests initiated other
-             *      than by an API call, for example by an out of band registration. The key
-             *      name is a unique string to refer to each webhook, while the (optionally
-             *      referenced) Path Item Object describes a request that may be initiated
-             *      by the API provider and the expected responses.
-             */
-            webhooks?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_PathItem"];
-            };
-        } & {
-            [key: string]: unknown;
-        };
-        /** @description Describes a single API operation on a path. */
-        Operation: {
-            /**
-             * @description A verbose explanation of the operation behavior.
-             *      CommonMark syntax MAY be used for rich text representation.
-             */
-            description?: string | null;
-            /** @description Callbacks for the operation. */
-            callbacks?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Map_of_ReferenceOr_for_PathItem"];
-            };
-            /** @description Declares this operation to be deprecated.Default value is false. */
-            deprecated?: boolean;
-            /** @description Additional external documentation for this operation. */
-            externalDocs?: components["schemas"]["ExternalDocumentation"] | null;
-            /**
-             * @description Unique string used to identify the operation.
-             *      The id MUST be unique among all operations described in the API.
-             *      Tools and libraries MAY use the operationId to uniquely identify
-             *      an operation, therefore, it is RECOMMENDED to follow common
-             *      programming naming conventions.
-             */
-            operationId?: string | null;
-            /**
-             * @description A list of parameters that are applicable for this operation.
-             *      If a parameter is already defined at the Path Item, the new
-             *      definition will override it but can never remove it.
-             *      The list MUST NOT include duplicated parameters. A unique
-             *      parameter is defined by a combination of a name and location.
-             *      The list can use the Reference Object to link to parameters
-             *      that are defined at the OpenAPI Object's components/parameters.
-             */
-            parameters?: components["schemas"]["ReferenceOr_for_Parameter"][];
-            /**
-             * @description The request body applicable for this operation.
-             *      The requestBody is fully supported in HTTP methods
-             *      where the HTTP 1.1 specification RFC7231 has explicitly
-             *      defined semantics for request bodies. In other cases where
-             *      the HTTP spec is vague (such as
-             *      [GET](https://tools.ietf.org/html/rfc7231#section-4.3.1),
-             *      [HEAD](https://tools.ietf.org/html/rfc7231#section-4.3.2) and
-             *      [DELETE](https://tools.ietf.org/html/rfc7231#section-4.3.5)),
-             *      requestBody is permitted but does not have well-defined semantics and
-             *      SHOULD be avoided if possible.
-             */
-            requestBody?: components["schemas"]["ReferenceOr_for_RequestBody"] | null;
-            /**
-             * @description The list of possible responses as they are returned
-             *      from executing this operation.
-             */
-            responses?: components["schemas"]["Responses"] | null;
-            /**
-             * @description A declaration of which security mechanisms can be used for this
-             *      operation. The list of values includes alternative security
-             *      requirement objects that can be used. Only one of the security
-             *      requirement objects need to be satisfied to authorize a request.
-             *      This definition overrides any declared top-level security. To remove
-             *      a top-level security declaration, an empty array can be used.
-             */
-            security?: {
-                [key: string]: string[];
-            }[];
-            /**
-             * @description An alternative server array to service this operation.
-             *      If an alternative server object is specified at the
-             *      Path Item Object or Root level, it will be overridden by this value.
-             */
-            servers?: components["schemas"]["Server"][];
-            /** @description A short summary of what the operation does. */
-            summary?: string | null;
-            /**
-             * @description A list of tags for API documentation control.
-             *      Tags can be used for logical grouping of operations
-             *      by resources or any other qualifier.
-             */
-            tags?: string[];
-        } & {
-            [key: string]: unknown;
-        };
-        Parameter: (({
-            /**
-             * @description A brief description of the parameter. This could
-             *      contain examples of use. CommonMark syntax MAY be
-             *      used for rich text representation.
-             */
-            description?: string | null;
-            /**
-             * @description Sets the ability to pass empty-valued parameters. This is
-             *      valid only for query parameters and allows sending a parameter
-             *      with an empty value. Default value is false. If style is used,
-             *      and if behavior is n/a (cannot be serialized), the value of
-             *      allowEmptyValue SHALL be ignored.
-             */
-            allow_empty_value?: boolean | null;
-            /**
-             * @description Determines whether the parameter value SHOULD allow reserved
-             *      characters, as defined by RFC3986 :/?#[]@!$&'()*+,;= to be included
-             *      without percent-encoding. This property only applies to parameters
-             *      with an in value of query. The default value is false.
-             */
-            allow_reserved?: boolean;
-            content?: unknown;
-            /**
-             * @description Specifies that a parameter is deprecated and SHOULD
-             *      be transitioned out of usage.
-             */
-            deprecated?: boolean | null;
-            example?: unknown;
-            examples?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Example"];
-            };
-            explode?: boolean | null;
-            /** @constant */
-            in: "query";
-            /**
-             * @description REQUIRED. The name of the parameter. Parameter names are case sensitive.
-             *      If in is "path", the name field MUST correspond to the associated path
-             *      segment from the path field in the Paths Object. See Path Templating for
-             *      further information.
-             *
-             *      If in is "header" and the name field is "Accept", "Content-Type" or
-             *      "Authorization", the parameter definition SHALL be ignored.
-             *
-             *      For all other cases, the name corresponds to the parameter name
-             *      used by the in property.
-             */
-            name: string;
-            /**
-             * @description Determines whether this parameter is mandatory.
-             *      If the parameter location is "path", this property
-             *      is REQUIRED and its value MUST be true. Otherwise,
-             *      the property MAY be included and its default value
-             *      is false.
-             */
-            required?: boolean;
-            schema?: unknown;
-            /**
-             * @description Describes how the parameter value will be serialized depending on
-             *      the type of the parameter value. Default values (based on value of
-             *      in): for query - form; for path - simple; for header - simple; for
-             *      cookie - form.
-             * @default form
-             */
-            style: components["schemas"]["QueryStyle"];
-        } & {
-            [key: string]: unknown;
-        }) & ({
-            schema: components["schemas"]["SchemaObject"];
-        } | {
-            content: {
-                [key: string]: components["schemas"]["MediaType"];
-            };
-        })) | (({
-            /**
-             * @description A brief description of the parameter. This could
-             *      contain examples of use. CommonMark syntax MAY be
-             *      used for rich text representation.
-             */
-            description?: string | null;
-            content?: unknown;
-            /**
-             * @description Specifies that a parameter is deprecated and SHOULD
-             *      be transitioned out of usage.
-             */
-            deprecated?: boolean | null;
-            example?: unknown;
-            examples?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Example"];
-            };
-            explode?: boolean | null;
-            /** @constant */
-            in: "header";
-            /**
-             * @description REQUIRED. The name of the parameter. Parameter names are case sensitive.
-             *      If in is "path", the name field MUST correspond to the associated path
-             *      segment from the path field in the Paths Object. See Path Templating for
-             *      further information.
-             *
-             *      If in is "header" and the name field is "Accept", "Content-Type" or
-             *      "Authorization", the parameter definition SHALL be ignored.
-             *
-             *      For all other cases, the name corresponds to the parameter name
-             *      used by the in property.
-             */
-            name: string;
-            /**
-             * @description Determines whether this parameter is mandatory.
-             *      If the parameter location is "path", this property
-             *      is REQUIRED and its value MUST be true. Otherwise,
-             *      the property MAY be included and its default value
-             *      is false.
-             */
-            required?: boolean;
-            schema?: unknown;
-            /**
-             * @description Describes how the parameter value will be serialized depending on
-             *      the type of the parameter value. Default values (based on value of
-             *      in): for query - form; for path - simple; for header - simple; for
-             *      cookie - form.
-             * @default simple
-             */
-            style: components["schemas"]["HeaderStyle"];
-        } & {
-            [key: string]: unknown;
-        }) & ({
-            schema: components["schemas"]["SchemaObject"];
-        } | {
-            content: {
-                [key: string]: components["schemas"]["MediaType"];
-            };
-        })) | (({
-            /**
-             * @description A brief description of the parameter. This could
-             *      contain examples of use. CommonMark syntax MAY be
-             *      used for rich text representation.
-             */
-            description?: string | null;
-            content?: unknown;
-            /**
-             * @description Specifies that a parameter is deprecated and SHOULD
-             *      be transitioned out of usage.
-             */
-            deprecated?: boolean | null;
-            example?: unknown;
-            examples?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Example"];
-            };
-            explode?: boolean | null;
-            /** @constant */
-            in: "path";
-            /**
-             * @description REQUIRED. The name of the parameter. Parameter names are case sensitive.
-             *      If in is "path", the name field MUST correspond to the associated path
-             *      segment from the path field in the Paths Object. See Path Templating for
-             *      further information.
-             *
-             *      If in is "header" and the name field is "Accept", "Content-Type" or
-             *      "Authorization", the parameter definition SHALL be ignored.
-             *
-             *      For all other cases, the name corresponds to the parameter name
-             *      used by the in property.
-             */
-            name: string;
-            /**
-             * @description Determines whether this parameter is mandatory.
-             *      If the parameter location is "path", this property
-             *      is REQUIRED and its value MUST be true. Otherwise,
-             *      the property MAY be included and its default value
-             *      is false.
-             */
-            required?: boolean;
-            schema?: unknown;
-            /**
-             * @description Describes how the parameter value will be serialized depending on
-             *      the type of the parameter value. Default values (based on value of
-             *      in): for query - form; for path - simple; for header - simple; for
-             *      cookie - form.
-             * @default simple
-             */
-            style: components["schemas"]["PathStyle"];
-        } & {
-            [key: string]: unknown;
-        }) & ({
-            schema: components["schemas"]["SchemaObject"];
-        } | {
-            content: {
-                [key: string]: components["schemas"]["MediaType"];
-            };
-        })) | (({
-            /**
-             * @description A brief description of the parameter. This could
-             *      contain examples of use. CommonMark syntax MAY be
-             *      used for rich text representation.
-             */
-            description?: string | null;
-            content?: unknown;
-            /**
-             * @description Specifies that a parameter is deprecated and SHOULD
-             *      be transitioned out of usage.
-             */
-            deprecated?: boolean | null;
-            example?: unknown;
-            examples?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Example"];
-            };
-            explode?: boolean | null;
-            /** @constant */
-            in: "cookie";
-            /**
-             * @description REQUIRED. The name of the parameter. Parameter names are case sensitive.
-             *      If in is "path", the name field MUST correspond to the associated path
-             *      segment from the path field in the Paths Object. See Path Templating for
-             *      further information.
-             *
-             *      If in is "header" and the name field is "Accept", "Content-Type" or
-             *      "Authorization", the parameter definition SHALL be ignored.
-             *
-             *      For all other cases, the name corresponds to the parameter name
-             *      used by the in property.
-             */
-            name: string;
-            /**
-             * @description Determines whether this parameter is mandatory.
-             *      If the parameter location is "path", this property
-             *      is REQUIRED and its value MUST be true. Otherwise,
-             *      the property MAY be included and its default value
-             *      is false.
-             */
-            required?: boolean;
-            schema?: unknown;
-            /**
-             * @description Describes how the parameter value will be serialized depending on
-             *      the type of the parameter value. Default values (based on value of
-             *      in): for query - form; for path - simple; for header - simple; for
-             *      cookie - form.
-             * @default form
-             */
-            style: components["schemas"]["CookieStyle"];
-        } & {
-            [key: string]: unknown;
-        }) & ({
-            schema: components["schemas"]["SchemaObject"];
-        } | {
-            content: {
-                [key: string]: components["schemas"]["MediaType"];
-            };
-        }));
-        /**
-         * @description Describes the operations available on a single path.
-         *      A Path Item MAY be empty, due to ACL constraints.
-         *      The path itself is still exposed to the documentation
-         *      viewer but they will not know which operations and
-         *      parameters are available.
-         */
-        PathItem: {
-            /**
-             * @description An optional, string description, intended to apply to all operations in
-             *      this path. CommonMark syntax MAY be used for rich text representation.
-             */
-            description?: string | null;
-            /**
-             * @description Allows for a referenced definition of this path item. The referenced
-             *      structure MUST be in the form of a Path Item Object.  In case a Path
-             *      Item Object field appears both in the defined object and the referenced
-             *      object, the behavior is undefined. See the rules for resolving Relative
-             *      References.
-             */
-            $ref?: string | null;
-            delete?: components["schemas"]["Operation"] | null;
-            get?: components["schemas"]["Operation"] | null;
-            head?: components["schemas"]["Operation"] | null;
-            options?: components["schemas"]["Operation"] | null;
-            /**
-             * @description A list of parameters that are applicable for all the
-             *      operations described under this path. These parameters
-             *      can be overridden at the operation level, but cannot be
-             *      removed there. The list MUST NOT include duplicated parameters.
-             *      A unique parameter is defined by a combination of a name and location.
-             *      The list can use the Reference Object to link to parameters that
-             *      are defined at the OpenAPI Object's components/parameters.
-             */
-            parameters?: components["schemas"]["ReferenceOr_for_Parameter"][];
-            patch?: components["schemas"]["Operation"] | null;
-            post?: components["schemas"]["Operation"] | null;
-            put?: components["schemas"]["Operation"] | null;
-            /** @description An alternative server array to service all operations in this path. */
-            servers?: components["schemas"]["Server"][];
-            /**
-             * @description An optional, string summary, intended to apply to all operations in
-             *      this path.
-             */
-            summary?: string | null;
-            trace?: components["schemas"]["Operation"] | null;
-        } & {
-            [key: string]: unknown;
-        };
-        /** @enum {string} */
-        PathStyle: "matrix" | "label" | "simple";
-        /**
-         * @description Holds the relative paths to the individual endpoints and
-         *      their operations. The path is appended to the URL from the
-         *      Server Object in order to construct the full URL. The Paths
-         *      MAY be empty, due to Access Control List (ACL) constraints.
-         */
-        Paths: {
-            [key: string]: components["schemas"]["ReferenceOr_for_PathItem"];
+            track_id: number;
+            track_title: string;
         };
         PeriodQuery: {
             /** Format: int64 */
@@ -3340,213 +11631,190 @@ export interface components {
         /** @description Public-facing profile (no sensitive fields) */
         ProfileResponse: {
             bio?: string | null;
+            /** @description Whether the signed-in viewer blocks this account; `null` likewise. */
+            blocking?: boolean | null;
             country?: string | null;
             /** Format: date-time */
             created_at: string;
             display_name?: string | null;
+            /**
+             * Format: int64
+             * @description Accounts following this one, private ones included (lists don't
+             *      name them).
+             */
+            followers_count: number;
+            /**
+             * Format: int64
+             * @description Accounts this one follows, private ones included.
+             */
+            following_count: number;
+            /** @description Whether this account follows the signed-in viewer; `null` likewise. */
+            follows_you?: boolean | null;
             /** Format: int64 */
             id: number;
             image_url?: string | null;
+            /**
+             * @description Whether the signed-in viewer follows this account; `null` when
+             *      signed out, and on the viewer's own profile.
+             */
             is_following?: boolean | null;
             is_private: boolean;
             is_verified: boolean;
             /** Format: date-time */
             last_seen_at?: string | null;
+            /**
+             * @description `scrobble_count` (duplicates left out) by what the classifier made
+             *      of it.
+             */
+            scrobble_breakdown: components["schemas"]["ScrobbleBreakdown"];
             /** Format: int64 */
             scrobble_count: number;
             username: string;
             website_url?: string | null;
         };
-        /** @enum {string} */
-        QueryStyle: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
+        ProviderPath: {
+            /** @description `spotify` or `lastfm`. */
+            provider: string;
+        };
+        /** @description An album's place in a ranking. */
+        RankedAlbum: {
+            /** Format: int64 */
+            album_id: number;
+            album_title: string;
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
+            image_url?: string | null;
+            /**
+             * Format: int64
+             * @description As in [`RankedArtist`].
+             */
+            listeners: number;
+            /**
+             * Format: int64
+             * @description As in [`RankedArtist`].
+             */
+            plays: number;
+            /**
+             * Format: int32
+             * @description 1 for the first.
+             */
+            position: number;
+        };
+        /** @description An artist's place in a global ranking. */
+        RankedArtist: {
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
+            image_url?: string | null;
+            /**
+             * Format: int64
+             * @description Listeners in the period, rounded, the ranking's order: each account
+             *      counts once at most, and less when its plays don't look like real
+             *      listening.
+             */
+            listeners: number;
+            /**
+             * Format: int64
+             * @description Plays in the period, rounded, each weighed by how surely it was a
+             *      real listen.
+             */
+            plays: number;
+            /**
+             * Format: int32
+             * @description 1 for the first.
+             */
+            position: number;
+        };
+        /** @description A track's place in a global ranking. */
+        RankedTrack: {
+            album_image?: string | null;
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
+            /**
+             * Format: int64
+             * @description As in [`RankedArtist`].
+             */
+            listeners: number;
+            /**
+             * Format: int64
+             * @description As in [`RankedArtist`].
+             */
+            plays: number;
+            /**
+             * Format: int32
+             * @description 1 for the first.
+             */
+            position: number;
+            /** Format: int64 */
+            track_id: number;
+            track_title: string;
+        };
+        /**
+         * @description A global ranking's period: a rolling window of UTC days ending today,
+         *      today included.
+         */
+        RankingPeriod: "week" | "month" | "year";
+        RankingQuery: {
+            /**
+             * Format: int64
+             * @description Entries per page: 50 by default, 200 at most.
+             */
+            limit?: number | null;
+            /**
+             * Format: int64
+             * @description Positions to skip, 0 by default: `offset=50` starts at position 51.
+             */
+            offset?: number | null;
+            /** @description `week` (the default), `month` or `year`. */
+            period?: components["schemas"]["RankingPeriod"] | null;
+        };
         RecentQuery: {
             /** Format: date-time */
             before?: string | null;
             /** Format: int64 */
             limit?: number | null;
         };
-        ReferenceOr_for_Example: {
+        RecommendationsQuery: {
             /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
+             * Format: int64
+             * @description Entries per page: 20 by default, 100 at most.
              */
-            description?: string | null;
+            limit?: number | null;
             /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
+             * Format: int64
+             * @description Entries to skip, 0 by default.
              */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | components["schemas"]["Example"];
-        ReferenceOr_for_Header: {
-            /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
-             */
-            description?: string | null;
-            /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
-             */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | components["schemas"]["Header"];
-        ReferenceOr_for_Link: {
-            /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
-             */
-            description?: string | null;
-            /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
-             */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | components["schemas"]["Link"];
-        ReferenceOr_for_Map_of_ReferenceOr_for_PathItem: {
-            /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
-             */
-            description?: string | null;
-            /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
-             */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | {
-            [key: string]: components["schemas"]["ReferenceOr_for_PathItem"];
+            offset?: number | null;
         };
-        ReferenceOr_for_Parameter: {
+        /** @description An artist recommended to the signed-in user. */
+        RecommendedArtist: {
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
             /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
+             * @description One of the user's own artists whose listeners also play this one,
+             *      the one that counted most: "listeners of {because} also play this".
              */
-            description?: string | null;
+            because: components["schemas"]["ArtistRef"];
             /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
+             * Format: int64
+             * @description How many of the user's artists led to it, `because` included.
              */
-            $ref: string;
+            because_count: number;
+            image_url?: string | null;
             /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
+             * Format: int32
+             * @description 1 for the best.
              */
-            summary?: string | null;
-        } | components["schemas"]["Parameter"];
-        ReferenceOr_for_PathItem: {
+            position: number;
             /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
+             * Format: double
+             * @description 0 to 1 against the first recommendation, three decimals.
              */
-            description?: string | null;
-            /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
-             */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | components["schemas"]["PathItem"];
-        ReferenceOr_for_RequestBody: {
-            /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
-             */
-            description?: string | null;
-            /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
-             */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | components["schemas"]["RequestBody"];
-        ReferenceOr_for_Response: {
-            /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
-             */
-            description?: string | null;
-            /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
-             */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | components["schemas"]["Response"];
-        ReferenceOr_for_SecurityScheme: {
-            /**
-             * @description A description which by default SHOULD override that of the
-             *      referenced component. CommonMark syntax MAY be used for rich text
-             *      representation. If the referenced object-type does not allow a
-             *      `description` field, then this field has no effect.
-             */
-            description?: string | null;
-            /**
-             * @description REQUIRED. The reference identifier. This MUST be in the form of a
-             *      URI.
-             */
-            $ref: string;
-            /**
-             * @description A short summary which by default SHOULD override that of the
-             *      referenced component. If the referenced object-type does not allow a
-             *      `summary` field, then this field has no effect.
-             */
-            summary?: string | null;
-        } | components["schemas"]["SecurityScheme"];
+            score: number;
+        };
         RefreshResponse: {
             status: string;
         };
@@ -3556,100 +11824,188 @@ export interface components {
             password: string;
             username: string;
         };
-        RequestBody: {
+        /** @enum {string} */
+        ReportReason: "spam" | "vandalism" | "offensive" | "personal_data" | "copyright" | "other";
+        ReportRequest: {
+            /** Format: int64 */
+            album_id?: number | null;
+            /** Format: int64 */
+            artist_id?: number | null;
             /**
-             * @description A brief description of the request body.
-             *      This could contain examples of use.
-             *      CommonMark syntax MAY be used for rich text representation.
+             * @description What a moderator should know: one line, 500 characters at most.
+             * @default
              */
-            description?: string | null;
+            note: string;
+            reason: components["schemas"]["ReportReason"];
             /**
-             * @description REQUIRED. The content of the request body.
-             *      The key is a media type or media type range and
-             *      the value describes it. For requests that match
-             *      multiple keys, only the most specific key is applicable.
-             *       e.g. text/plain overrides text/*
+             * Format: int64
+             * @description A bio revision; or `tag` instead.
              */
-            content?: {
-                [key: string]: components["schemas"]["MediaType"];
-            };
+            revision_id?: number | null;
             /**
-             * @description Determines if the request body is required in the
-             *      request. Defaults to false.
+             * @description A tag: on the artist, album or track named by one of `artist_id`,
+             *      `album_id` and `track_id`, or anywhere without one.
              */
-            required?: boolean;
-        } & {
-            [key: string]: unknown;
+            tag?: string | null;
+            /** Format: int64 */
+            track_id?: number | null;
         };
-        Response: {
+        RevertBioRequest: {
             /**
-             * @description REQUIRED. A description of the response.
-             *      CommonMark syntax MAY be used for rich text representation.
+             * Format: int64
+             * @description As in an edit: the current revision as read.
              */
-            description: string;
+            base_revision_id?: number | null;
             /**
-             * @description A map containing descriptions of potential response payloads.
-             *      The key is a media type or media type range and the value
-             *      describes it. For responses that match multiple keys,
-             *      only the most specific key is applicable. e.g. text/plain
-             *      overrides text/*
+             * Format: int64
+             * @description The earlier revision whose text to restore.
              */
-            content?: {
-                [key: string]: components["schemas"]["MediaType"];
-            };
-            /**
-             * @description Maps a header name to its definition.
-             *      RFC7230 states header names are case insensitive.
-             *      If a response header is defined with the name "Content-Type",
-             *      it SHALL be ignored.
-             */
-            headers?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Header"];
-            };
-            /**
-             * @description A map of operations links that can be followed from the response.
-             *      The key of the map is a short name for the link, following
-             *      the naming constraints of the names for Component Objects.
-             */
-            links?: {
-                [key: string]: components["schemas"]["ReferenceOr_for_Link"];
-            };
-        } & {
-            [key: string]: unknown;
+            revision_id: number;
+            /** @default  */
+            summary: string;
         };
-        Responses: {
+        /** @description How a bio revision came to be. */
+        RevisionKind: "edit" | "revert" | "import" | "moderation";
+        RevisionStatus: "published" | "held" | "rejected";
+        /**
+         * @description How a profile's `scrobble_count` divides by what the classifier made of
+         *      it: plays it found plausible, and plays it couldn't vouch for, so a flood
+         *      of botted plays doesn't pass for listening. The duplicates it found (the
+         *      same listen reported again) are in no count but their own.
+         */
+        ScrobbleBreakdown: {
+            /** Format: int64 */
+            duplicates: number;
             /**
-             * @description The documentation of responses other than the ones declared
-             *      for specific HTTP response codes. Use this field to cover
-             *      undeclared responses.
+             * Format: int64
+             * @description Of tracks with no known length, so unchecked.
              */
-            default?: components["schemas"]["ReferenceOr_for_Response"] | null;
-        } & {
-            [key: string]: components["schemas"]["ReferenceOr_for_Response"];
-        };
-        SchemaObject: {
+            no_data: number;
             /**
-             * @description A free-form property to include an example of an instance for this
-             *      schema. To represent examples that cannot be naturally represented in
-             *      JSON or YAML, a string value can be used to contain the example with
-             *      escaping where necessary. **Deprecated:** The `example` property has
-             *      been deprecated in favor of the JSON Schema `examples` keyword. Use
-             *      of `example` is discouraged, and later versions of this
-             *      specification may remove it.
+             * Format: int64
+             * @description Not classified yet (usually the last minute's).
              */
-            example?: unknown;
-            /** @description Additional external documentation for this schema. */
-            externalDocs?: components["schemas"]["ExternalDocumentation"] | null;
+            pending: number;
+            /**
+             * Format: int64
+             * @description Over the listening time real time allows.
+             */
+            suspect: number;
+            /**
+             * Format: int64
+             * @description `suspect + no_data + pending`; `verified + unverified` is
+             *      `scrobble_count`.
+             */
+            unverified: number;
+            /**
+             * Format: int64
+             * @description Labelled `counted`.
+             */
+            verified: number;
         };
+        /** @description A listening-history import (currently from Last.fm) and its progress. */
+        ScrobbleImport: {
+            /** Format: date-time */
+            created_at: string;
+            /** Format: int64 */
+            duplicates: number;
+            /**
+             * @description Set when `status` is `failed`: `user_not_found`, `history_hidden`,
+             *      `cap_reached`, `lastfm_unavailable` or `lastfm_error`.
+             */
+            error_code?: string | null;
+            error_message?: string | null;
+            external_user: string;
+            /**
+             * Format: int64
+             * @description Scrobbles read so far; can end slightly above `total_expected`, as
+             *      pages at segment boundaries overlap.
+             */
+            fetched: number;
+            /** Format: date-time */
+            finished_at?: string | null;
+            /** Format: int64 */
+            id: number;
+            /** Format: int64 */
+            imported: number;
+            /** @description The loves are read (before the scrobbles). */
+            loved_done: boolean;
+            /**
+             * @description Why the loves stopped short: `history_hidden` (the provider wouldn't
+             *      show them), `cap_reached` (the account loves the most tracks
+             *      allowed) or `lastfm_error`. The import goes on with the scrobbles.
+             */
+            loved_error?: string | null;
+            /**
+             * Format: int64
+             * @description Loves added; tracks already loved here aren't counted.
+             */
+            loved_imported: number;
+            /**
+             * Format: int64
+             * @description Loved tracks the provider lists for the account, known once their
+             *      first page is read; `null` before, and when they couldn't be read.
+             */
+            loved_total?: number | null;
+            /**
+             * Format: date-time
+             * @description How far back in time the import has reached.
+             */
+            oldest_played_at?: string | null;
+            provider: string;
+            /**
+             * Format: date-time
+             * @description Set while a running import waits out a provider error.
+             */
+            retrying_at?: string | null;
+            /** Format: int64 */
+            skipped: number;
+            /** Format: date-time */
+            started_at?: string | null;
+            status: components["schemas"]["ImportStatus"];
+            /**
+             * Format: int64
+             * @description Scrobbles in the window according to the provider, known once the
+             *      first page is in.
+             */
+            total_expected?: number | null;
+            /** @description Ownership of the external account was proven through its auth flow. */
+            verified: boolean;
+            /**
+             * Format: date-time
+             * @description Imports cover scrobbles after `window_from` (re-imports only) up to
+             *      `window_to`, fixed when the import starts.
+             */
+            window_from?: string | null;
+            /** Format: date-time */
+            window_to?: string | null;
+        };
+        /**
+         * @description A scrobble's label as profiles show it. The classifier's duplicates (the
+         *      same listen reported again) are left out of profiles altogether.
+         */
+        ScrobbleLabel: "counted" | "suspect" | "no_data";
         ScrobbleRequest: {
             album?: string | null;
             artist: string;
             /** Format: int32 */
             duration_ms?: number | null;
+            /**
+             * @description Collaborators credited on the track, in billing order. The primary
+             *      artist is `artist`; repeating it here is ignored.
+             * @default []
+             */
+            featured_artists: string[];
             /** Format: int32 */
             listened_ms?: number | null;
             /** Format: date-time */
             played_at: string;
+            /**
+             * Format: uuid
+             * @description MusicBrainz recording id, if the client knows it: a hint for
+             *      enrichment, checked against the title and artist before use.
+             */
+            recording_mbid?: string | null;
             source?: string | null;
             track: string;
         };
@@ -3672,12 +12028,65 @@ export interface components {
             duration_ms?: number | null;
             /** Format: int64 */
             id: number;
+            /**
+             * @description Whether the user who scrobbled it loves the track (now, not when it
+             *      was played).
+             */
+            loved: boolean;
             /** Format: date-time */
             played_at: string;
             source: string;
+            /** @description What the classifier made of it; `null` until it is classified. */
+            status?: components["schemas"]["ScrobbleLabel"] | null;
             /** Format: int64 */
             track_id: number;
             track_title: string;
+        };
+        /**
+         * @description A Last.fm-API client asking to scrobble for the user, as the browser
+         *      authorization page shows it.
+         */
+        ScrobblerAuthorization: {
+            api_key: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** @description `pending`, `approved` or `expired`. */
+            status: string;
+        };
+        /**
+         * @description Where the browser goes after approving a web-flow client: the client's
+         *      callback, carrying the authorized token.
+         */
+        ScrobblerAuthorizationRedirect: {
+            redirect_url: string;
+            token: string;
+        };
+        /**
+         * @description A credential a third-party scrobbler holds (Last.fm-, Audioscrobbler-
+         *      or ListenBrainz-compatible). It authenticates those endpoints only,
+         *      never the native API. The secret is shown once, when created.
+         */
+        ScrobblerCredential: {
+            /** @description The Last.fm API key a session is bound to. */
+            api_key?: string | null;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: uuid */
+            id: string;
+            /**
+             * @description `token`: made by the user to paste into a client. `session`: a
+             *      Last.fm session key a client obtained by logging in or through the
+             *      browser authorization.
+             */
+            kind: string;
+            /** Format: date-time */
+            last_used_at?: string | null;
+            /**
+             * @description Usable as an Audioscrobbler 1.2 password (possible only when the
+             *      server could store it encrypted).
+             */
+            legacy_auth: boolean;
+            name: string;
         };
         SearchQuery: {
             type?: string | null;
@@ -3695,128 +12104,231 @@ export interface components {
             /** Format: int64 */
             limit?: number | null;
         };
-        /**
-         * @description Defines a security scheme that can be used by the operations.
-         *      Supported schemes are HTTP authentication, an API key (either as a
-         *      header or as a query parameter), OAuth2's common flows (implicit, password,
-         *      application and access code) as defined in RFC6749, and OpenID Connect
-         *      Discovery.
-         */
-        SecurityScheme: ({
-            description?: string | null;
-            /** @constant */
-            type: "apiKey";
-            in: components["schemas"]["ApiKeyLocation"];
-            name: string;
-        } & {
-            [key: string]: unknown;
-        }) | ({
-            description?: string | null;
-            /** @constant */
-            type: "http";
-            bearerFormat?: string | null;
-            scheme: string;
-        } & {
-            [key: string]: unknown;
-        }) | ({
-            description?: string | null;
-            /** @constant */
-            type: "oauth2";
-            flows: components["schemas"]["OAuth2Flows"];
-        } & {
-            [key: string]: unknown;
-        }) | ({
-            description?: string | null;
-            /** @constant */
-            type: "openIdConnect";
-            openIdConnectUrl: string;
-        } & {
-            [key: string]: unknown;
-        }) | ({
-            description?: string | null;
-            /** @constant */
-            type: "mutualTLS";
-        } & {
-            [key: string]: unknown;
-        });
-        /** @description An object representing a Server. */
-        Server: {
+        /** @description An artist whose listeners also play the one asked about. */
+        SimilarArtist: {
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
             /**
-             * @description An optional string describing the host designated
-             *      by the URL. CommonMark syntax MAY be used for rich
-             *      text representation.
+             * Format: int64
+             * @description A lower bound of the accounts listening to both, from 10, 20, 50,
+             *      100, 200, 500, 1,000 and so on, never the exact count.
              */
-            description?: string | null;
+            common_listeners: number;
+            image_url?: string | null;
             /**
-             * @description REQUIRED. A URL to the target host.
-             *      This URL supports Server Variables and MAY be relative,
-             *      to indicate that the host location is relative to the
-             *      location where the OpenAPI document is being served.
-             *      Variable substitutions will be made when a variable
-             *      is named in {brackets}.
+             * Format: int32
+             * @description 1 for the most similar.
              */
-            url: string;
+            position: number;
             /**
-             * @description A map between a variable name and its value.
-             *      The value is used for substitution in the server's URL template.
+             * Format: double
+             * @description 0 to 1, three decimals: how much more the two audiences overlap than
+             *      chance would have them, against their sizes.
              */
-            variables?: {
-                [key: string]: components["schemas"]["ServerVariable"];
-            };
-        } & {
-            [key: string]: unknown;
+            score: number;
+        };
+        /** @description A page of an artist's similar artists. */
+        SimilarArtists: {
+            /** Format: int64 */
+            artist_id: number;
+            /**
+             * Format: date-time
+             * @description When the server computed them; `null` before it first did.
+             */
+            computed_at?: string | null;
+            entries: components["schemas"]["SimilarArtist"][];
+            /** Format: int64 */
+            limit: number;
+            /** Format: int64 */
+            offset: number;
+            /**
+             * @description Their daily recomputation is overdue: these are the last the server
+             *      managed to compute.
+             */
+            stale: boolean;
+            /**
+             * Format: int64
+             * @description Similar artists this artist has; none when too few accounts listen
+             *      to it, or to anything with it.
+             */
+            total: number;
+        };
+        SimilarArtistsQuery: {
+            /**
+             * Format: int64
+             * @description Entries per page: 20 by default, 50 at most.
+             */
+            limit?: number | null;
+            /**
+             * Format: int64
+             * @description Positions to skip, 0 by default.
+             */
+            offset?: number | null;
         };
         /**
-         * @description An object representing a Server Variable
-         *      for server URL template substitution.
+         * @description An account whose listening is close to a user's, among those that chose
+         *      to be shown.
          */
-        ServerVariable: {
+        SimilarUser: {
             /**
-             * @description An optional description for the server
-             *      variable. CommonMark syntax MAY be used
-             *      for rich text representation.
+             * Format: double
+             * @description 0 to 1, three decimals.
              */
-            description?: string | null;
+            score: number;
             /**
-             * @description REQUIRED. The default value to use for substitution,
-             *      and to send, if an alternate value is not supplied.
-             *      Unlike the Schema Object's default, this value MUST
-             *      be provided by the consumer.
+             * Format: int64
+             * @description Artists both listen to.
              */
-            default: string;
+            shared_artists: number;
+            /** @description The rarest of them, at most three. */
+            top_shared: components["schemas"]["ArtistRef"][];
+            user: components["schemas"]["UserSummary"];
+        };
+        /** @description A user's taste neighbours. */
+        SimilarUsers: {
+            /** Format: date-time */
+            computed_at?: string | null;
+            entries: components["schemas"]["SimilarUser"][];
+            stale: boolean;
+            status: components["schemas"]["SimilarityStatus"];
+        };
+        SimilarUsersQuery: {
             /**
-             * @description An enumeration of string values to be
-             *      used if the substitution options are from a limited set.
+             * Format: int64
+             * @description Entries: 10 by default, 30 at most.
              */
-            enum?: string[];
-        } & {
-            [key: string]: unknown;
+            limit?: number | null;
         };
         /**
-         * @description Adds metadata to a single tag that is used by the
-         *      Operation Object. It is not mandatory to have a
-         *      Tag Object per tag defined in the Operation Object instances.
+         * @description Whether an account's listening is used for similarity, and whether it
+         *      may be shown as someone's taste neighbour.
          */
-        Tag: {
+        SimilarityMode: "listed" | "anonymous" | "off";
+        /** @description Whether the account's listening is used for similarity, and shown. */
+        SimilaritySettings: {
             /**
-             * @description A description for the tag.
-             *      CommonMark syntax MAY be used for rich text representation.
+             * Format: date-time
+             * @description When the mode last changed; `null` if never.
              */
-            description?: string | null;
-            /** @description Additional external documentation for this tag. */
-            externalDocs?: components["schemas"]["ExternalDocumentation"] | null;
-            /** @description REQUIRED. The name of the tag. */
+            changed_at?: string | null;
+            mode: components["schemas"]["SimilarityMode"];
+            /**
+             * @description Others see the account as a taste neighbour now: `listed`, and the
+             *      profile public.
+             */
+            shown: boolean;
+        };
+        SimilaritySettingsRequest: {
+            /** @description `listed`, `anonymous` or `off`. */
+            mode: components["schemas"]["SimilarityMode"];
+        };
+        /** @description Why a personal list holds what it holds. */
+        SimilarityStatus: "ready" | "none" | "off" | "pending";
+        StartImportRequest: {
+            /**
+             * @description Rescan the whole history instead of only what's new since the last
+             *      completed import.
+             * @default false
+             */
+            full: boolean;
+        };
+        /**
+         * @description A tag in a path: normalized as tags are, so case and spacing don't
+         *      matter.
+         */
+        TagPath: {
+            tag: string;
+        };
+        /** @description An artist, album or track carrying a tag. */
+        TaggedEntity: {
+            /**
+             * Format: int64
+             * @description An album's or track's artist; `null` for an artist.
+             */
+            artist_id?: number | null;
+            artist_name?: string | null;
+            entity_type: components["schemas"]["CatalogKind"];
+            /** Format: int64 */
+            id: number;
+            /** @description The artist's image or the album's cover (a track's album's). */
+            image_url?: string | null;
+            /** @description The artist's name, or the album's or track's title. */
             name: string;
-        } & {
-            [key: string]: unknown;
+            /**
+             * Format: int64
+             * @description 1 for the most tagged.
+             */
+            position: number;
+            /**
+             * Format: int64
+             * @description As [`TopTag::taggers`].
+             */
+            taggers: number;
+        };
+        /**
+         * @description A page of the artists, albums or tracks a tag is on, most taggers
+         *      first.
+         */
+        TaggedEntityPage: {
+            entries: components["schemas"]["TaggedEntity"][];
+            tag: string;
+            /**
+             * Format: int64
+             * @description Entries in every page.
+             */
+            total: number;
+        };
+        TaggedQuery: {
+            /**
+             * Format: int64
+             * @description Entries per page: 50 by default, 200 at most.
+             */
+            limit?: number | null;
+            /**
+             * Format: int64
+             * @description Positions to skip, 0 by default.
+             */
+            offset?: number | null;
+        };
+        TokenPath: {
+            token: string;
+        };
+        TopAlbum: {
+            /** Format: int64 */
+            album_id: number;
+            album_title: string;
+            /** Format: int64 */
+            artist_id: number;
+            artist_name: string;
+            image_url?: string | null;
+            /**
+             * Format: int64
+             * @description Plays of its tracks in the period, duplicates left out.
+             */
+            play_count: number;
+            /**
+             * Format: int64
+             * @description As for [`TopArtist`].
+             */
+            unverified_count: number;
         };
         TopArtist: {
             /** Format: int64 */
             artist_id: number;
             artist_name: string;
             image_url?: string | null;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Plays in the period, duplicates left out.
+             */
             play_count: number;
+            /**
+             * Format: int64
+             * @description Of `play_count`, the plays the classifier labelled `suspect` or
+             *      `no_data`; plays not classified yet are in neither.
+             */
+            unverified_count: number;
         };
         /**
          * @description A user who listens to a given artist or track, with their play count.
@@ -3831,16 +12343,43 @@ export interface components {
             user_id: number;
             username: string;
         };
+        /** @description A tag as many accounts put it on an artist, album or track. */
+        TopTag: {
+            name: string;
+            /**
+             * Format: int64
+             * @description The accounts that put it there, weighed as the rankings weigh
+             *      listeners (a week-old account in full, one the anti-botting
+             *      coordination detection flagged at its factor), to the nearest whole;
+             *      at least `RANKING_MIN_LISTENERS` (5).
+             */
+            taggers: number;
+        };
+        /** @description An artist's, album's or track's tags, most taggers first. */
+        TopTags: {
+            /** Format: int64 */
+            entity_id: number;
+            entity_type: components["schemas"]["CatalogKind"];
+            tags: components["schemas"]["TopTag"][];
+        };
         TopTrack: {
             album_image?: string | null;
             /** Format: int64 */
             artist_id: number;
             artist_name: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Plays in the period, duplicates left out.
+             */
             play_count: number;
             /** Format: int64 */
             track_id: number;
             track_title: string;
+            /**
+             * Format: int64
+             * @description In a user's top tracks, as for [`TopArtist`]; `null` elsewhere.
+             */
+            unverified_count?: number | null;
         };
         /** @description Track */
         Track: {
@@ -3857,8 +12396,111 @@ export interface components {
             id: number;
             /** Format: uuid */
             mbid?: string | null;
+            /**
+             * Format: int64
+             * @description `null` unless at least `RANKING_MIN_LISTENERS` (5) users played it.
+             */
+            scrobble_count?: number | null;
+            title_normalized: string;
+        };
+        /** @enum {string} */
+        TrackArtistRole: "primary" | "featured";
+        /** @description A page of a user's top tracks. */
+        TrackChart: {
+            entries: components["schemas"]["TopTrack"][];
+            /**
+             * Format: date
+             * @description The first UTC day covered; `null` for `all`.
+             */
+            from?: string | null;
             /** Format: int64 */
-            scrobble_count: number;
+            limit: number;
+            /** Format: int64 */
+            offset: number;
+            /** @description The period asked for; `null` for a custom range. */
+            period?: components["schemas"]["ChartPeriod"] | null;
+            /**
+             * Format: date
+             * @description The last UTC day covered, included: today for a period.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Entries the chart has; a page past them is empty.
+             */
+            total: number;
+        };
+        /**
+         * @description One artist credited on a track. The `primary` credit always mirrors
+         *      `tracks.artist_id`; everything else is a featured collaborator.
+         */
+        TrackCredit: {
+            /** Format: int64 */
+            artist_id: number;
+            image_url?: string | null;
+            name: string;
+            /** Format: int32 */
+            position: number;
+            role: components["schemas"]["TrackArtistRole"];
+        };
+        /** @description A page of the global track ranking. */
+        TrackRanking: {
+            /**
+             * Format: date-time
+             * @description When the server computed it. Week and month rankings are recomputed
+             *      every hour, the year's every day, and each when the UTC day changes.
+             */
+            computed_at: string;
+            entries: components["schemas"]["RankedTrack"][];
+            /**
+             * Format: date
+             * @description The first UTC day the ranking covers.
+             */
+            from: string;
+            /** Format: int64 */
+            limit: number;
+            /** Format: int64 */
+            offset: number;
+            period: components["schemas"]["RankingPeriod"];
+            /**
+             * @description Its recomputation is overdue by more than 15 minutes: this is the
+             *      last ranking the server managed to compute.
+             */
+            stale: boolean;
+            /**
+             * Format: date
+             * @description The last UTC day it covers (included): the day it was computed.
+             */
+            to: string;
+            /**
+             * Format: int64
+             * @description Positions this ranking has; a page past them is empty.
+             */
+            total: number;
+        };
+        /** @description A track together with its full credit list. */
+        TrackWithCredits: {
+            title: string;
+            /** Format: int64 */
+            album_id?: number | null;
+            /** Format: int64 */
+            artist_id: number;
+            artists: components["schemas"]["TrackCredit"][];
+            /** Format: date-time */
+            created_at: string;
+            /** Format: int32 */
+            duration_ms?: number | null;
+            /** Format: int64 */
+            id: number;
+            /** @description Whether the signed-in viewer loves the track; `null` when signed out. */
+            loved?: boolean | null;
+            /** Format: uuid */
+            mbid?: string | null;
+            /**
+             * Format: int64
+             * @description `null` unless at least `RANKING_MIN_LISTENERS` (5) users played it.
+             */
+            scrobble_count?: number | null;
             title_normalized: string;
         };
         /**
@@ -3889,6 +12531,55 @@ export interface components {
             scrobble_count: number;
             username: string;
             website_url?: string | null;
+        };
+        /** @description Who someone is, as lists of others' activity name them. */
+        UserSummary: {
+            display_name?: string | null;
+            /** Format: int64 */
+            id: number;
+            image_url?: string | null;
+            username: string;
+        };
+        /** @description A tag a user put on an artist, album or track. */
+        UserTag: {
+            /** Format: int64 */
+            artist_id?: number | null;
+            artist_name?: string | null;
+            /** Format: int64 */
+            entity_id: number;
+            entity_type: components["schemas"]["CatalogKind"];
+            image_url?: string | null;
+            /** @description As [`TaggedEntity::name`]. */
+            name: string;
+            tag: string;
+            /** Format: date-time */
+            tagged_at: string;
+        };
+        /** @description A tag in a user's vocabulary. */
+        UserTagCount: {
+            /**
+             * Format: int64
+             * @description The artists, albums and tracks the user put it on.
+             */
+            count: number;
+            name: string;
+        };
+        /** @description A page of the signed-in user's tags, newest first. */
+        UserTagPage: {
+            entries: components["schemas"]["UserTag"][];
+            /** @description `before` for the next page; `null` on the last one. */
+            next?: string | null;
+        };
+        /** @description The tags a user uses, most used first. */
+        UserTags: {
+            tags: components["schemas"]["UserTagCount"][];
+        };
+        UsernamePath: {
+            username: string;
+        };
+        UuidPath: {
+            /** Format: uuid */
+            id: string;
         };
     };
     responses: never;

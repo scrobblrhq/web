@@ -1,7 +1,7 @@
 import { command, query } from "$app/server";
 import * as v from "valibot";
-import { run } from "$lib/server/api";
-import { PERIODS } from "$lib/periods";
+import { run } from "#lib/server/api";
+import { PERIODS } from "#lib/periods";
 
 const username = v.pipe(v.string(), v.minLength(1), v.maxLength(64));
 const period = v.picklist(PERIODS);
@@ -11,11 +11,11 @@ const followListInput = v.object({
   before: v.optional(v.string()),
 });
 
-export const getTopArtists = query(v.object({ username, period }), ({ username, period }) => 
+export const getTopArtists = query(v.object({ username, period }), ({ username, period }) =>
     run((api) => api.profile.getTopArtists(username, period, 10)),
 );
 
-export const getTopTracks = query(v.object({ username, period }), ({ username, period }) => 
+export const getTopTracks = query(v.object({ username, period }), ({ username, period }) =>
     run((api) => api.profile.getTopTracks(username, period, 10)),
 );
 

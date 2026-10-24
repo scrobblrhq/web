@@ -1,4 +1,4 @@
-import type { Profile, FriendsResponse, TimePeriod, S } from "$lib/api/types";
+import type { Profile, FriendsResponse, TimePeriod, S } from "#lib/api/types";
 import type { ScrobbleRich, TopArtist, TopTrack, ActivityDay } from "@scrobblr/types";
 import { request, requestRaw, type ApiEvent } from "./request";
 
@@ -14,7 +14,7 @@ export const profileApi = (event: ApiEvent) => ({
       method: "PATCH",
       body: JSON.stringify(body),
     }),
-    
+
   uploadAvatar: (file: File) => {
     const body = new FormData();
     body.append("image", file);
@@ -63,7 +63,7 @@ export const profileApi = (event: ApiEvent) => ({
     username: string,
     period: TimePeriod = "overall",
     limit = 10,
-  ) => 
+  ) =>
     request<TopArtist[]>(
       event,
       `/v1/user/${seg(username)}/top-artists?${new URLSearchParams({ limit: String(limit), period })}`
@@ -73,7 +73,7 @@ export const profileApi = (event: ApiEvent) => ({
     username: string,
     period: TimePeriod = "overall",
     limit = 10
-  ) => 
+  ) =>
     request<TopTrack[]>(
       event,
       `/v1/user/${seg(username)}/top-tracks?${new URLSearchParams({ limit: String(limit), period })}`,
@@ -84,7 +84,7 @@ export const profileApi = (event: ApiEvent) => ({
   getLive: (username: string, signal?: AbortSignal) =>
     requestRaw(event, `/v1/user/${seg(username)}/live`, { signal }),
 
-  follow: (username: string) => 
+  follow: (username: string) =>
     request<void>(event, `/v1/user/${seg(username)}/follow`, {
       method: "POST",
     }),

@@ -1,9 +1,9 @@
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { ApiError, createApi } from "$lib/server/api";
-import type { S } from "$lib/api/types";
-import { featureCopy } from "$lib/i18n/features";
-import { serverLL } from "$lib/i18n.server";
+import { ApiError, createApi } from "#lib/server/api";
+import type { S } from "#lib/api/types";
+import { featureCopy } from "#lib/i18n/features";
+import { serverLL } from "#lib/i18n.server";
 
 const PERIODS = ["week", "month", "year"] as const;
 const PAGE_SIZE = 50;

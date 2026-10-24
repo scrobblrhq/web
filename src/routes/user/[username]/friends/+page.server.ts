@@ -1,7 +1,7 @@
 import { error } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { createApi, ApiError } from "$lib/server/api";
-import { serverLL } from "$lib/i18n.server";
+import { createApi, ApiError } from "#lib/server/api";
+import { serverLL } from "#lib/i18n.server";
 
 export const load: PageServerLoad = async (event) => {
   const { params, locals } = event;

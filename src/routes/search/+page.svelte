@@ -4,17 +4,17 @@
     import { page } from "$app/state";
     import { isHttpError } from "@sveltejs/kit";
     import { search } from "./search.remote";
-    import type { Album, SearchResponse } from "$lib/api/types";
-    import Avatar from "$lib/components/ui/Avatar.svelte";
-    import { getLL } from "$lib/i18n.svelte";
+    import type { Album, SearchResponse } from "#lib/api/types";
+    import Avatar from "#lib/components/ui/Avatar.svelte";
+    import { getLL } from "#lib/i18n.svelte";
     import SearchIcon from "@lucide/svelte/icons/search";
-    import Cover from "$lib/components/tracks/Cover.svelte";
+    import Cover from "#lib/components/tracks/Cover.svelte";
     import XIcon from "@lucide/svelte/icons/x";
     import LoaderIcon from "@lucide/svelte/icons/loader-circle";
     import FrownIcon from "@lucide/svelte/icons/frown";
     import LockIcon from "@lucide/svelte/icons/lock";
-    import VerifiedBadge from "$lib/components/ui/VerifiedBadge.svelte";
-    import { formatCount } from "$lib/utils/format";
+    import VerifiedBadge from "#lib/components/ui/VerifiedBadge.svelte";
+    import { formatCount } from "#lib/utils/format";
 
     let LL = $derived(getLL());
 

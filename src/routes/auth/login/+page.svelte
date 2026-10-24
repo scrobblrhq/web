@@ -1,15 +1,15 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import type { PageProps } from "./$types";
-    import { addToast } from "$lib/stores/toast.svelte";
+    import { addToast } from "#lib/stores/toast.svelte";
     import { page } from "$app/state";
     import { fade, fly } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
 
-    import Input from "$lib/components/ui/Input.svelte";
-    import { getLL, getLocale } from "$lib/i18n.svelte";
-    import { featureCopy } from "$lib/i18n/features";
-    import { formatDate } from "$lib/utils/format";
+    import Input from "#lib/components/ui/Input.svelte";
+    import { getLL, getLocale } from "#lib/i18n.svelte";
+    import { featureCopy } from "#lib/i18n/features";
+    import { formatDate } from "#lib/utils/format";
     import Loader from "@lucide/svelte/icons/loader-circle";
     import LogIn from "@lucide/svelte/icons/log-in";
     import UserPlus from "@lucide/svelte/icons/user-plus";

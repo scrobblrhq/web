@@ -1,18 +1,18 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
     import { page } from "$app/state";
-    import { formatCount } from "$lib/utils/format";
-    import { getLL } from "$lib/i18n.svelte";
+    import { formatCount } from "#lib/utils/format";
+    import { getLL } from "#lib/i18n.svelte";
 
     import HeadphonesIcon from "@lucide/svelte/icons/headphones";
     import MicVocalIcon from "@lucide/svelte/icons/mic-vocal";
     import ClockIcon from "@lucide/svelte/icons/clock";
 
-    import ScrollToTop from "$lib/components/ui/ScrollToTop.svelte";
-    import Cover from "$lib/components/tracks/Cover.svelte";
-    import ListenerRow from "$lib/components/artists/ListenerRow.svelte";
-    import CommentSection from "$lib/components/tracks/CommentSection.svelte";
-    import RefreshButton from "$lib/components/ui/RefreshButton.svelte";
+    import ScrollToTop from "#lib/components/ui/ScrollToTop.svelte";
+    import Cover from "#lib/components/tracks/Cover.svelte";
+    import ListenerRow from "#lib/components/artists/ListenerRow.svelte";
+    import CommentSection from "#lib/components/tracks/CommentSection.svelte";
+    import RefreshButton from "#lib/components/ui/RefreshButton.svelte";
     import { Disc3Icon } from "@lucide/svelte";
 
     const { data }: PageProps = $props();

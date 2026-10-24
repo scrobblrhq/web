@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { TopListener } from "@scrobblr/types";
-    import { formatCount } from "$lib/utils/format";
+    import { formatCount } from "#lib/utils/format";
     import Avatar from "../ui/Avatar.svelte";
 
     interface Props {

@@ -8,7 +8,7 @@
         disabled?: boolean;
     }
 
-    import { getLL } from "$lib/i18n.svelte";
+    import { getLL } from "#lib/i18n.svelte";
 
     let LL = $derived(getLL());
 

@@ -1,6 +1,6 @@
 import type { Handle } from "@sveltejs/kit/hooks";
 import { dev } from "$app/env";
-import { clearSessionCookie, readSession, SESSION_COOKIE } from "$lib/session";
+import { clearSessionCookie, readSession, SESSION_COOKIE } from "#lib/session";
 
 const LANG_COOKIE = "scrobblr_lang";
 

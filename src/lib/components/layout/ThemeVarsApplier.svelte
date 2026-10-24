@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { useTheme } from "svelte-themes";
-    import { paletteState, initPalette } from "$lib/stores/palette.svelte";
-    import { PALETTES } from "$lib/theme/palettes";
-    import { generatePaletteVars, PALETTE_VAR_NAMES } from "$lib/theme/generate";
+    import { paletteState, initPalette } from "#lib/stores/palette.svelte";
+    import { PALETTES } from "#lib/theme/palettes";
+    import { generatePaletteVars, PALETTE_VAR_NAMES } from "#lib/theme/generate";
 
     const theme = useTheme();
 

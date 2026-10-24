@@ -1,12 +1,12 @@
 <script lang="ts">
-    import type { Comment } from "$lib/api/types";
+    import type { Comment } from "#lib/api/types";
     import { enhance } from "$app/forms";
-    // import { timeAgo } from "$lib/utils/format";
-    import { addToast } from "$lib/stores/toast.svelte";
+    // import { timeAgo } from "#lib/utils/format";
+    import { addToast } from "#lib/stores/toast.svelte";
     import Avatar from "../ui/Avatar.svelte";
     import AuthModal from "../auth/AuthModal.svelte";
-    import { getLL } from "$lib/i18n.svelte";
-    import { formatDate } from "$lib/utils/format";
+    import { getLL } from "#lib/i18n.svelte";
+    import { formatDate } from "#lib/utils/format";
 
     let LL = $derived(getLL());
 

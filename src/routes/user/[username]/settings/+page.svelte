@@ -5,11 +5,11 @@
     import { page } from "$app/state";
     import { afterNavigate, replaceState } from "$app/navigation";
     import { useTheme } from "svelte-themes";
-    import type { ApiToken, S } from "$lib/api/types";
-    import { getLL, getLocale } from "$lib/i18n.svelte";
-    import { featureCopy } from "$lib/i18n/features";
-    import { formatDate } from "$lib/utils/format";
-    import { PALETTES, PALETTE_NAMES } from "$lib/theme/palettes";
+    import type { ApiToken, S } from "#lib/api/types";
+    import { getLL, getLocale } from "#lib/i18n.svelte";
+    import { featureCopy } from "#lib/i18n/features";
+    import { formatDate } from "#lib/utils/format";
+    import { PALETTES, PALETTE_NAMES } from "#lib/theme/palettes";
     // #endregion Stuff
 
     // #region Icons
@@ -22,23 +22,23 @@
     // #endregion Icons
 
     // #region Colocated components
-    import SettingsSidebar from "$lib/components/profile/SettingsSidebar.svelte";
+    import SettingsSidebar from "#lib/components/profile/SettingsSidebar.svelte";
     // #endregion
 
     // #region Components
-    import Avatar from "$lib/components/ui/Avatar.svelte";
-    import Switch from "$lib/components/ui/Switch.svelte";
-    import MagneticSelect from "$lib/components/ui/MagneticSelect.svelte";
-    import ConfirmChanges from "$lib/components/feedback/ConfirmChanges.svelte";
+    import Avatar from "#lib/components/ui/Avatar.svelte";
+    import Switch from "#lib/components/ui/Switch.svelte";
+    import MagneticSelect from "#lib/components/ui/MagneticSelect.svelte";
+    import ConfirmChanges from "#lib/components/feedback/ConfirmChanges.svelte";
     // #endregion Components
 
     // #region Stores
-    import { addToast } from "$lib/stores/toast.svelte";
-    import { paletteState, setPalette } from "$lib/stores/palette.svelte";
+    import { addToast } from "#lib/stores/toast.svelte";
+    import { paletteState, setPalette } from "#lib/stores/palette.svelte";
     // #endregion Stores
 
     // #region Hooks
-    import { useIsDesktop } from "$lib/hooks/isDesktop.svelte";
+    import { useIsDesktop } from "#lib/hooks/isDesktop.svelte";
     // #endregion Hooks
 
     const DEFAULT_SWATCH = ["#09090b", "#71717a", "#e4e4e7", "#fafafa"];

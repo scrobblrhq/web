@@ -1,6 +1,6 @@
 import { getRequestEvent } from "$app/server";
 import { error } from "@sveltejs/kit";
-import { createApi, ApiError } from "$lib/server/api";
+import { createApi, ApiError } from "#lib/server/api";
 
 export async function run<T>(
     fn: (api: ReturnType<typeof createApi>) => Promise<T>,

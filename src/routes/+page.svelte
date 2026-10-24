@@ -2,7 +2,7 @@
     import type { PageProps } from "./$types";
     const { data }: PageProps = $props();
     const { user, featuredTrack } = $derived(data);
-    import { getLL } from "$lib/i18n.svelte";
+    import { getLL } from "#lib/i18n.svelte";
 
     let LL = $derived(getLL());
     import MusicNoteIcon from "@lucide/svelte/icons/music-2";
@@ -11,8 +11,8 @@
     import TimerIcon from "@lucide/svelte/icons/timer";
     import BarChart3Icon from "@lucide/svelte/icons/bar-chart-3";
     import UserCheckIcon from "@lucide/svelte/icons/user-check";
-    import TextLoop from "$lib/components/ui/TextLoop.svelte";
-    import BorderGlow from "$lib/components/ui/BorderGlow.svelte";
+    import TextLoop from "#lib/components/ui/TextLoop.svelte";
+    import BorderGlow from "#lib/components/ui/BorderGlow.svelte";
 
     let features = $derived([
         {

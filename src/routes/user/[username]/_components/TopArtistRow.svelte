@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { TopArtist } from "$lib/api/types";
-    import { formatCount } from "$lib/utils/format";
-    import Avatar from "$lib/components/ui/Avatar.svelte";
-    // import Modal from "$lib/components/feedback/Modal.svelte";
+    import type { TopArtist } from "#lib/api/types";
+    import { formatCount } from "#lib/utils/format";
+    import Avatar from "#lib/components/ui/Avatar.svelte";
+    // import Modal from "#lib/components/feedback/Modal.svelte";
 
     interface Props {
         artist: TopArtist;

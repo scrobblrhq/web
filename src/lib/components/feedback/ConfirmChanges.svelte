@@ -1,13 +1,13 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
-  import { getLL } from "$lib/i18n.svelte";
+  import { getLL } from "#lib/i18n.svelte";
 
   import SaveIcon from "@lucide/svelte/icons/save";
   import SavedIcon from "@lucide/svelte/icons/check-circle";
   import DiscardIcon from "@lucide/svelte/icons/x-circle";
 
   let LL = $derived(getLL());
-  
+
   const {
     saved,
     onDiscard,

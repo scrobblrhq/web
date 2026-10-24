@@ -1,4 +1,4 @@
-import type { components } from "$lib/api/schema";
+import type { components } from "#lib/api/schema";
 import type { ApiToken } from "@scrobblr/types";
 import { request, type ApiEvent } from "./request";
 

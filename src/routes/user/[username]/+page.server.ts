@@ -1,9 +1,9 @@
 import { error, fail } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import type { TimePeriod, UserProfile } from "$lib/api/types";
-import { createApi, ApiError } from "$lib/server/api";
-import { serverLL } from "$lib/i18n.server";
-import { PERIODS } from "$lib/periods";
+import type { TimePeriod, UserProfile } from "#lib/api/types";
+import { createApi, ApiError } from "#lib/server/api";
+import { serverLL } from "#lib/i18n.server";
+import { PERIODS } from "#lib/periods";
 
 export const load: PageServerLoad = async (event) => {
   const { params, locals, url } = event;

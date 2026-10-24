@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
-    import type { ScrobbleRich, TimePeriod } from "$lib/api/types";
+    import type { ScrobbleRich, TimePeriod } from "#lib/api/types";
 
     import { fade, fly } from "svelte/transition";
     import { page } from "$app/state";
@@ -12,18 +12,18 @@
     import Profile from "./_components/Profile.svelte";
     // #endregion Colocated components
 
-    import NowPlaying from "$lib/components/player/NowPlaying.svelte";
-    import TopTrackRow from "$lib/components/artists/TopTrackRow.svelte";
-    import AuthModal from "$lib/components/auth/AuthModal.svelte";
-    import ScrollToTop from "$lib/components/ui/ScrollToTop.svelte";
+    import NowPlaying from "#lib/components/player/NowPlaying.svelte";
+    import TopTrackRow from "#lib/components/artists/TopTrackRow.svelte";
+    import AuthModal from "#lib/components/auth/AuthModal.svelte";
+    import ScrollToTop from "#lib/components/ui/ScrollToTop.svelte";
 
-    import { addToast } from "$lib/stores/toast.svelte";
+    import { addToast } from "#lib/stores/toast.svelte";
 
-import { getTopArtists, getTopTracks, getRecentBefore, setBlock, setFollow } from "$lib/remote/profile.remote";
-    import { PERIODS } from "$lib/periods";
-    import { useIsDesktop } from "$lib/hooks/isDesktop.svelte";
-    import { useNowPlaying } from "$lib/hooks/nowPlaying.svelte";
-    import { getLL } from "$lib/i18n.svelte";
+import { getTopArtists, getTopTracks, getRecentBefore, setBlock, setFollow } from "#lib/remote/profile.remote";
+    import { PERIODS } from "#lib/periods";
+    import { useIsDesktop } from "#lib/hooks/isDesktop.svelte";
+    import { useNowPlaying } from "#lib/hooks/nowPlaying.svelte";
+    import { getLL } from "#lib/i18n.svelte";
 
     let LL = $derived(getLL());
 

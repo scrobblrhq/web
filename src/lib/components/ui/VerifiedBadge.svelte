@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getLL } from "$lib/i18n.svelte";
+  import { getLL } from "#lib/i18n.svelte";
   import VerifiedIcon from "@lucide/svelte/icons/check";
   // import Tooltip from "./Tooltip.svelte";
 

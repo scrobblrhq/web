@@ -1,6 +1,6 @@
 import { error, redirect } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { createApi, ApiError } from "$lib/server/api";
+import { createApi, ApiError } from "#lib/server/api";
 
 const PROVIDERS = ["spotify", "lastfm"] as const;
 

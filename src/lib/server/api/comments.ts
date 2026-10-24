@@ -1,5 +1,5 @@
 import { request, type ApiEvent } from "./request";
-import type { Comment } from "$lib/api/types";
+import type { Comment } from "#lib/api/types";
 
 export const commentsApi = (event: ApiEvent) => ({
   getArtistComments: (id: number) => request<Comment[]>(event, `/v1/artist/${id}/comments`),
@@ -7,7 +7,7 @@ export const commentsApi = (event: ApiEvent) => ({
   postArtistComment: (
     id: number,
     body: { body: string },
-  ) => 
+  ) =>
     request<Comment>(event, `/v1/artist/${id}/comments`, {
       method: "POST",
       body: JSON.stringify(body)
@@ -18,7 +18,7 @@ export const commentsApi = (event: ApiEvent) => ({
   postTrackComment: (
     id: number,
     body: { body: string }
-  ) => 
+  ) =>
     request<Comment>(event, `/v1/track/${id}/comments`, {
       method: "POST",
       body: JSON.stringify(body)

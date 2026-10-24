@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { getLL } from "$lib/i18n.svelte";
-    import type { ImageCandidate } from "$lib/api/types";
+    import { getLL } from "#lib/i18n.svelte";
+    import type { ImageCandidate } from "#lib/api/types";
     import { enhance } from "$app/forms";
     import { isHttpError } from "@sveltejs/kit";
-    import { setVote } from "$lib/remote/images.remote";
-    import { addToast } from "$lib/stores/toast.svelte";
+    import { setVote } from "#lib/remote/images.remote";
+    import { addToast } from "#lib/stores/toast.svelte";
     import AuthModal from "../auth/AuthModal.svelte";
     import HeartIcon from "@lucide/svelte/icons/heart";
     import PlusIcon from "@lucide/svelte/icons/plus";

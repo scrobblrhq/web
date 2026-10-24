@@ -1,5 +1,5 @@
 import type { RequestHandler } from "./$types";
-import { createApi } from "$lib/server/api";
+import { createApi } from "#lib/server/api";
 
 export const GET: RequestHandler = async ({
   params,

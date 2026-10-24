@@ -1,4 +1,4 @@
-import { getLocale } from "$lib/i18n.svelte";
+import { getLocale } from "#lib/i18n.svelte";
 
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(

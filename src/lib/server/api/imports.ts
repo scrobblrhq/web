@@ -1,4 +1,4 @@
-import type { S } from "$lib/api/types";
+import type { S } from "#lib/api/types";
 import { request, type ApiEvent } from "./request";
 
 export const importsApi = (event: ApiEvent) => ({

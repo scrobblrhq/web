@@ -1,6 +1,6 @@
-import type { Locales, TranslationFunctions } from '$lib/i18n/i18n-types'
-import { i18nObject } from '$lib/i18n/i18n-util'
-import { loadLocale } from '$lib/i18n/i18n-util.sync'
+import type { Locales, TranslationFunctions } from '#lib/i18n/i18n-types'
+import { i18nObject } from '#lib/i18n/i18n-util'
+import { loadLocale } from '#lib/i18n/i18n-util.sync'
 
 let _locale = $state<Locales>('es')
 

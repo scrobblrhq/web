@@ -1,7 +1,7 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { createApi, ApiError } from "$lib/server/api";
-import { serverLL } from "$lib/i18n.server";
+import { createApi, ApiError } from "#lib/server/api";
+import { serverLL } from "#lib/i18n.server";
 
 const loginUrl = (url: URL) =>
   `/auth/login?redirectTo=${encodeURIComponent(url.pathname + url.search)}`;

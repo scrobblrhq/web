@@ -1,6 +1,6 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { ApiError, createApi } from "$lib/server/api";
+import { ApiError, createApi } from "#lib/server/api";
 
 export const GET: RequestHandler = async (event) => {
   if (!event.locals.user) error(401, "Not authenticated");

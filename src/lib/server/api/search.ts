@@ -1,5 +1,5 @@
 import { request, type ApiEvent } from "./request";
-import type { Album, Artist, SearchResponse, Track } from "$lib/api/types";
+import type { Album, Artist, SearchResponse, Track } from "#lib/api/types";
 
 export const searchApi = (event: ApiEvent) => ({
   getTrack: (id: number) => request<Track>(event, `/v1/track/${id}`),

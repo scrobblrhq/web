@@ -2,8 +2,8 @@
     import { enhance } from "$app/forms";
     import type { SubmitFunction } from "$app/forms";
     import type { PageProps } from "./$types";
-    import { getLL } from "$lib/i18n.svelte";
-    import { addToast } from "$lib/stores/toast.svelte";
+    import { getLL } from "#lib/i18n.svelte";
+    import { addToast } from "#lib/stores/toast.svelte";
     import Loader from "@lucide/svelte/icons/loader-circle";
 
     let { data, form }: PageProps = $props();

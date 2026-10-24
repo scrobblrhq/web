@@ -1,8 +1,8 @@
 import { error, fail } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { createApi, ApiError } from "$lib/server/api";
-import { parseId } from "$lib/server/params";
-import { serverLL } from "$lib/i18n.server";
+import { createApi, ApiError } from "#lib/server/api";
+import { parseId } from "#lib/server/params";
+import { serverLL } from "#lib/i18n.server";
 
 const MAX_IMAGE = 8 * 1024 * 1024; // 8 MiB
 

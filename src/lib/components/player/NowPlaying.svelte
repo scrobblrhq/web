@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { NowPlayingRich } from "$lib/api/types";
+    import type { NowPlayingRich } from "#lib/api/types";
     import Cover from "../tracks/Cover.svelte";
-    import { getLL } from "$lib/i18n.svelte";
+    import { getLL } from "#lib/i18n.svelte";
 
     interface Props {
         data: NowPlayingRich;

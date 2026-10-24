@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { PublicUser } from "$lib/api/types";
+    import type { PublicUser } from "#lib/api/types";
     import { page } from "$app/state";
     import { fly } from "svelte/transition";
-    import { useNowPlaying } from "$lib/hooks/nowPlaying.svelte";
-    import { getLL } from "$lib/i18n.svelte";
+    import { useNowPlaying } from "#lib/hooks/nowPlaying.svelte";
+    import { getLL } from "#lib/i18n.svelte";
     import Cover from "../tracks/Cover.svelte";
 
     interface Props {

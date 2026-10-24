@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { ScrobbleRich } from "$lib/api/types";
-    import Cover from "$lib/components/tracks/Cover.svelte";
-    import { getLL } from "$lib/i18n.svelte";
+    import type { ScrobbleRich } from "#lib/api/types";
+    import Cover from "#lib/components/tracks/Cover.svelte";
+    import { getLL } from "#lib/i18n.svelte";
 
     let LL = $derived(getLL());
     let { recent }: { recent: Promise<ScrobbleRich[]> } = $props();

@@ -1,6 +1,6 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import { SCROBBLR_API_URL, SCROBBLR_APP_ID, SCROBBLR_APP_KEY } from "$app/env/private";
-import { clearSessionCookie } from "$lib/session";
+import { clearSessionCookie } from "#lib/session";
 import { signHeaders } from "./sign";
 
 export class ApiError extends Error {

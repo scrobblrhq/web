@@ -1,6 +1,6 @@
 <script lang="ts">
     import Modal from "../feedback/Modal.svelte";
-    import { getLL } from "$lib/i18n.svelte";
+    import { getLL } from "#lib/i18n.svelte";
     import { page } from "$app/state";
 
     interface Props {

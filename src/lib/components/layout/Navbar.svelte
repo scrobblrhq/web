@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
     import { fly } from "svelte/transition";
-    import { getLL, setLocale, getLocale } from "$lib/i18n.svelte";
+    import { getLL, setLocale, getLocale } from "#lib/i18n.svelte";
 
     import LogOutIcon from "@lucide/svelte/icons/log-out";
     import SearchIcon from "@lucide/svelte/icons/search";
@@ -11,8 +11,8 @@
     // import AudioLinesIcon from "@lucide/svelte/icons/audio-lines";
     import UserIcon from "@lucide/svelte/icons/user";
     import CogIcon from "@lucide/svelte/icons/cog";
-    import Avatar from "$lib/components/ui/Avatar.svelte";
-    import type { PublicUser } from "$lib/api/types";
+    import Avatar from "#lib/components/ui/Avatar.svelte";
+    import type { PublicUser } from "#lib/api/types";
 
     let {
         user,

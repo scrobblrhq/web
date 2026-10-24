@@ -4,14 +4,14 @@
     import { page, navigating } from "$app/state";
     import { fly } from "svelte/transition";
 
-    import Toast from "$lib/components/ui/Toast.svelte";
-    import Navbar from "$lib/components/layout/Navbar.svelte";
-    import NowPlayingWidget from "$lib/components/player/NowPlayingWidget.svelte";
-    import ThemeVarsApplier from "$lib/components/layout/ThemeVarsApplier.svelte";
-    import Topography from "$lib/components/layout/Topography.svelte";
+    import Toast from "#lib/components/ui/Toast.svelte";
+    import Navbar from "#lib/components/layout/Navbar.svelte";
+    import NowPlayingWidget from "#lib/components/player/NowPlayingWidget.svelte";
+    import ThemeVarsApplier from "#lib/components/layout/ThemeVarsApplier.svelte";
+    import Topography from "#lib/components/layout/Topography.svelte";
 
     import { SvelteTheme } from "svelte-themes";
-    import { setLocale, getLL } from "$lib/i18n.svelte";
+    import { setLocale, getLL } from "#lib/i18n.svelte";
 
     const { data, children }: LayoutProps = $props();
 

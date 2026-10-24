@@ -1,4 +1,4 @@
-import type { ImageCandidate } from "$lib/api/types";
+import type { ImageCandidate } from "#lib/api/types";
 import { request, type ApiEvent } from "./request";
 
 export const imagesApi = (event: ApiEvent) => ({

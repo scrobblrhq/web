@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
-    import type { S } from "$lib/api/types";
-    import { featureCopy } from "$lib/i18n/features";
-    import { formatCount, formatDate } from "$lib/utils/format";
+    import type { S } from "#lib/api/types";
+    import { featureCopy } from "#lib/i18n/features";
+    import { formatCount, formatDate } from "#lib/utils/format";
     import Music2Icon from "@lucide/svelte/icons/music-2";
 
     let { data }: PageProps = $props();

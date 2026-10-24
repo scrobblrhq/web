@@ -1,10 +1,10 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad, Actions } from "./$types";
-import { createApi, ApiError } from "$lib/server/api";
-import type { ApiToken, ConnectedAccount, S } from "$lib/api/types";
-import { serverLL } from "$lib/i18n.server";
-import { featureCopy } from "$lib/i18n/features";
-import { clearSessionCookie } from "$lib/session";
+import { createApi, ApiError } from "#lib/server/api";
+import type { ApiToken, ConnectedAccount, S } from "#lib/api/types";
+import { serverLL } from "#lib/i18n.server";
+import { featureCopy } from "#lib/i18n/features";
+import { clearSessionCookie } from "#lib/session";
 
 const PROVIDERS = ["spotify", "lastfm"] as const;
 type Provider = (typeof PROVIDERS)[number];

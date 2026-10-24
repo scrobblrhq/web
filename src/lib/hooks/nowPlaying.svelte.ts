@@ -1,4 +1,4 @@
-import type { NowPlayingRich } from "$lib/api/types";
+import type { NowPlayingRich } from "#lib/api/types";
 
 const MAX_ERRORS = 5;
 

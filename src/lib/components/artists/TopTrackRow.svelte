@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { TopTrack } from "$lib/api/types";
-    import { formatCount } from "$lib/utils/format";
+    import type { TopTrack } from "#lib/api/types";
+    import { formatCount } from "#lib/utils/format";
     import Cover from "../tracks/Cover.svelte";
     // import Avatar from "../ui/Avatar.svelte";
     // import Modal from "../feedback/Modal.svelte";

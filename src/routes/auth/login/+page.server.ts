@@ -1,9 +1,9 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { createApi, ApiError } from "$lib/server/api";
-import { setSessionCookie } from "$lib/session";
-import { serverLL } from "$lib/i18n.server";
-import { safeRedirectTo } from "$lib/server/redirect";
+import { createApi, ApiError } from "#lib/server/api";
+import { setSessionCookie } from "#lib/session";
+import { serverLL } from "#lib/i18n.server";
+import { safeRedirectTo } from "#lib/server/redirect";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9_-]+$/;

@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { addToast } from "$lib/stores/toast.svelte";
+    import { addToast } from "#lib/stores/toast.svelte";
     import RefreshIcon from "@lucide/svelte/icons/refresh-cw";
     import AuthModal from "../auth/AuthModal.svelte";
-    import { getLL } from "$lib/i18n.svelte";
-    import { refresh } from "$lib/remote/catalog.remote";
+    import { getLL } from "#lib/i18n.svelte";
+    import { refresh } from "#lib/remote/catalog.remote";
     import { isHttpError } from "@sveltejs/kit";
 
     interface Props {

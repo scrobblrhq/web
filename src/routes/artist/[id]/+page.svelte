@@ -1,22 +1,22 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
     import { page } from "$app/state";
-    import { formatCount, joinedYear } from "$lib/utils/format";
-    import { getLL } from "$lib/i18n.svelte";
+    import { formatCount, joinedYear } from "#lib/utils/format";
+    import { getLL } from "#lib/i18n.svelte";
 
     import HeadphonesIcon from "@lucide/svelte/icons/headphones";
     import MicVocalIcon from "@lucide/svelte/icons/mic-vocal";
     import CalendarDaysIcon from "@lucide/svelte/icons/calendar-days";
     import MusicIcon from "@lucide/svelte/icons/music";
 
-    import ScrollToTop from "$lib/components/ui/ScrollToTop.svelte";
-    import Modal from "$lib/components/feedback/Modal.svelte";
-    import Avatar from "$lib/components/ui/Avatar.svelte";
-    import TopTrackRow from "$lib/components/artists/TopTrackRow.svelte";
-    import ListenerRow from "$lib/components/artists/ListenerRow.svelte";
-    import CommentSection from "$lib/components/tracks/CommentSection.svelte";
-    import ImageCandidates from "$lib/components/artists/ImageCandidates.svelte";
-    import RefreshButton from "$lib/components/ui/RefreshButton.svelte";
+    import ScrollToTop from "#lib/components/ui/ScrollToTop.svelte";
+    import Modal from "#lib/components/feedback/Modal.svelte";
+    import Avatar from "#lib/components/ui/Avatar.svelte";
+    import TopTrackRow from "#lib/components/artists/TopTrackRow.svelte";
+    import ListenerRow from "#lib/components/artists/ListenerRow.svelte";
+    import CommentSection from "#lib/components/tracks/CommentSection.svelte";
+    import ImageCandidates from "#lib/components/artists/ImageCandidates.svelte";
+    import RefreshButton from "#lib/components/ui/RefreshButton.svelte";
 
     const { data }: PageProps = $props();
     const { artist, topTracks, listeners, user } = $derived(data);

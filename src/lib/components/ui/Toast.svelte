@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { toasts, dismissToast } from "$lib/stores/toast.svelte";
-    import type { ToastType } from "$lib/stores/toast.svelte";
+    import { toasts, dismissToast } from "#lib/stores/toast.svelte";
+    import type { ToastType } from "#lib/stores/toast.svelte";
     import { fly } from "svelte/transition";
 
     import CheckCircleIcon from "@lucide/svelte/icons/check-circle";

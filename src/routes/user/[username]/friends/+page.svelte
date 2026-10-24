@@ -1,17 +1,17 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
-  import type { S } from "$lib/api/types";
+  import type { S } from "#lib/api/types";
 
-  import Avatar from "$lib/components/ui/Avatar.svelte";
-  import VerifiedBadge from "$lib/components/ui/VerifiedBadge.svelte";
+  import Avatar from "#lib/components/ui/Avatar.svelte";
+  import VerifiedBadge from "#lib/components/ui/VerifiedBadge.svelte";
 
   import UsersIcon from "@lucide/svelte/icons/users";
   import ArrowLeft from "@lucide/svelte/icons/arrow-left";
-  import { formatCount } from "$lib/utils/format";
-  import { addToast } from "$lib/stores/toast.svelte";
-  import AuthModal from "$lib/components/auth/AuthModal.svelte";
-  import { getLL } from "$lib/i18n.svelte";
-  import { setFollow, setBlock, removeFollower, getFollowPage } from "$lib/remote/profile.remote";
+  import { formatCount } from "#lib/utils/format";
+  import { addToast } from "#lib/stores/toast.svelte";
+  import AuthModal from "#lib/components/auth/AuthModal.svelte";
+  import { getLL } from "#lib/i18n.svelte";
+  import { setFollow, setBlock, removeFollower, getFollowPage } from "#lib/remote/profile.remote";
 
   let LL = $derived(getLL());
 

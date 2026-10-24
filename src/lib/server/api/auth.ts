@@ -1,4 +1,4 @@
-import type { S, AuthResponse, AuthorizeResponse, ConnectedAccount } from "$lib/api/types";
+import type { S, AuthResponse, AuthorizeResponse, ConnectedAccount } from "#lib/api/types";
 import { request, type ApiEvent } from "./request";
 
 export const authApi = (event: ApiEvent) => ({

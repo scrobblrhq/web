@@ -1,10 +1,10 @@
 <script lang="ts">
-    import type { ScrobbleRich } from "$lib/api/types";
-    import Avatar from "$lib/components/ui/Avatar.svelte";
-    import Cover from "$lib/components/tracks/Cover.svelte";
-    import Modal from "$lib/components/feedback/Modal.svelte";
-    import { formatDate } from "$lib/utils/format";
-    import { getLL } from "$lib/i18n.svelte";
+    import type { ScrobbleRich } from "#lib/api/types";
+    import Avatar from "#lib/components/ui/Avatar.svelte";
+    import Cover from "#lib/components/tracks/Cover.svelte";
+    import Modal from "#lib/components/feedback/Modal.svelte";
+    import { formatDate } from "#lib/utils/format";
+    import { getLL } from "#lib/i18n.svelte";
 
     interface Props {
         scrobble: ScrobbleRich;

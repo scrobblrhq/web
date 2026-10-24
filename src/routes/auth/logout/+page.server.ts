@@ -1,8 +1,8 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
-import { createApi, ApiError } from "$lib/server/api";
-import { clearSessionCookie } from "$lib/session";
-import { serverLL } from "$lib/i18n.server";
+import { createApi, ApiError } from "#lib/server/api";
+import { clearSessionCookie } from "#lib/session";
+import { serverLL } from "#lib/i18n.server";
 
 export const actions: Actions = {
   default: async (event) => {

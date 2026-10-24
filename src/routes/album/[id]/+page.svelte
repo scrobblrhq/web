@@ -1,9 +1,9 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
     import { page } from "$app/state";
-    import { formatCount } from "$lib/utils/format";
-    import { getLL } from "$lib/i18n.svelte";
-    import Cover from "$lib/components/tracks/Cover.svelte";
+    import { formatCount } from "#lib/utils/format";
+    import { getLL } from "#lib/i18n.svelte";
+    import Cover from "#lib/components/tracks/Cover.svelte";
     import HeadphonesIcon from "@lucide/svelte/icons/headphones";
     import CalendarDaysIcon from "@lucide/svelte/icons/calendar-days";
     import Music2Icon from "@lucide/svelte/icons/music-2";

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from "$app/state";
-    import { getLL } from "$lib/i18n.svelte";
+    import { getLL } from "#lib/i18n.svelte";
 
     let LL = $derived(getLL());
 </script>

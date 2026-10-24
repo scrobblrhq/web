@@ -1,4 +1,4 @@
-import type { components } from "$lib/api/schema";
+import type { components } from "#lib/api/schema";
 import type { UserProfile } from "@scrobblr/types";
 export * from "@scrobblr/types";
 
@@ -27,4 +27,4 @@ export type ConnectedAccount = S["ConnectedAccountSummary"];
 
 export type AuthorizeResponse = S["AuthorizeResponse"];
 
-export type TimePeriod = import("$lib/periods").Period;
+export type TimePeriod = import("#lib/periods").Period;

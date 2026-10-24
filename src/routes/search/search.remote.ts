@@ -1,6 +1,6 @@
 import { query } from "$app/server";
 import * as v from "valibot";
-import { run } from "$lib/server/api";
+import { run } from "#lib/server/api";
 
 export const search = query(
   v.object({

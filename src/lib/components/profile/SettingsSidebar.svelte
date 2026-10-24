@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getLL, getLocale } from "$lib/i18n.svelte";
+    import { getLL, getLocale } from "#lib/i18n.svelte";
     import UserIcon from "@lucide/svelte/icons/user";
     import KeyIcon from "@lucide/svelte/icons/key";
     import PaletteIcon from "@lucide/svelte/icons/palette";

@@ -4,16 +4,16 @@
         ScrobbleRich,
         SessionUser,
         UserProfile,
-    } from "$lib/api/types";
-    import { formatCount, joinedYear } from "$lib/utils/format";
-    import { addToast } from "$lib/stores/toast.svelte";
+    } from "#lib/api/types";
+    import { formatCount, joinedYear } from "#lib/utils/format";
+    import { addToast } from "#lib/stores/toast.svelte";
 
-    import VerifiedBadge from "$lib/components/ui/VerifiedBadge.svelte";
-    import Avatar from "$lib/components/ui/Avatar.svelte";
+    import VerifiedBadge from "#lib/components/ui/VerifiedBadge.svelte";
+    import Avatar from "#lib/components/ui/Avatar.svelte";
     import RecentScrobblesHeaderTemp from "./RecentScrobblesHeader.temp.svelte";
-    import Modal from "$lib/components/feedback/Modal.svelte";
-    import BioGallery from "$lib/components/profile/BioGallery.svelte";
-    import GalleryModal from "$lib/components/ui/GalleryModal.svelte";
+    import Modal from "#lib/components/feedback/Modal.svelte";
+    import BioGallery from "#lib/components/profile/BioGallery.svelte";
+    import GalleryModal from "#lib/components/ui/GalleryModal.svelte";
 
     import Markdown from "svelte-exmarkdown";
     import { gfmPlugin } from "svelte-exmarkdown/gfm";
@@ -21,8 +21,8 @@
     import remarkBreaks from "remark-breaks";
     import rehypeRaw from "rehype-raw";
     import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
-    import { rehypeGroupBioImages } from "$lib/utils/bio-markdown";
-    import { getLL } from "$lib/i18n.svelte";
+    import { rehypeGroupBioImages } from "#lib/utils/bio-markdown";
+    import { getLL } from "#lib/i18n.svelte";
     import { onMount } from "svelte";
     import { gsap } from "gsap";
     import { ScrollTrigger } from "gsap/ScrollTrigger";

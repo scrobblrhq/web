@@ -1,7 +1,7 @@
 <script lang="ts">
     import { tick } from "svelte";
-    import Modal from "$lib/components/feedback/Modal.svelte";
-    import Carousel from "$lib/components/ui/Carousel.svelte";
+    import Modal from "#lib/components/feedback/Modal.svelte";
+    import Carousel from "#lib/components/ui/Carousel.svelte";
 
     type Item = { image: string; alt?: string };
 

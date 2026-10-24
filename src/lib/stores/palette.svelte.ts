@@ -1,4 +1,4 @@
-import { isPaletteName, type PaletteName } from "$lib/theme/palettes";
+import { isPaletteName, type PaletteName } from "#lib/theme/palettes";
 
 const STORAGE_KEY = "palette";
 

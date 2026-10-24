@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { getLL, getLocale } from "$lib/i18n.svelte";
-    import type { ActivityDay } from "$lib/api/types";
-    // import Tooltip from "$lib/components/ui/Tooltip.svelte";
+    import { getLL, getLocale } from "#lib/i18n.svelte";
+    import type { ActivityDay } from "#lib/api/types";
+    // import Tooltip from "#lib/components/ui/Tooltip.svelte";
     import { useTheme } from "svelte-themes";
-    import { paletteState } from "$lib/stores/palette.svelte";
-    import { PALETTES } from "$lib/theme/palettes";
-    import { generateHeatmapScale } from "$lib/theme/generate";
+    import { paletteState } from "#lib/stores/palette.svelte";
+    import { PALETTES } from "#lib/theme/palettes";
+    import { generateHeatmapScale } from "#lib/theme/generate";
 
     interface Props {
         data: ActivityDay[];

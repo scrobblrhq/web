@@ -1,6 +1,6 @@
 import { command } from "$app/server";
 import * as v from "valibot";
-import { run } from "$lib/server/api";
+import { run } from "#lib/server/api";
 
 export const refresh = command(
     v.object({

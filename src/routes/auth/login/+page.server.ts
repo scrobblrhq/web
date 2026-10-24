@@ -1,6 +1,6 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { createApi, ApiError } from "#lib/server/api";
+import { createApi, ApiConnectionError, ApiError } from "#lib/server/api";
 import { setSessionCookie } from "#lib/session";
 import { serverLL } from "#lib/i18n.server";
 import { safeRedirectTo } from "#lib/server/redirect";
@@ -37,17 +37,31 @@ export const actions: Actions = {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401 && err.message === "untrusted client") {
-          return fail(500, { username, message: LL.login.error.serverError() });
+          console.error("[auth.login] API rejected the app credentials (HTTP 401)");
+          return fail(500, { username, message: LL.login.error.appCredentials() });
         }
 
         if (err.status === 401)
           return fail(401, { username, message: LL.login.error.invalidCredentials() });
         if (err.status === 429)
           return fail(429, { username, message: LL.login.error.rateLimited() });
+
+        console.error(`[auth.login] API returned HTTP ${err.status}`);
+        return fail(502, {
+          username,
+          message: err.status >= 500
+            ? LL.login.error.apiUnavailable(err.status)
+            : LL.login.error.apiRejected(err.status),
+        });
       }
+      if (err instanceof ApiConnectionError) {
+        console.error("[auth.login] Could not reach the API", err.cause);
+        return fail(502, { username, message: LL.login.error.connectionFailed() });
+      }
+      console.error("[auth.login] Unexpected error", err);
       return fail(500, {
         username,
-        message: LL.login.error.serverError(),
+        message: LL.login.error.unexpected(),
       });
     }
 
@@ -163,7 +177,8 @@ export const actions: Actions = {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401 && err.message === "untrusted client") {
-          return fail(500, { username, message: LL.login.error.serverError() });
+          console.error("[auth.register] API rejected the app credentials (HTTP 401)");
+          return fail(500, { username, message: LL.register.error.appCredentials() });
         }
 
         if (err.status === 409) {
@@ -183,13 +198,35 @@ export const actions: Actions = {
             message: err.message,
           });
         }
+
+        console.error(`[auth.register] API returned HTTP ${err.status}`);
+        return fail(502, {
+          username,
+          email,
+          display_name,
+          message: err.status >= 500
+            ? LL.register.error.apiUnavailable(err.status)
+            : LL.register.error.apiRejected(err.status),
+        });
       }
+
+      if (err instanceof ApiConnectionError) {
+        console.error("[auth.register] Could not reach the API", err.cause);
+        return fail(502, {
+          username,
+          email,
+          display_name,
+          message: LL.register.error.connectionFailed(),
+        });
+      }
+
+      console.error("[auth.register] Unexpected error", err);
 
       return fail(500, {
         username,
         email,
         display_name,
-        message: LL.register.error.serverError(),
+        message: LL.register.error.unexpected(),
       });
     }
 

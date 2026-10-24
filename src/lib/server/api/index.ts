@@ -27,4 +27,4 @@ export const createApi = (event: ApiEvent) => ({
   account: accountApi(event),
 });
 
-export { ApiError } from "./request";
+export { ApiConnectionError, ApiError } from "./request";

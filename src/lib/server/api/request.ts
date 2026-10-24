@@ -12,6 +12,14 @@ export class ApiError extends Error {
   }
 }
 
+/** The app server could not reach the API, as opposed to receiving an HTTP error. */
+export class ApiConnectionError extends Error {
+  constructor(cause: unknown) {
+    super("Could not connect to the API", { cause });
+    this.name = "ApiConnectionError";
+  }
+}
+
 export type ApiEvent = Pick<
   RequestEvent,
   "getClientAddress" | "locals" | "cookies"
@@ -52,9 +60,12 @@ export async function request<T>(
   }
 
   // global fetch; don't use event.fetch because it would send cookies to the API server
-  const res = await fetch(`${SCROBBLR_API_URL}${path}`, {
-    ...init, headers
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${SCROBBLR_API_URL}${path}`, { ...init, headers });
+  } catch (cause) {
+    throw new ApiConnectionError(cause);
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");

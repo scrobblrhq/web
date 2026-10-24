@@ -361,6 +361,28 @@ type RootTranslation = {
 			 * N​o​ ​s​e​ ​p​u​d​o​ ​c​o​n​e​c​t​a​r​ ​c​o​n​ ​e​l​ ​s​e​r​v​i​d​o​r
 			 */
 			serverError: string
+			/**
+			 * L​a​ ​w​e​b​ ​n​o​ ​p​u​d​o​ ​e​s​t​a​b​l​e​c​e​r​ ​c​o​n​e​x​i​ó​n​ ​c​o​n​ ​e​l​ ​s​e​r​v​i​c​i​o​ ​d​e​ ​i​n​i​c​i​o​ ​d​e​ ​s​e​s​i​ó​n​.​ ​I​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​ ​m​á​s​ ​t​a​r​d​e​.
+			 */
+			connectionFailed: string
+			/**
+			 * L​a​ ​A​P​I​ ​r​e​c​h​a​z​ó​ ​l​a​s​ ​c​r​e​d​e​n​c​i​a​l​e​s​ ​i​n​t​e​r​n​a​s​ ​d​e​ ​l​a​ ​w​e​b​.​ ​C​o​n​t​a​c​t​a​ ​a​l​ ​e​q​u​i​p​o​ ​d​e​ ​s​o​p​o​r​t​e​.
+			 */
+			appCredentials: string
+			/**
+			 * E​l​ ​s​e​r​v​i​c​i​o​ ​d​e​ ​i​n​i​c​i​o​ ​d​e​ ​s​e​s​i​ó​n​ ​r​e​s​p​o​n​d​i​ó​ ​c​o​n​ ​u​n​ ​e​r​r​o​r​ ​(​H​T​T​P​ ​{​s​t​a​t​u​s​}​)​.​ ​I​n​t​é​n​t​a​l​o​ ​m​á​s​ ​t​a​r​d​e​.
+			 * @param {unknown} status
+			 */
+			apiUnavailable: RequiredParams<'status'>
+			/**
+			 * E​l​ ​s​e​r​v​i​c​i​o​ ​d​e​ ​i​n​i​c​i​o​ ​d​e​ ​s​e​s​i​ó​n​ ​r​e​c​h​a​z​ó​ ​l​a​ ​s​o​l​i​c​i​t​u​d​ ​(​H​T​T​P​ ​{​s​t​a​t​u​s​}​)​.
+			 * @param {unknown} status
+			 */
+			apiRejected: RequiredParams<'status'>
+			/**
+			 * O​c​u​r​r​i​ó​ ​u​n​ ​e​r​r​o​r​ ​i​n​e​s​p​e​r​a​d​o​ ​a​l​ ​i​n​i​c​i​a​r​ ​s​e​s​i​ó​n​.​ ​I​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​.
+			 */
+			unexpected: string
 		}
 		/**
 		 * ¿​N​o​ ​t​i​e​n​e​s​ ​c​u​e​n​t​a​?
@@ -497,6 +519,28 @@ type RootTranslation = {
 			 * N​o​ ​s​e​ ​p​u​d​o​ ​c​o​n​e​c​t​a​r​ ​c​o​n​ ​e​l​ ​s​e​r​v​i​d​o​r​.
 			 */
 			serverError: string
+			/**
+			 * L​a​ ​w​e​b​ ​n​o​ ​p​u​d​o​ ​e​s​t​a​b​l​e​c​e​r​ ​c​o​n​e​x​i​ó​n​ ​c​o​n​ ​e​l​ ​s​e​r​v​i​c​i​o​ ​d​e​ ​r​e​g​i​s​t​r​o​.​ ​I​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​ ​m​á​s​ ​t​a​r​d​e​.
+			 */
+			connectionFailed: string
+			/**
+			 * L​a​ ​A​P​I​ ​r​e​c​h​a​z​ó​ ​l​a​s​ ​c​r​e​d​e​n​c​i​a​l​e​s​ ​i​n​t​e​r​n​a​s​ ​d​e​ ​l​a​ ​w​e​b​.​ ​C​o​n​t​a​c​t​a​ ​a​l​ ​e​q​u​i​p​o​ ​d​e​ ​s​o​p​o​r​t​e​.
+			 */
+			appCredentials: string
+			/**
+			 * E​l​ ​s​e​r​v​i​c​i​o​ ​d​e​ ​r​e​g​i​s​t​r​o​ ​r​e​s​p​o​n​d​i​ó​ ​c​o​n​ ​u​n​ ​e​r​r​o​r​ ​(​H​T​T​P​ ​{​s​t​a​t​u​s​}​)​.​ ​I​n​t​é​n​t​a​l​o​ ​m​á​s​ ​t​a​r​d​e​.
+			 * @param {unknown} status
+			 */
+			apiUnavailable: RequiredParams<'status'>
+			/**
+			 * E​l​ ​s​e​r​v​i​c​i​o​ ​d​e​ ​r​e​g​i​s​t​r​o​ ​r​e​c​h​a​z​ó​ ​l​a​ ​s​o​l​i​c​i​t​u​d​ ​(​H​T​T​P​ ​{​s​t​a​t​u​s​}​)​.
+			 * @param {unknown} status
+			 */
+			apiRejected: RequiredParams<'status'>
+			/**
+			 * O​c​u​r​r​i​ó​ ​u​n​ ​e​r​r​o​r​ ​i​n​e​s​p​e​r​a​d​o​ ​a​l​ ​c​r​e​a​r​ ​l​a​ ​c​u​e​n​t​a​.​ ​I​n​t​é​n​t​a​l​o​ ​d​e​ ​n​u​e​v​o​.
+			 */
+			unexpected: string
 		}
 		/**
 		 * ¿​Y​a​ ​t​i​e​n​e​s​ ​c​u​e​n​t​a​?
@@ -2122,6 +2166,26 @@ export type TranslationFunctions = {
 			 * No se pudo conectar con el servidor
 			 */
 			serverError: () => LocalizedString
+			/**
+			 * La web no pudo establecer conexión con el servicio de inicio de sesión. Inténtalo de nuevo más tarde.
+			 */
+			connectionFailed: () => LocalizedString
+			/**
+			 * La API rechazó las credenciales internas de la web. Contacta al equipo de soporte.
+			 */
+			appCredentials: () => LocalizedString
+			/**
+			 * El servicio de inicio de sesión respondió con un error (HTTP {status}). Inténtalo más tarde.
+			 */
+			apiUnavailable: (arg: { status: unknown }) => LocalizedString
+			/**
+			 * El servicio de inicio de sesión rechazó la solicitud (HTTP {status}).
+			 */
+			apiRejected: (arg: { status: unknown }) => LocalizedString
+			/**
+			 * Ocurrió un error inesperado al iniciar sesión. Inténtalo de nuevo.
+			 */
+			unexpected: () => LocalizedString
 		}
 		/**
 		 * ¿No tienes cuenta?
@@ -2258,6 +2322,26 @@ export type TranslationFunctions = {
 			 * No se pudo conectar con el servidor.
 			 */
 			serverError: () => LocalizedString
+			/**
+			 * La web no pudo establecer conexión con el servicio de registro. Inténtalo de nuevo más tarde.
+			 */
+			connectionFailed: () => LocalizedString
+			/**
+			 * La API rechazó las credenciales internas de la web. Contacta al equipo de soporte.
+			 */
+			appCredentials: () => LocalizedString
+			/**
+			 * El servicio de registro respondió con un error (HTTP {status}). Inténtalo más tarde.
+			 */
+			apiUnavailable: (arg: { status: unknown }) => LocalizedString
+			/**
+			 * El servicio de registro rechazó la solicitud (HTTP {status}).
+			 */
+			apiRejected: (arg: { status: unknown }) => LocalizedString
+			/**
+			 * Ocurrió un error inesperado al crear la cuenta. Inténtalo de nuevo.
+			 */
+			unexpected: () => LocalizedString
 		}
 		/**
 		 * ¿Ya tienes cuenta?

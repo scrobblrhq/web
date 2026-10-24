@@ -14,7 +14,7 @@
 		"api:types": "openapi-typescript https://api.scrobblr.app/api.json -o src/lib/api/schema.d.ts"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-node": "^6.0.0-next.15",
+		"@sveltejs/adapter-node": "^6.0.0",
 		"@sveltejs/kit": "next",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/forms": "^0.5.11",
@@ -36,6 +36,7 @@
 	"dependencies": {
 		"@lucide/svelte": "^1.20.0",
 		"@scrobblr/types": "^0.1.0",
+		"@sveltejs/adapter-vercel": "^7.0.1",
 		"animejs": "^4.5.0",
 		"gsap": "^3.15.0",
 		"highlight.js": "^11.11.1",

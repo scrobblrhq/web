@@ -4,6 +4,7 @@
 
     import { fade, fly } from "svelte/transition";
     import { page } from "$app/state";
+    import { discordComponentEmbed, serializeJsonForHtml } from "#lib/seo";
 
     // #region Colocated components
     import ScrobbleRow from "./_components/ScrobbleRow.svelte";
@@ -34,6 +35,8 @@ import { getTopArtists, getTopTracks, getRecentBefore, setBlock, setFollow } fro
     let metaDescription = $derived(
         `${profile.display_name || profile.username}: ${profile.scrobble_count ?? 0} ${LL.profile.stat.scrobbles()} on Scrobblr.`.slice(0, 160),
     );
+    const canonicalUrl = $derived(`${page.url.origin}${page.url.pathname}`);
+    const discordJson = $derived(serializeJsonForHtml(discordComponentEmbed({ title: metaTitle, description: metaDescription, url: canonicalUrl, image: profile.image_url })));
 
     let activeTab = $state<"recent" | "stats">("recent");
     const isDesktop = useIsDesktop();
@@ -193,17 +196,23 @@ import { getTopArtists, getTopTracks, getRecentBefore, setBlock, setFollow } fro
     <title>{metaTitle}</title>
     <meta name="description" content={metaDescription} />
     <meta name="robots" content={profile.is_private ? "noindex, nofollow" : "index, follow"} />
-    <link rel="canonical" href={`${page.url.origin}${page.url.pathname}`} />
-    <meta property="og:title" content={metaTitle} />
-    <meta property="og:description" content={metaDescription} />
-    <meta property="og:url" content={`${page.url.origin}${page.url.pathname}`} />
-    <meta property="og:type" content="profile" />
-    {#if profile.image_url}
-        <meta property="og:image" content={profile.image_url} />
+    <link rel="canonical" href={canonicalUrl} />
+    {#if !profile.is_private}
+        <meta property="og:site_name" content="Scrobblr" />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="profile" />
+        {#if profile.image_url}
+            <meta property="og:image" content={profile.image_url} />
+            <meta property="og:image:alt" content={`${profile.display_name || profile.username} avatar`} />
+        {/if}
+        <meta name="twitter:card" content={profile.image_url ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        {#if profile.image_url}<meta name="twitter:image" content={profile.image_url} /><meta name="twitter:image:alt" content={`${profile.display_name || profile.username} avatar`} />{/if}
+        <script id="discord:component-embed" type="application/json">{@html discordJson}</script>
     {/if}
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content={metaTitle} />
-    <meta name="twitter:description" content={metaDescription} />
 </svelte:head>
 
 <ScrollToTop />

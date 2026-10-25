@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
     import { page } from "$app/state";
+    import { discordComponentEmbed, serializeJsonForHtml } from "#lib/seo";
     import { formatCount } from "#lib/utils/format";
     import { getLL } from "#lib/i18n.svelte";
     import Cover from "#lib/components/tracks/Cover.svelte";
@@ -15,18 +16,26 @@
     const metaDescription = $derived(
         `${album.title} by ${artist.name} on Scrobblr: ${formatCount(album.scrobble_count)} ${LL.track.stat.scrobbles().toLowerCase()}.`.slice(0, 160),
     );
+    const metaTitle = $derived(`${album.title} — Scrobblr`);
+    const canonicalUrl = $derived(`${page.url.origin}${page.url.pathname}`);
+    const discordJson = $derived(serializeJsonForHtml(discordComponentEmbed({ title: `${album.title} — ${artist.name}`, description: metaDescription, url: canonicalUrl, image: album.image_url })));
 </script>
 
 <svelte:head>
-    <title>{album.title} — Scrobblr</title>
+    <title>{metaTitle}</title>
     <meta name="description" content={metaDescription} />
     <link rel="canonical" href={`${page.url.origin}${page.url.pathname}`} />
+    <meta property="og:site_name" content="Scrobblr" />
     <meta property="og:title" content={`${album.title} - ${artist.name}`} />
     <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={`${page.url.origin}${page.url.pathname}`} />
     <meta property="og:type" content="music.album" />
-    {#if album.image_url}<meta property="og:image" content={album.image_url} />{/if}
-    <meta name="twitter:card" content="summary_large_image" />
+    {#if album.image_url}<meta property="og:image" content={album.image_url} /><meta property="og:image:alt" content={`${album.title} cover`} />{/if}
+    <meta name="twitter:card" content={album.image_url ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={`${album.title} - ${artist.name}`} />
+    <meta name="twitter:description" content={metaDescription} />
+    {#if album.image_url}<meta name="twitter:image" content={album.image_url} /><meta name="twitter:image:alt" content={`${album.title} cover`} />{/if}
+    <script id="discord:component-embed" type="application/json">{@html discordJson}</script>
 </svelte:head>
 
 <main class="media-detail-page mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">

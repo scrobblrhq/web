@@ -1,5 +1,7 @@
 {
 	"extends": "$app/tsconfig",
+	"include": ["src", "test"],
+	"exclude": [],
 	"compilerOptions": {
 		"rewriteRelativeImportExtensions": true,
 		"allowJs": true,
@@ -10,6 +12,8 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
 		"moduleResolution": "bundler",
 		"ignoreDeprecations": "6.0"
 	}

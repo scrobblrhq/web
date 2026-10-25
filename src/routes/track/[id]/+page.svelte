@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
     import { page } from "$app/state";
+    import { discordComponentEmbed, serializeJsonForHtml } from "#lib/seo";
     import { formatCount } from "#lib/utils/format";
     import { getLL } from "#lib/i18n.svelte";
 
@@ -21,6 +22,9 @@
     let metaDescription = $derived(
         `${track.title} by ${artist.name} on Scrobblr: ${formatCount(track.scrobble_count)} ${LL.track.stat.scrobbles().toLowerCase()}.`.slice(0, 160),
     );
+    const metaTitle = $derived(`${track.title} - ${artist.name}`);
+    const canonicalUrl = $derived(`${page.url.origin}${page.url.pathname}`);
+    const discordJson = $derived(serializeJsonForHtml(discordComponentEmbed({ title: metaTitle, description: metaDescription, url: canonicalUrl, image: cover })));
 
     // svelte-ignore state_referenced_locally
     let listeners = $state(data.listeners);
@@ -55,16 +59,20 @@
     <title>{track.title}{LL.track.meta.titleSuffix()}</title>
     <meta name="description" content={metaDescription} />
     <link rel="canonical" href={`${page.url.origin}${page.url.pathname}`} />
-    <meta property="og:title" content={`${track.title} - ${artist.name}`} />
+    <meta property="og:site_name" content="Scrobblr" />
+    <meta property="og:title" content={metaTitle} />
     <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={`${page.url.origin}${page.url.pathname}`} />
     <meta property="og:type" content="music.song" />
     {#if cover}
         <meta property="og:image" content={cover} />
+        <meta property="og:image:alt" content={`${track.title} cover`} />
     {/if}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={`${track.title} - ${artist.name}`} />
+    <meta name="twitter:card" content={cover ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={metaTitle} />
     <meta name="twitter:description" content={metaDescription} />
+    {#if cover}<meta name="twitter:image" content={cover} /><meta name="twitter:image:alt" content={`${track.title} cover`} />{/if}
+    <script id="discord:component-embed" type="application/json">{@html discordJson}</script>
 </svelte:head>
 
 <ScrollToTop />

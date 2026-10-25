@@ -35,24 +35,6 @@
     });
 </script>
 
-<svelte:head>
-    {#if page.url.pathname === "/"}
-        <title>{LL.home.meta.title()}</title>
-        <meta name="description" content={LL.home.hero.description()} />
-        <link rel="canonical" href={`${page.url.origin}${page.url.pathname}`} />
-        <meta property="og:title" content={LL.home.meta.title()} />
-        <meta property="og:description" content={LL.home.hero.description()} />
-        <meta
-            property="og:url"
-            content={`${page.url.origin}${page.url.pathname}`}
-        />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content={LL.home.meta.title()} />
-        <meta name="twitter:description" content={LL.home.hero.description()} />
-    {/if}
-</svelte:head>
-
 <div
     class="fixed top-0 left-0 right-0 z-100 h-0.5 overflow-hidden transition-opacity duration-300"
     style="opacity: {isLoading ? '1' : '0'}; pointer-events: none"

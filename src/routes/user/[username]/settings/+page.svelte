@@ -3,7 +3,7 @@
     import type { PageProps } from "./$types";
     import { enhance } from "$app/forms";
     import { page } from "$app/state";
-    import { afterNavigate, replaceState } from "$app/navigation";
+    import { afterNavigate, goto } from "$app/navigation";
     import { useTheme } from "svelte-themes";
     import type { ApiToken, S } from "#lib/api/types";
     import { getLL, getLocale } from "#lib/i18n.svelte";
@@ -17,7 +17,6 @@
     import SunIcon from "@lucide/svelte/icons/sun";
     import CameraIcon from "@lucide/svelte/icons/camera";
     import XIcon from "@lucide/svelte/icons/x";
-    import Music2Icon from "@lucide/svelte/icons/music-2";
     import SystemIcon from "@lucide/svelte/icons/laptop-minimal";
     // #endregion Icons
 
@@ -34,7 +33,7 @@
 
     // #region Stores
     import { addToast } from "#lib/stores/toast.svelte";
-    import { paletteState, setPalette } from "#lib/stores/palette.svelte";
+    import { paletteState, setPalette } from "#lib/stores/palette.svelte.ts";
     // #endregion Stores
 
     // #region Hooks
@@ -91,7 +90,6 @@
     let creatingScrobblerToken = $state(false);
     let deletingAccount = $state(false);
     let scrobblerCredentialName = $state("");
-    let deleteConfirmation = $state("");
     let creating = $state(false);
     let showForm = $state(false);
     let activeSection = $state("perfil");
@@ -226,7 +224,7 @@
                         const id = entry.target.getAttribute("data-section");
                         if (id) {
                             activeSection = id;
-                            replaceState(`#${id}`, {});
+                            goto(`#${id}`, { shallow: true, replace: true, state: {} });
                         }
                     }
                 }
@@ -315,7 +313,7 @@
             LL.settings.connection.result[key]({ provider }),
             key === "ok" ? "success" : "error",
         );
-        replaceState(page.url.pathname + "#connections", {});
+        goto(page.url.pathname + "#connections", { shallow: true, replace: true, state: {} });
     });
 </script>
 

@@ -1,10 +1,20 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
+    import { page } from "$app/state";
+    import { discordComponentEmbed, serializeJsonForHtml } from "#lib/seo";
     const { data }: PageProps = $props();
     const { user, featuredTrack } = $derived(data);
     import { getLL } from "#lib/i18n.svelte";
 
     let LL = $derived(getLL());
+    const homeTitle = $derived(LL.home.meta.title());
+    const homeDescription = $derived(LL.home.hero.description());
+    const homeUrl = $derived(`${page.url.origin}/`);
+    const homeDiscordEmbed = $derived(serializeJsonForHtml(discordComponentEmbed({
+        title: homeTitle,
+        description: homeDescription,
+        url: homeUrl,
+    })));
     import MusicNoteIcon from "@lucide/svelte/icons/music-2";
     import GlobeIcon from "@lucide/svelte/icons/globe";
     import ArrowUpRightIcon from "@lucide/svelte/icons/arrow-up-right";
@@ -43,7 +53,18 @@
 </script>
 
 <svelte:head>
-    <title>{LL.home.meta.title()}</title>
+    <title>{homeTitle}</title>
+    <meta name="description" content={homeDescription} />
+    <link rel="canonical" href={homeUrl} />
+    <meta property="og:site_name" content="Scrobblr" />
+    <meta property="og:title" content={homeTitle} />
+    <meta property="og:description" content={homeDescription} />
+    <meta property="og:url" content={homeUrl} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={homeTitle} />
+    <meta name="twitter:description" content={homeDescription} />
+    <script id="discord:component-embed" type="application/json">{@html homeDiscordEmbed}</script>
 </svelte:head>
 
 <section class="relative isolate overflow-hidden">

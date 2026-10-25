@@ -1,5 +1,7 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
+    import { page } from "$app/state";
+    import { discordComponentEmbed, serializeJsonForHtml } from "#lib/seo";
     import type { S } from "#lib/api/types";
     import { featureCopy } from "#lib/i18n/features";
     import { formatCount, formatDate } from "#lib/utils/format";
@@ -10,6 +12,9 @@
     const pageNumber = $derived(Math.floor(data.offset / 50) + 1);
     const hasPrevious = $derived(data.offset > 0);
     const hasNext = $derived(data.ranking !== null && data.offset + data.ranking.entries.length < data.ranking.total);
+    const pageUrl = $derived(`${page.url.origin}/rankings?${new URLSearchParams({ type: data.kind, period: data.period, offset: String(data.offset) })}`);
+    const metaTitle = $derived(`${copy.title} — Scrobblr`);
+    const discordJson = $derived(serializeJsonForHtml(discordComponentEmbed({ title: metaTitle, description: copy.description, url: pageUrl })));
 
     function href(overrides: { type?: string; period?: string; offset?: number } = {}) {
         const type = overrides.type ?? data.kind;
@@ -21,8 +26,18 @@
 </script>
 
 <svelte:head>
-    <title>{copy.title} — Scrobblr</title>
+    <title>{metaTitle}</title>
     <meta name="description" content={copy.description} />
+    <link rel="canonical" href={pageUrl} />
+    <meta property="og:site_name" content="Scrobblr" />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={copy.description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={metaTitle} />
+    <meta name="twitter:description" content={copy.description} />
+    <script id="discord:component-embed" type="application/json">{@html discordJson}</script>
 </svelte:head>
 
 <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">

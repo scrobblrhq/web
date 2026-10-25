@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
     import { page } from "$app/state";
+    import { discordComponentEmbed, serializeJsonForHtml } from "#lib/seo";
     import { formatCount, joinedYear } from "#lib/utils/format";
     import { getLL } from "#lib/i18n.svelte";
 
@@ -25,6 +26,9 @@
         (artist.bio?.replace(/\s+/g, " ").trim() ||
             `${artist.name}: ${formatCount(artist.scrobble_count)} ${LL.artist.stat.scrobbles().toLowerCase()}, ${formatCount(artist.listener_count)} ${LL.artist.stat.listeners().toLowerCase()}.`).slice(0, 160),
     );
+    const metaTitle = $derived(`${artist.name}${LL.artist.meta.titleSuffix()}`);
+    const canonicalUrl = $derived(`${page.url.origin}${page.url.pathname}`);
+    const discordJson = $derived(serializeJsonForHtml(discordComponentEmbed({ title: metaTitle, description: metaDescription, url: canonicalUrl, image: artist.image_url })));
 
     // svelte-ignore state_referenced_locally
     let comments = $state(data.comments);
@@ -53,19 +57,23 @@
 </script>
 
 <svelte:head>
-    <title>{artist.name}{LL.artist.meta.titleSuffix()}</title>
+    <title>{metaTitle}</title>
     <meta name="description" content={metaDescription} />
     <link rel="canonical" href={`${page.url.origin}${page.url.pathname}`} />
-    <meta property="og:title" content={`${artist.name}${LL.artist.meta.titleSuffix()}`} />
+    <meta property="og:site_name" content="Scrobblr" />
+    <meta property="og:title" content={metaTitle} />
     <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={`${page.url.origin}${page.url.pathname}`} />
     <meta property="og:type" content="profile" />
     {#if artist.image_url}
         <meta property="og:image" content={artist.image_url} />
+        <meta property="og:image:alt" content={artist.name} />
     {/if}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={`${artist.name}${LL.artist.meta.titleSuffix()}`} />
+    <meta name="twitter:card" content={artist.image_url ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={metaTitle} />
     <meta name="twitter:description" content={metaDescription} />
+    {#if artist.image_url}<meta name="twitter:image" content={artist.image_url} /><meta name="twitter:image:alt" content={artist.name} />{/if}
+    <script id="discord:component-embed" type="application/json">{@html discordJson}</script>
 </svelte:head>
 
 <ScrollToTop />

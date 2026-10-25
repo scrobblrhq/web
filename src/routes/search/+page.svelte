@@ -96,8 +96,9 @@
         if (query.trim()) url.searchParams.set("q", query.trim());
         else url.searchParams.delete("q");
         goto(url.toString(), {
-            replaceState: true,
-            reset: false,
+            replace: true,
+            shallow: true,
+            state: page,
         });
     }
 

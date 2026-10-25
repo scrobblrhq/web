@@ -9,7 +9,7 @@
     import XIcon from "@lucide/svelte/icons/x";
     import LogOutIcon from "@lucide/svelte/icons/log-out";
     import { slide } from "svelte/transition";
-    import { replaceState } from "$app/navigation";
+    import { goto } from "$app/navigation";
     import { page } from "$app/state";
 
     interface Props {
@@ -37,7 +37,7 @@
         const el = document.getElementById(id);
         if (el) {
             el.scrollIntoView({ behavior: "smooth", block: "start" });
-            replaceState(`#${id}`, page);
+            goto(`#${id}`, { shallow: true, replace: true, state: page });
         }
     }
 
